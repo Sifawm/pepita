@@ -5,9 +5,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Select } from '@/components/ui/select'
-import { conId, db } from '@/db'
-import { AJUSTES_POR_DEFECTO, nuevoHabito, type Habito } from '@/dominio'
+import { conId, db, useAjustes } from '@/db'
+import { nuevoHabito, type Frecuencia, type Habito } from '@/dominio'
 import { nombreIdentidad } from '@/lib/utils'
 
 export default function NuevoHabito() {
@@ -20,14 +21,16 @@ export default function NuevoHabito() {
   const identidades = useLiveQuery(() => db.identidades.orderBy('orden').filter((i) => !i.archivada).toArray())
   const general = identidades?.find((i) => i.esGeneral)
   const identidadId = identidades?.some((i) => i.id === elegida) ? elegida : general?.id
+  const [frecuencia, setFrecuencia] = useState<Frecuencia>({ tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' })
+  const ajustes = useAjustes()
 
   const crear = async (e: FormEvent) => {
     e.preventDefault()
     const limpio = nombre.trim()
-    if (!limpio || !identidadId) return
+    if (!limpio || !identidadId || !ajustes) return
     const orden = await db.habitos.count()
     await db.habitos.add(
-      conId<Habito>(nuevoHabito({ nombre: limpio, identidadId, orden }, new Date(), AJUSTES_POR_DEFECTO)),
+      conId<Habito>(nuevoHabito({ nombre: limpio, identidadId, orden, frecuencia }, new Date(), ajustes)),
     )
     navigate('/')
   }
@@ -63,6 +66,7 @@ export default function NuevoHabito() {
           </Select>
         </div>
       )}
+      <SelectorFrecuencia valor={frecuencia} cambiar={setFrecuencia} />
       <div className="flex flex-col gap-3">
         <Button type="submit">{t('nuevo.crear')}</Button>
         <Link to="/" className={buttonVariants({ variant: 'ghost' })}>

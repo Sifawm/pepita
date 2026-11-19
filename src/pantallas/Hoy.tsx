@@ -6,12 +6,9 @@ import { Link, useSearchParams } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { conId, db } from '@/db'
-import { AJUSTES_POR_DEFECTO, componerHoy, diaLogico, toque, type Registro, type TarjetaHoy } from '@/dominio'
+import { conId, db, useAjustes } from '@/db'
+import { componerHoy, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
 import { cn, nombreIdentidad } from '@/lib/utils'
-
-// ponytail: ajustes fijos hasta que exista la pantalla de Ajustes (ticket 04).
-const ajustes = AJUSTES_POR_DEFECTO
 
 /** El reloj de la pantalla: avanza cada minuto para que Hoy cambie de día sola. */
 function useAhora() {
@@ -26,19 +23,20 @@ function useAhora() {
 export default function Hoy() {
   const { t, i18n } = useTranslation()
   const ahora = useAhora()
-  const dia = diaLogico(ahora, ajustes.horaCierre)
+  const ajustes = useAjustes()
   // El filtro vive en la URL: sobrevive a ir a crear un hábito y volver.
   const [params, setParams] = useSearchParams()
+  // ponytail: carga todos los registros (el periodo en curso puede ser un mes); acotar por fecha si pesa.
   const datos = useLiveQuery(async () => {
     const [habitos, identidades, registros] = await Promise.all([
       db.habitos.toArray(),
       db.identidades.toArray(),
-      db.registros.where('dia').equals(dia).toArray(),
+      db.registros.toArray(),
     ])
     return { habitos, identidades, registros }
-  }, [dia])
+  })
 
-  if (!datos) return null
+  if (!datos || !ajustes) return null
   const activas = datos.identidades.filter((i) => !i.archivada).sort((a, b) => a.orden - b.orden)
   const filtro = activas.find((i) => i.id === params.get('identidad'))
   const hoy = componerHoy({ ...datos, ahora, ajustes, identidadId: filtro?.id })
@@ -83,7 +81,7 @@ export default function Hoy() {
         <ul aria-label={t('hoy.lista')} className="space-y-3">
           {hoy.habitos.map((tarjeta) => (
             <li key={tarjeta.habito.id}>
-              <Tarjeta tarjeta={tarjeta} registros={datos.registros} />
+              <Tarjeta tarjeta={tarjeta} registros={datos.registros} ajustes={ajustes} />
             </li>
           ))}
         </ul>
@@ -103,9 +101,15 @@ export default function Hoy() {
   )
 }
 
-function Tarjeta({ tarjeta, registros }: { tarjeta: TarjetaHoy; registros: Registro[] }) {
+function Tarjeta({ tarjeta, registros, ajustes }: { tarjeta: TarjetaHoy; registros: Registro[]; ajustes: Ajustes }) {
   const { t } = useTranslation()
-  const { habito, identidad, hecho } = tarjeta
+  const { habito, identidad, hecho, periodo } = tarjeta
+  const f = habito.frecuencia
+  // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
+  const contador =
+    f.tipo === 'veces_por_periodo' && (f.periodo !== 'dia' || f.veces > 1)
+      ? t(`frecuencia.lleva_${f.periodo}`, { hechos: periodo.hechos, pide: periodo.pide })
+      : null
 
   const alTocar = async () => {
     // El instante del toque, no el de la última vez que se pintó la pantalla.
@@ -138,6 +142,7 @@ function Tarjeta({ tarjeta, registros }: { tarjeta: TarjetaHoy; registros: Regis
         <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
         <span className="block text-sm text-muted-foreground">
           {nombreIdentidad(identidad, t)}
+          {contador && ` · ${contador}`}
           {' · '}
           {t(hecho ? 'hoy.hecho' : 'hoy.pendiente')}
         </span>
