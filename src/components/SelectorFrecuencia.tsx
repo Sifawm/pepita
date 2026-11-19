@@ -18,7 +18,8 @@ export function SelectorFrecuencia({ valor, cambiar }: { valor: Frecuencia; camb
 
   return (
     <fieldset className="space-y-3">
-      <legend className="mb-2 text-sm font-semibold">{t('frecuencia.titulo')}</legend>
+      {/* El asistente ya lo pregunta en el título del paso. */}
+      <legend className="sr-only">{t('frecuencia.titulo')}</legend>
 
       <label className={opcion}>
         <input

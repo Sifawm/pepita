@@ -13,14 +13,24 @@
     "vacio": "Aún no tienes hábitos. Empieza por uno pequeño: con eso basta.",
     "nuevo": "Nuevo hábito",
     "lista": "Hábitos de hoy",
-    "pendiente": "Toca cuando lo hagas",
-    "hecho": "Hecho · +1 voto"
+    "pendiente": "Toca: mínima · Mantén pulsado: completa",
+    "hechoMinima": "Mínima hecha · +1 voto",
+    "hechoCompleta": "Completa hecha · +1 voto",
+    "minima": "Mínima: {{texto}}",
+    "celebracion": "+1 voto · {{identidad}}",
+    "opciones": "Más opciones para «{{nombre}}»",
+    "registrarMinima": "Hecho: versión mínima",
+    "registrarCompleta": "Hecho: versión completa",
+    "anadirNota": "Añadir nota",
+    "editarNota": "Editar nota",
+    "deshacer": "Deshacer el último registro",
+    "nota": "Nota (opcional)",
+    "notaEjemplo": "¿Algo que quieras recordar de hoy?",
+    "guardarNota": "Guardar nota"
   },
   "nuevo": {
     "titulo": "Nuevo hábito",
-    "nombre": "¿Qué quieres hacer?",
     "ejemplo": "Por ejemplo: leer una página",
-    "ayuda": "Mejor algo pequeño y fácil de empezar.",
     "crear": "Crear hábito",
     "cancelar": "Cancelar"
   },
@@ -110,10 +120,49 @@
     "persistenteNo": "Tu navegador podría borrar tus datos si se queda sin espacio. Las copias te protegen.",
     "persistenteNoDisponible": "Este navegador no permite pedir almacenamiento persistente. Las copias te protegen."
   },
+  "asistente": {
+    "editar": "Editar hábito",
+    "paso": "Paso {{n}} de {{total}}",
+    "siguiente": "Siguiente",
+    "atras": "Atrás",
+    "ahoraNo": "Ahora no",
+    "guardar": "Guardar cambios",
+    "pepita": "Pepita dice:",
+    "nombre": {
+      "titulo": "¿Qué quieres hacer?",
+      "ayuda": "Mejor algo pequeño y fácil de empezar. Es lo único imprescindible; lo demás puede esperar."
+    },
+    "identidad": {
+      "titulo": "¿Por quién votas con este hábito?",
+      "ayuda": "Cada vez que lo hagas, sumarás un voto a la persona que quieres ser."
+    },
+    "frecuencia": {
+      "titulo": "¿Cada cuánto?",
+      "ayuda": "No hace falta que sea a diario. Elige un ritmo que puedas sostener."
+    },
+    "versiones": {
+      "titulo": "Tu versión mínima y tu versión completa",
+      "ayuda": "La mínima cabe en 2 minutos y cuenta igual que la completa. En los días malos, con aparecer basta.",
+      "versionMinima": "Versión mínima (2 minutos)",
+      "versionMinimaEjemplo": "Por ejemplo: abrir el libro",
+      "versionCompleta": "Versión completa",
+      "versionCompletaEjemplo": "Por ejemplo: leer 30 minutos"
+    }
+  },
   "habito": {
+    "mas": "Más opciones",
+    "archivar": "Archivar hábito",
+    "recuperar": "Recuperar hábito",
+    "archivarAyuda": "Archivar lo retira de Hoy y guarda su historial y sus votos. Puedes recuperarlo cuando quieras.",
+    "borrar": "Borrar hábito",
+    "borrarTitulo": "¿Borrar «{{nombre}}» para siempre?",
+    "borrarTexto_one": "También se borrará su registro, con su voto. No se puede deshacer. Si solo quieres dejarlo, archívalo.",
+    "borrarTexto_other": "También se borrarán sus {{count}} registros, con sus votos. No se puede deshacer. Si solo quieres dejarlo, archívalo.",
+    "borrarConfirmar": "Sí, borrar para siempre",
+    "cancelar": "Cancelar",
+    "noExiste": "No encontramos este hábito.",
     "abrir": "Calendario de «{{nombre}}»",
     "volver": "Volver a Hoy",
-    "noExiste": "No encontramos este hábito.",
     "mesAnterior": "Mes anterior",
     "mesSiguiente": "Mes siguiente",
     "ayuda": "Toca cualquier día para apuntarlo, corregirlo o deshacerlo. Todo se recalcula solo.",
@@ -149,9 +198,12 @@
     "guardarFrecuencia": "Guardar frecuencia",
     "frecuenciaGuardada": "Listo, frecuencia guardada."
   },
+  "archivados": {
+    "titulo": "Hábitos archivados",
+    "intro": "Descansan aquí con su historial. Sus votos siguen contando.",
+    "vacio": "No tienes hábitos archivados."
+  },
   "pausas": {
-    "opciones": "Saltar o pausar",
-    "opcionesDe": "Saltar o pausar «{{nombre}}»",
     "motivo": "Motivo (si quieres)",
     "motivoEjemplo": "Por ejemplo: estoy con fiebre",
     "saltarAyuda": "Saltar no suma ni resta: es un descanso con permiso.",

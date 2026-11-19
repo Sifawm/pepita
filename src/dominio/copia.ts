@@ -89,6 +89,8 @@ const habito = objeto<Habito>({
   nombre: conPatron(/\S/),
   tipo: literal('si_no'),
   frecuencia,
+  versionMinima: opcional(texto),
+  versionCompleta: opcional(texto),
   fechaInicio: dia,
   archivado: booleano,
   orden: entero(0),

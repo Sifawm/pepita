@@ -13,14 +13,24 @@
     "vacio": "No habits yet. Start with a small one: that's enough.",
     "nuevo": "New habit",
     "lista": "Today's habits",
-    "pendiente": "Tap when you do it",
-    "hecho": "Done · +1 vote"
+    "pendiente": "Tap: minimum · Hold: full",
+    "hechoMinima": "Minimum done · +1 vote",
+    "hechoCompleta": "Full version done · +1 vote",
+    "minima": "Minimum: {{texto}}",
+    "celebracion": "+1 vote · {{identidad}}",
+    "opciones": "More options for “{{nombre}}”",
+    "registrarMinima": "Done: minimum version",
+    "registrarCompleta": "Done: full version",
+    "anadirNota": "Add a note",
+    "editarNota": "Edit note",
+    "deshacer": "Undo the last check-in",
+    "nota": "Note (optional)",
+    "notaEjemplo": "Anything you want to remember about today?",
+    "guardarNota": "Save note"
   },
   "nuevo": {
     "titulo": "New habit",
-    "nombre": "What do you want to do?",
     "ejemplo": "For example: read one page",
-    "ayuda": "Small and easy to start is best.",
     "crear": "Create habit",
     "cancelar": "Cancel"
   },
@@ -110,10 +120,49 @@
     "persistenteNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
     "persistenteNoDisponible": "This browser can't be asked for persistent storage. Backups keep you covered."
   },
+  "asistente": {
+    "editar": "Edit habit",
+    "paso": "Step {{n}} of {{total}}",
+    "siguiente": "Next",
+    "atras": "Back",
+    "ahoraNo": "Not now",
+    "guardar": "Save changes",
+    "pepita": "Pepita says:",
+    "nombre": {
+      "titulo": "What do you want to do?",
+      "ayuda": "Something small and easy to start works best. This is the only must; the rest can wait."
+    },
+    "identidad": {
+      "titulo": "Who are you voting for with this habit?",
+      "ayuda": "Every time you do it, you cast a vote for the person you want to be."
+    },
+    "frecuencia": {
+      "titulo": "How often?",
+      "ayuda": "It doesn’t have to be daily. Pick a pace you can keep."
+    },
+    "versiones": {
+      "titulo": "Your minimum and full versions",
+      "ayuda": "The minimum fits in 2 minutes and counts just like the full one. On hard days, showing up is enough.",
+      "versionMinima": "Minimum version (2 minutes)",
+      "versionMinimaEjemplo": "For example: open the book",
+      "versionCompleta": "Full version",
+      "versionCompletaEjemplo": "For example: read for 30 minutes"
+    }
+  },
   "habito": {
+    "mas": "More options",
+    "archivar": "Archive habit",
+    "recuperar": "Restore habit",
+    "archivarAyuda": "Archiving takes it off Today and keeps its history and votes. You can bring it back any time.",
+    "borrar": "Delete habit",
+    "borrarTitulo": "Delete “{{nombre}}” forever?",
+    "borrarTexto_one": "Its check-in and its vote will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
+    "borrarTexto_other": "Its {{count}} check-ins and their votes will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
+    "borrarConfirmar": "Yes, delete forever",
+    "cancelar": "Cancel",
+    "noExiste": "We couldn't find this habit.",
     "abrir": "Calendar for “{{nombre}}”",
     "volver": "Back to Today",
-    "noExiste": "We couldn't find this habit.",
     "mesAnterior": "Previous month",
     "mesSiguiente": "Next month",
     "ayuda": "Tap any day to log it, fix it or undo it. Everything updates on its own.",
@@ -149,9 +198,12 @@
     "guardarFrecuencia": "Save frequency",
     "frecuenciaGuardada": "Done, frequency saved."
   },
+  "archivados": {
+    "titulo": "Archived habits",
+    "intro": "They rest here with their history. Their votes still count.",
+    "vacio": "You have no archived habits."
+  },
   "pausas": {
-    "opciones": "Skip or pause",
-    "opcionesDe": "Skip or pause “{{nombre}}”",
     "motivo": "Reason (if you like)",
     "motivoEjemplo": "For example: I have a fever",
     "saltarAyuda": "Skipping adds nothing and takes nothing away: it's a rest with permission.",

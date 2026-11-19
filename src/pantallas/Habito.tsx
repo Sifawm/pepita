@@ -77,6 +77,9 @@ export default function Habito() {
       </header>
       <Calendario habito={datos.habito} registros={datos.registros} ajustes={ajustes} />
       <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />
+      <Link to={`/habito/${id}/editar`} className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
+        {t('asistente.editar')}
+      </Link>
       <Volver />
     </div>
   )

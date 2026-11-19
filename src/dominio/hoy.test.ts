@@ -4,6 +4,7 @@ import {
   AJUSTES_POR_DEFECTO,
   componerHoy,
   nuevoHabito,
+  anotar,
   pausarHabito,
   reanudarHabito,
   saltar,
@@ -96,6 +97,18 @@ describe('Hoy', () => {
     expect(hoy.votos).toBe(1)
     expect(hoy.habitos.find((t) => t.habito.id === 'leer')?.hecho).toBe(true)
     expect(hoy.habitos.find((t) => t.habito.id === 'meditar')?.hecho).toBe(false)
+  })
+
+  it('la versión mínima y la completa valen un voto cada una', () => {
+    const hoy = componerHoy({
+      habitos: [leer, meditar],
+      identidades: [general],
+      registros: [registro('leer', '2026-03-15'), { ...registro('meditar', '2026-03-15'), tipo: 'completa' }],
+      ahora: local(2026, 3, 15, 9),
+      ajustes,
+    })
+    expect(hoy.votos).toBe(2)
+    expect(hoy.habitos.map((t) => t.periodo.estado)).toEqual(['cumplido_minima', 'cumplido_completa'])
   })
 
   it('no muestra los hábitos archivados ni los que aún no han empezado', () => {
@@ -274,6 +287,13 @@ describe('toque', () => {
     })
   })
 
+  it('la pulsación larga registra la versión completa', () => {
+    expect(toque({ habito: leer, registros: [], ahora: local(2026, 3, 15, 9), ajustes, version: 'completa' })).toEqual({
+      tipo: 'registrar',
+      registro: { habitoId: 'leer', dia: '2026-03-15', tipo: 'completa' },
+    })
+  })
+
   it('con el hábito ya cumplido hoy, deshace el último registro del día', () => {
     const ayer = registro('leer', '2026-03-14')
     const hoy = registro('leer', '2026-03-15')
@@ -305,5 +325,17 @@ describe('toque', () => {
       tipo: 'deshacer',
       registroId: miercoles.id,
     })
+  })
+})
+
+describe('nota de un registro', () => {
+  const hecho = registro('leer', '2026-03-15')
+
+  it('se guarda sin espacios sobrantes', () => {
+    expect(anotar(hecho, '  con café \n')).toEqual({ ...hecho, nota: 'con café' })
+  })
+
+  it('vaciarla la quita', () => {
+    expect(anotar({ ...hecho, nota: 'con café' }, '  ')).toEqual(hecho)
   })
 })
