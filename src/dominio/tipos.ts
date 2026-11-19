@@ -42,6 +42,9 @@ export interface Habito extends Entidad {
   nombre: string
   tipo: TipoHabito
   frecuencia: Frecuencia
+  /** La versión de 2 minutos. Las dos versiones son opcionales («Ahora no») y valen 1 voto. */
+  versionMinima?: string
+  versionCompleta?: string
   fechaInicio: Dia
   archivado: boolean
   orden: number

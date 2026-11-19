@@ -72,6 +72,8 @@ const habito = objeto<Habito>({
     veces_por_periodo: objeto({ tipo: literal('veces_por_periodo'), veces: entero(1), periodo: literal('dia', 'semana', 'mes') }),
     dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
   }),
+  versionMinima: opcional(texto),
+  versionCompleta: opcional(texto),
   fechaInicio: dia,
   archivado: booleano,
   orden: entero(0),

@@ -73,15 +73,26 @@ export type AccionToque =
   | { tipo: 'registrar'; registro: Nuevo<Registro> }
   | { tipo: 'deshacer'; registroId: string }
 
-/** Un toque registra la versión mínima; sobre un hábito ya hecho hoy, deshace el último registro del día. */
+/**
+ * Un toque registra la versión mínima; la pulsación larga, la completa (`version`).
+ * Sobre un hábito ya hecho hoy, deshace el último registro del día.
+ */
 export function toque({
   habito,
   registros,
   ahora,
   ajustes,
-}: Contexto & { habito: Habito; registros: Registro[] }): AccionToque {
+  version = 'minima',
+}: Contexto & { habito: Habito; registros: Registro[]; version?: 'minima' | 'completa' }): AccionToque {
   const dia = diaLogico(ahora, ajustes.horaCierre)
   const propios = delDia(registros, habito.id, dia)
   if (hechoHoy(habito, propios)) return { tipo: 'deshacer', registroId: propios[propios.length - 1].id }
-  return { tipo: 'registrar', registro: { habitoId: habito.id, dia, tipo: 'minima' } }
+  return { tipo: 'registrar', registro: { habitoId: habito.id, dia, tipo: version } }
+}
+
+/** Pone (o quita, si queda vacía) la nota opcional de cualquier registro. */
+export function anotar(registro: Registro, texto: string): Registro {
+  const anotado: Registro = { ...registro, nota: texto.trim() }
+  if (!anotado.nota) delete anotado.nota
+  return anotado
 }
