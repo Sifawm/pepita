@@ -96,6 +96,40 @@ describe('Hoy', () => {
   })
 })
 
+describe('Hoy por identidad', () => {
+  const lectora: Identidad = { ...general, id: 'lectora', nombre: 'Soy una persona que lee', esGeneral: false, orden: 1 }
+  const novelas = { ...habito('novelas', 'Novelas', 2), identidadId: 'lectora' }
+  const datos = {
+    habitos: [leer, meditar, novelas],
+    identidades: [general, lectora],
+    registros: [registro('leer', '2026-03-15'), registro('novelas', '2026-03-15')],
+    ahora: local(2026, 3, 15, 9),
+    ajustes,
+  }
+
+  it('filtrar por una identidad muestra solo sus hábitos y sus votos del día', () => {
+    const hoy = componerHoy({ ...datos, identidadId: 'lectora' })
+    expect(hoy.habitos.map((t) => t.habito.id)).toEqual(['novelas'])
+    expect(hoy.votos).toBe(1)
+  })
+
+  it('«General» se filtra como una identidad más', () => {
+    const hoy = componerHoy({ ...datos, identidadId: 'general' })
+    expect(hoy.habitos.map((t) => t.habito.id)).toEqual(['leer', 'meditar'])
+    expect(hoy.votos).toBe(1)
+  })
+
+  it('sin filtro muestra todas', () => {
+    expect(componerHoy(datos).habitos.map((t) => t.habito.id)).toEqual(['leer', 'meditar', 'novelas'])
+    expect(componerHoy(datos).votos).toBe(2)
+  })
+
+  it('los hábitos de una identidad archivada se guardan pero no aparecen en Hoy', () => {
+    const hoy = componerHoy({ ...datos, identidades: [general, { ...lectora, archivada: true }] })
+    expect(hoy.habitos.map((t) => t.habito.id)).toEqual(['leer', 'meditar'])
+  })
+})
+
 describe('toque', () => {
   it('sin registro hoy, registra la versión mínima en el día lógico', () => {
     expect(toque({ habito: leer, registros: [], ahora: local(2026, 3, 16, 1), ajustes })).toEqual({

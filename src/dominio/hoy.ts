@@ -35,14 +35,22 @@ export function componerHoy({
   registros,
   ahora,
   ajustes,
-}: Contexto & { habitos: Habito[]; identidades: Identidad[]; registros: Registro[] }): Hoy {
+  identidadId,
+}: Contexto & {
+  habitos: Habito[]
+  identidades: Identidad[]
+  registros: Registro[]
+  /** Filtro: solo los hábitos de esta identidad (y sus votos). */
+  identidadId?: string
+}): Hoy {
   const dia = diaLogico(ahora, ajustes.horaCierre)
   const tarjetas = habitos
-    .filter((h) => !h.archivado && h.fechaInicio <= dia)
+    .filter((h) => !h.archivado && h.fechaInicio <= dia && (!identidadId || h.identidadId === identidadId))
     .sort((a, b) => a.orden - b.orden)
     .flatMap((habito) => {
       const identidad = identidades.find((i) => i.id === habito.identidadId)
-      if (!identidad) return []
+      // Archivar una identidad retira sus hábitos de Hoy sin tocarlos.
+      if (!identidad || identidad.archivada) return []
       const propios = delDia(registros, habito.id, dia)
       return [{ habito, identidad, registros: propios, hecho: cumplido(habito, propios) }]
     })

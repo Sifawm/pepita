@@ -1,27 +1,33 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { conId, db } from '@/db'
 import { AJUSTES_POR_DEFECTO, nuevoHabito, type Habito } from '@/dominio'
+import { nombreIdentidad } from '@/lib/utils'
 
 export default function NuevoHabito() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [nombre, setNombre] = useState('')
+  // Si se llega desde Hoy filtrado, la identidad del filtro viene elegida.
+  const [params] = useSearchParams()
+  const [elegida, setElegida] = useState(params.get('identidad') ?? '')
+  const identidades = useLiveQuery(() => db.identidades.orderBy('orden').filter((i) => !i.archivada).toArray())
+  const general = identidades?.find((i) => i.esGeneral)
+  const identidadId = identidades?.some((i) => i.id === elegida) ? elegida : general?.id
 
   const crear = async (e: FormEvent) => {
     e.preventDefault()
     const limpio = nombre.trim()
-    if (!limpio) return
-    // ponytail: todo va a «General» hasta que existan las identidades (ticket 02).
-    const general = await db.identidades.filter((i) => i.esGeneral).first()
-    if (!general) return
+    if (!limpio || !identidadId) return
     const orden = await db.habitos.count()
     await db.habitos.add(
-      conId<Habito>(nuevoHabito({ nombre: limpio, identidadId: general.id, orden }, new Date(), AJUSTES_POR_DEFECTO)),
+      conId<Habito>(nuevoHabito({ nombre: limpio, identidadId, orden }, new Date(), AJUSTES_POR_DEFECTO)),
     )
     navigate('/')
   }
@@ -45,6 +51,18 @@ export default function NuevoHabito() {
           {t('nuevo.ayuda')}
         </p>
       </div>
+      {identidades && identidades.length > 1 && (
+        <div className="space-y-2">
+          <Label htmlFor="identidad">{t('identidades.delHabito')}</Label>
+          <Select id="identidad" value={identidadId} onChange={(e) => setElegida(e.target.value)}>
+            {identidades.map((i) => (
+              <option key={i.id} value={i.id}>
+                {nombreIdentidad(i, t)}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
       <div className="flex flex-col gap-3">
         <Button type="submit">{t('nuevo.crear')}</Button>
         <Link to="/" className={buttonVariants({ variant: 'ghost' })}>

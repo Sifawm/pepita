@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Route, Routes } from 'react-router'
 import Hoy from '@/pantallas/Hoy'
+import Identidades from '@/pantallas/Identidades'
 import NuevoHabito from '@/pantallas/NuevoHabito'
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Hoy />} />
             <Route path="/nuevo" element={<NuevoHabito />} />
+            <Route path="/identidades" element={<Identidades />} />
           </Routes>
         </main>
       </div>

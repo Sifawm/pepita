@@ -1,12 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, Circle, Plus } from 'lucide-react'
+import { Check, Circle, Plus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { conId, db } from '@/db'
 import { AJUSTES_POR_DEFECTO, componerHoy, diaLogico, toque, type Registro, type TarjetaHoy } from '@/dominio'
-import { cn } from '@/lib/utils'
+import { cn, nombreIdentidad } from '@/lib/utils'
 
 // ponytail: ajustes fijos hasta que exista la pantalla de Ajustes (ticket 04).
 const ajustes = AJUSTES_POR_DEFECTO
@@ -25,6 +27,8 @@ export default function Hoy() {
   const { t, i18n } = useTranslation()
   const ahora = useAhora()
   const dia = diaLogico(ahora, ajustes.horaCierre)
+  // El filtro vive en la URL: sobrevive a ir a crear un hábito y volver.
+  const [params, setParams] = useSearchParams()
   const datos = useLiveQuery(async () => {
     const [habitos, identidades, registros] = await Promise.all([
       db.habitos.toArray(),
@@ -35,7 +39,9 @@ export default function Hoy() {
   }, [dia])
 
   if (!datos) return null
-  const hoy = componerHoy({ ...datos, ahora, ajustes })
+  const activas = datos.identidades.filter((i) => !i.archivada).sort((a, b) => a.orden - b.orden)
+  const filtro = activas.find((i) => i.id === params.get('identidad'))
+  const hoy = componerHoy({ ...datos, ahora, ajustes, identidadId: filtro?.id })
   const [a, m, d] = hoy.dia.split('-').map(Number)
   const fecha = new Date(a, m - 1, d).toLocaleDateString(i18n.language, {
     weekday: 'long',
@@ -53,8 +59,26 @@ export default function Hoy() {
         </p>
       </header>
 
+      {activas.length > 1 && (
+        <div className="space-y-2">
+          <Label htmlFor="filtro">{t('identidades.filtro')}</Label>
+          <Select
+            id="filtro"
+            value={filtro?.id ?? ''}
+            onChange={(e) => setParams(e.target.value ? { identidad: e.target.value } : {}, { replace: true })}
+          >
+            <option value="">{t('identidades.todas')}</option>
+            {activas.map((i) => (
+              <option key={i.id} value={i.id}>
+                {nombreIdentidad(i, t)}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
+
       {hoy.habitos.length === 0 ? (
-        <p className="text-muted-foreground">{t('hoy.vacio')}</p>
+        <p className="text-muted-foreground">{t(filtro ? 'identidades.filtroVacio' : 'hoy.vacio')}</p>
       ) : (
         <ul aria-label={t('hoy.lista')} className="space-y-3">
           {hoy.habitos.map((tarjeta) => (
@@ -65,10 +89,16 @@ export default function Hoy() {
         </ul>
       )}
 
-      <Link to="/nuevo" className={cn(buttonVariants(), 'w-full')}>
-        <Plus aria-hidden />
-        {t('hoy.nuevo')}
-      </Link>
+      <div className="flex flex-col gap-3">
+        <Link to={filtro ? `/nuevo?identidad=${filtro.id}` : '/nuevo'} className={cn(buttonVariants(), 'w-full')}>
+          <Plus aria-hidden />
+          {t('hoy.nuevo')}
+        </Link>
+        <Link to="/identidades" className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
+          <Users aria-hidden />
+          {t('identidades.titulo')}
+        </Link>
+      </div>
     </div>
   )
 }
@@ -107,7 +137,7 @@ function Tarjeta({ tarjeta, registros }: { tarjeta: TarjetaHoy; registros: Regis
       <span className="min-w-0 flex-1">
         <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
         <span className="block text-sm text-muted-foreground">
-          {identidad.esGeneral ? t('identidad.general') : identidad.nombre}
+          {nombreIdentidad(identidad, t)}
           {' · '}
           {t(hecho ? 'hoy.hecho' : 'hoy.pendiente')}
         </span>
