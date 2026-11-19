@@ -3,6 +3,7 @@ import { Check, Circle, Plus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
+import AvisoCopia from '@/components/AvisoCopia'
 import { buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -58,6 +59,8 @@ export default function Hoy() {
           {t('hoy.votos', { count: hoy.votos })}
         </p>
       </header>
+
+      <AvisoCopia ahora={ahora} />
 
       {activas.length > 1 && (
         <div className="space-y-2">

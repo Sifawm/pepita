@@ -53,5 +53,42 @@
     "filtro": "Show habits for",
     "todas": "All identities",
     "filtroVacio": "No habits for this identity today. You can add one if you like."
+  },
+  "ajustes": {
+    "titulo": "Settings",
+    "volver": "Back to Today"
+  },
+  "copias": {
+    "titulo": "Backups of your data",
+    "intro": "Everything lives only on this device. A backup now and then keeps it safe.",
+    "ultima": "Last backup: {{fecha}}.",
+    "ninguna": "You haven't made a backup yet.",
+    "exportarJson": "Save a backup (JSON)",
+    "exportarCsv": "Export records (CSV)",
+    "importar": "Restore a backup",
+    "importarAyuda": "Choose a Pepita JSON file. We'll ask before changing anything.",
+    "exportada": "Backup saved. Your data is safe.",
+    "importada": "Done: your data has been restored.",
+    "confirmarTitulo": "Replace your data with this backup?",
+    "confirmarTexto": "The backup has {{habitos}} and {{registros}}. It will replace everything currently on this device.",
+    "habitos_one": "{{count}} habit",
+    "habitos_other": "{{count}} habits",
+    "registros_one": "{{count}} record",
+    "registros_other": "{{count}} records",
+    "confirmar": "Yes, restore the backup",
+    "cancelar": "Cancel",
+    "intactos": "Your data is just as it was.",
+    "error": {
+      "no_es_json": "This file doesn't look like a Pepita backup.",
+      "no_es_pepita": "This file doesn't look like a Pepita backup.",
+      "version_nueva": "This backup comes from a newer version of Pepita. Update the app and try again.",
+      "invalido": "This backup is damaged and can't be used (problem at “{{ruta}}”)."
+    },
+    "aviso": "It's been over a week since your last backup. Shall we save one? It only takes a moment.",
+    "avisoAccion": "Save a backup",
+    "almacenamiento": "Storage",
+    "persistenteSi": "Your browser will keep your data even if it runs low on space.",
+    "persistenteNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
+    "persistenteNoDisponible": "This browser can't be asked for persistent storage. Backups keep you covered."
   }
 }

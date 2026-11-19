@@ -7,6 +7,8 @@ export type Instante = string
 
 export interface Ajustes {
   horaCierre: Hora
+  /** Instante de la última copia JSON exportada (o la de la copia importada). */
+  ultimaCopia?: Instante
 }
 
 export const AJUSTES_POR_DEFECTO: Ajustes = { horaCierre: '04:00' }
@@ -51,3 +53,14 @@ export interface Registro extends Entidad {
 
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */
 export type Nuevo<T extends Entidad> = Omit<T, keyof Entidad>
+
+/**
+ * Todos los datos de la persona: lo que exporta e importa una copia.
+ * Cada clave (salvo `ajustes`) es también una tabla Dexie con el mismo nombre.
+ */
+export interface Datos {
+  ajustes: Ajustes
+  identidades: Identidad[]
+  habitos: Habito[]
+  registros: Registro[]
+}

@@ -53,5 +53,42 @@
     "filtro": "Ver hábitos de",
     "todas": "Todas las identidades",
     "filtroVacio": "Hoy no hay hábitos de esta identidad. Puedes añadir uno si te apetece."
+  },
+  "ajustes": {
+    "titulo": "Ajustes",
+    "volver": "Volver a Hoy"
+  },
+  "copias": {
+    "titulo": "Copias de tus datos",
+    "intro": "Todo vive solo en este dispositivo. Una copia de vez en cuando lo mantiene a salvo.",
+    "ultima": "Última copia: {{fecha}}.",
+    "ninguna": "Aún no has hecho ninguna copia.",
+    "exportarJson": "Guardar una copia (JSON)",
+    "exportarCsv": "Exportar registros (CSV)",
+    "importar": "Restaurar una copia",
+    "importarAyuda": "Elige un fichero JSON de Pepita. Te preguntaremos antes de cambiar nada.",
+    "exportada": "Copia guardada. Tus datos están a salvo.",
+    "importada": "Listo: tus datos se han restaurado.",
+    "confirmarTitulo": "¿Cambiar tus datos por esta copia?",
+    "confirmarTexto": "La copia tiene {{habitos}} y {{registros}}. Sustituirá todo lo que hay ahora en este dispositivo.",
+    "habitos_one": "{{count}} hábito",
+    "habitos_other": "{{count}} hábitos",
+    "registros_one": "{{count}} registro",
+    "registros_other": "{{count}} registros",
+    "confirmar": "Sí, restaurar la copia",
+    "cancelar": "Cancelar",
+    "intactos": "Tus datos siguen como estaban.",
+    "error": {
+      "no_es_json": "Este fichero no parece una copia de Pepita.",
+      "no_es_pepita": "Este fichero no parece una copia de Pepita.",
+      "version_nueva": "Esta copia es de una versión más nueva de Pepita. Actualiza la app y prueba otra vez.",
+      "invalido": "Esta copia está dañada y no se puede usar (falla en «{{ruta}}»)."
+    },
+    "aviso": "Hace más de una semana desde tu última copia. ¿Guardamos una? Es solo un momento.",
+    "avisoAccion": "Guardar una copia",
+    "almacenamiento": "Almacenamiento",
+    "persistenteSi": "Tu navegador guardará tus datos aunque le falte espacio.",
+    "persistenteNo": "Tu navegador podría borrar tus datos si se queda sin espacio. Las copias te protegen.",
+    "persistenteNoDisponible": "Este navegador no permite pedir almacenamiento persistente. Las copias te protegen."
   }
 }

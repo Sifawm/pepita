@@ -1,0 +1,113 @@
+import { describe, expect, it } from 'vitest'
+import { AJUSTES_POR_DEFECTO, exportar, importar, necesitaCopia, registrosCsv, type Datos } from '.'
+
+const ahora = new Date('2026-05-10T18:30:00.000Z')
+
+const datos: Datos = {
+  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00' },
+  identidades: [
+    { id: 'g', creadoEn: '2026-05-01T08:00:00.000Z', nombre: '', esGeneral: true, archivada: false, orden: 0 },
+    { id: 'lectora', creadoEn: '2026-05-01T08:01:00.000Z', nombre: 'Soy lectora', esGeneral: false, archivada: true, orden: 1 },
+  ],
+  habitos: [
+    {
+      id: 'leer',
+      creadoEn: '2026-05-01T08:02:00.000Z',
+      identidadId: 'lectora',
+      nombre: 'Leer una página, «con calma»',
+      tipo: 'si_no',
+      frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      fechaInicio: '2026-05-01',
+      archivado: false,
+      orden: 0,
+    },
+  ],
+  registros: [
+    { id: 'r1', creadoEn: '2026-05-02T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-02', tipo: 'minima' },
+    { id: 'r2', creadoEn: '2026-05-03T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-03', tipo: 'completa', nota: 'un capítulo' },
+  ],
+}
+
+describe('exportar', () => {
+  it('firma la copia como de Pepita, con versión de esquema y fecha de exportación', () => {
+    const copia = JSON.parse(exportar(datos, ahora))
+    expect(copia).toMatchObject({ app: 'pepita', versionEsquema: 1, exportadoEn: '2026-05-10T18:30:00.000Z' })
+  })
+
+  it('exportar y reimportar devuelve los mismos datos, con la copia anotada como última', () => {
+    const resultado = importar(exportar(datos, ahora))
+    expect(resultado).toEqual({
+      ok: true,
+      datos: { ...datos, ajustes: { ...datos.ajustes, ultimaCopia: '2026-05-10T18:30:00.000Z' } },
+    })
+  })
+})
+
+describe('importar rechaza un fichero inválido sin devolver datos', () => {
+  const valida = () => JSON.parse(exportar(datos, ahora))
+  const con = (cambiar: (c: ReturnType<typeof valida>) => void) => {
+    const c = valida()
+    cambiar(c)
+    return JSON.stringify(c)
+  }
+
+  it.each([
+    ['un fichero que no es JSON', '{"app": "pepita",', { motivo: 'no_es_json' }],
+    ['JSON que no es un objeto', '[1, 2]', { motivo: 'no_es_pepita' }],
+    ['una copia de otra app', con((c) => (c.app = 'loop')), { motivo: 'no_es_pepita' }],
+    ['una copia de una versión más nueva', con((c) => (c.versionEsquema = 2)), { motivo: 'version_nueva' }],
+    ['una versión imposible', con((c) => (c.versionEsquema = 0)), { motivo: 'invalido', ruta: 'versionEsquema' }],
+    ['una tabla que falta', con((c) => delete c.datos.registros), { motivo: 'invalido', ruta: 'datos.registros' }],
+    ['un campo desconocido', con((c) => (c.datos.habitos[0].hackeo = true)), { motivo: 'invalido', ruta: 'datos.habitos[0].hackeo' }],
+    ['un campo con tipo equivocado', con((c) => (c.datos.habitos[0].orden = '1')), { motivo: 'invalido', ruta: 'datos.habitos[0].orden' }],
+    ['un tipo de registro desconocido', con((c) => (c.datos.registros[1].tipo = 'mucho')), { motivo: 'invalido', ruta: 'datos.registros[1].tipo' }],
+    ['un día imposible', con((c) => (c.datos.registros[0].dia = '2026-02-30')), { motivo: 'invalido', ruta: 'datos.registros[0].dia' }],
+    ['una hora de cierre mal escrita', con((c) => (c.datos.ajustes.horaCierre = '25:00')), { motivo: 'invalido', ruta: 'datos.ajustes.horaCierre' }],
+    ['un instante que no es ISO', con((c) => (c.exportadoEn = 'ayer')), { motivo: 'invalido', ruta: 'exportadoEn' }],
+    ['un null donde no cabe', con((c) => (c.datos.registros[0].nota = null)), { motivo: 'invalido', ruta: 'datos.registros[0].nota' }],
+    ['ids repetidos', con((c) => (c.datos.registros[1].id = 'r1')), { motivo: 'invalido', ruta: 'datos.registros[1].id' }],
+    ['un registro de un hábito que no existe', con((c) => (c.datos.registros[0].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.registros[0].habitoId' }],
+    ['un hábito de una identidad que no existe', con((c) => (c.datos.habitos[0].identidadId = 'nadie')), { motivo: 'invalido', ruta: 'datos.habitos[0].identidadId' }],
+    ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
+  ])('%s', (_caso, contenido, error) => {
+    expect(importar(contenido)).toEqual({ ok: false, error })
+  })
+})
+
+describe('necesitaCopia', () => {
+  const { registros } = datos // el primero se creó el 2 de mayo a las 20:00 UTC
+  const ajustes = AJUSTES_POR_DEFECTO
+
+  it('no avisa si aún no hay nada que perder', () => {
+    expect(necesitaCopia({ ajustes, registros: [], ahora: new Date('2026-09-01T12:00:00Z') })).toBe(false)
+  })
+
+  it('sin ninguna copia, avisa cuando el primer registro tiene más de 7 días', () => {
+    expect(necesitaCopia({ ajustes, registros, ahora: new Date('2026-05-09T19:59:00Z') })).toBe(false)
+    expect(necesitaCopia({ ajustes, registros, ahora: new Date('2026-05-09T20:01:00Z') })).toBe(true)
+  })
+
+  it('cuenta los 7 días desde la última copia', () => {
+    const conCopia = { ...ajustes, ultimaCopia: '2026-06-01T10:00:00.000Z' }
+    expect(necesitaCopia({ ajustes: conCopia, registros, ahora: new Date('2026-06-08T09:00:00Z') })).toBe(false)
+    expect(necesitaCopia({ ajustes: conCopia, registros, ahora: new Date('2026-06-08T11:00:00Z') })).toBe(true)
+  })
+})
+
+describe('registrosCsv', () => {
+  it('da una fila por registro, por día, con el nombre del hábito y comillas donde hacen falta', () => {
+    const registros = [
+      ...datos.registros,
+      { id: 'r0', creadoEn: '2026-05-01T21:00:00.000Z', habitoId: 'leer', dia: '2026-05-01', tipo: 'minima' as const, nota: 'dijo "basta"\nvale' },
+    ]
+    expect(registrosCsv({ habitos: datos.habitos, registros })).toBe(
+      [
+        'dia,habitoId,habito,tipo,nota,creadoEn',
+        '2026-05-01,leer,"Leer una página, «con calma»",minima,"dijo ""basta""\nvale",2026-05-01T21:00:00.000Z',
+        '2026-05-02,leer,"Leer una página, «con calma»",minima,,2026-05-02T20:00:00.000Z',
+        '2026-05-03,leer,"Leer una página, «con calma»",completa,un capítulo,2026-05-03T20:00:00.000Z',
+        '',
+      ].join('\r\n'),
+    )
+  })
+})
