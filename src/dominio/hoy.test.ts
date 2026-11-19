@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import {
+  activarPausaGlobal,
   AJUSTES_POR_DEFECTO,
   componerHoy,
   nuevoHabito,
   anotar,
+  pausarHabito,
+  reanudarHabito,
+  saltar,
+  terminarPausaGlobal,
   toque,
   type Habito,
   type Identidad,
@@ -171,6 +176,90 @@ describe('Hoy por identidad', () => {
   it('los hábitos de una identidad archivada se guardan pero no aparecen en Hoy', () => {
     const hoy = componerHoy({ ...datos, identidades: [general, { ...lectora, archivada: true }] })
     expect(hoy.habitos.map((t) => t.habito.id)).toEqual(['leer', 'meditar'])
+  })
+})
+
+describe('Hoy con saltos y pausas', () => {
+  const base = { identidades: [general], registros: [] as Registro[], ajustes }
+
+  it('saltar registra un salto en el día lógico, con el motivo si lo hay', () => {
+    expect(saltar({ habito: leer, motivo: '  Fiebre ', ahora: local(2026, 3, 16, 1), ajustes })).toEqual({
+      habitoId: 'leer',
+      dia: '2026-03-15',
+      tipo: 'salto',
+      motivo: 'Fiebre',
+    })
+    expect(saltar({ habito: leer, motivo: ' ', ahora: local(2026, 3, 15, 9), ajustes })).toEqual({
+      habitoId: 'leer',
+      dia: '2026-03-15',
+      tipo: 'salto',
+    })
+  })
+
+  it('un hábito saltado sigue en Hoy, con su salto para poder deshacerlo, y no suma votos', () => {
+    const salto: Registro = { ...registro('leer', '2026-03-15'), tipo: 'salto' }
+    const hoy = componerHoy({ ...base, habitos: [leer], registros: [salto], ahora: local(2026, 3, 15, 9) })
+    expect(hoy.votos).toBe(0)
+    expect(hoy.habitos[0]).toMatchObject({ hecho: false, registros: [], salto, periodo: { estado: 'saltado' } })
+    // Hacerlo igualmente registra, no deshace el salto.
+    expect(toque({ habito: leer, registros: [salto], ahora: local(2026, 3, 15, 9), ajustes }).tipo).toBe('registrar')
+  })
+
+  it('un hábito en pausa sigue en Hoy, marcado con su pausa', () => {
+    const pausa = { desde: '2026-03-14', hasta: '2026-03-20' }
+    const hoy = componerHoy({ ...base, habitos: [{ ...leer, pausas: [pausa] }, meditar], ahora: local(2026, 3, 15, 9) })
+    expect(hoy.pausaGlobal).toBeUndefined()
+    expect(hoy.habitos.map((t) => [t.habito.id, t.pausa])).toEqual([
+      ['leer', pausa],
+      ['meditar', undefined],
+    ])
+  })
+
+  it('la pausa global se ve en Hoy mientras dura y desaparece sola al acabar', () => {
+    const pausaGlobal = { desde: '2026-03-14', hasta: '2026-03-15' }
+    const durante = componerHoy({ ...base, habitos: [leer], ajustes: { ...ajustes, pausaGlobal }, ahora: local(2026, 3, 16, 3) })
+    expect(durante.pausaGlobal).toEqual(pausaGlobal)
+    expect(durante.habitos[0].pausa).toEqual(pausaGlobal)
+    const despues = componerHoy({ ...base, habitos: [leer], ajustes: { ...ajustes, pausaGlobal }, ahora: local(2026, 3, 16, 4) })
+    expect(despues.pausaGlobal).toBeUndefined()
+    expect(despues.habitos[0].pausa).toBeUndefined()
+  })
+
+  it('pausar un hábito añade la pausa; reanudar hoy la cierra ayer y deja las futuras', () => {
+    const pasada = { desde: '2026-03-01', hasta: '2026-03-02' }
+    const futura = { desde: '2026-04-01', hasta: '2026-04-05' }
+    const pausado = pausarHabito({ ...leer, pausas: [pasada, futura] }, { desde: '2026-03-12', hasta: '2026-03-20' })
+    expect(pausado.pausas).toEqual([pasada, futura, { desde: '2026-03-12', hasta: '2026-03-20' }])
+    expect(reanudarHabito(pausado, local(2026, 3, 15, 9), ajustes).pausas).toEqual([
+      pasada,
+      futura,
+      { desde: '2026-03-12', hasta: '2026-03-14' },
+    ])
+    // Si la pausa empezaba hoy, reanudar la quita entera.
+    const deHoy = pausarHabito(leer, { desde: '2026-03-15', hasta: '2026-03-20' })
+    expect(reanudarHabito(deHoy, local(2026, 3, 15, 9), ajustes).pausas).toEqual([])
+  })
+
+  it('activar la pausa global empieza hoy; la anterior se guarda en cada hábito para que sus días no fallen', () => {
+    const anterior = { desde: '2026-03-01', hasta: '2026-03-03' }
+    const { pausaGlobal, habitos } = activarPausaGlobal({
+      ajustes: { ...ajustes, pausaGlobal: anterior },
+      habitos: [leer, { ...meditar, pausas: [{ desde: '2026-02-01', hasta: '2026-02-02' }] }],
+      hasta: '2026-03-22',
+      ahora: local(2026, 3, 15, 9),
+    })
+    expect(pausaGlobal).toEqual({ desde: '2026-03-15', hasta: '2026-03-22' })
+    expect(habitos.map((h) => h.pausas)).toEqual([[anterior], [{ desde: '2026-02-01', hasta: '2026-02-02' }, anterior]])
+    expect(activarPausaGlobal({ ajustes, habitos: [leer], hasta: '2026-03-22', ahora: local(2026, 3, 15, 9) }).habitos).toEqual([])
+  })
+
+  it('terminar la pausa global hoy la cierra ayer (o la quita si empezaba hoy)', () => {
+    const pausaGlobal = { desde: '2026-03-10', hasta: '2026-03-22' }
+    expect(terminarPausaGlobal({ ajustes: { ...ajustes, pausaGlobal }, ahora: local(2026, 3, 15, 9) })).toEqual({
+      desde: '2026-03-10',
+      hasta: '2026-03-14',
+    })
+    expect(terminarPausaGlobal({ ajustes: { ...ajustes, pausaGlobal }, ahora: local(2026, 3, 10, 9) })).toBeUndefined()
   })
 })
 

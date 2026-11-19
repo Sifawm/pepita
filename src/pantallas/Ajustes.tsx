@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { PausaGlobal } from '@/components/Pausas'
 import SeccionCopias from '@/components/SeccionCopias'
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,6 +30,7 @@ export default function Ajustes() {
           {t('ajustes.hora_cierre_ayuda', { hora: ajustes.horaCierre })}
         </p>
       </div>
+      <PausaGlobal />
       <SeccionCopias />
       <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
         {t('ajustes.volver')}

@@ -27,13 +27,16 @@ const fechaDe = (dia: Dia) => {
   return new Date(a, m - 1, d)
 }
 
-// Forma, además de color (WCAG 1.4.1): relleno = completa, claro = mínima, discontinuo = sin hacer.
+// Forma, además de color (WCAG 1.4.1): relleno = completa, claro = mínima, discontinuo = sin hacer,
+// punteado = saltado, gris sin borde = en pausa.
 const ESTILO: Record<EstadoPeriodo, string> = {
   cumplido_completa: 'border-primary bg-primary text-primary-foreground',
   cumplido_minima: 'border-primary bg-accent',
   fallido: 'border-dashed border-input',
   en_curso: 'border-input',
   no_programado: 'border-transparent text-muted-foreground',
+  saltado: 'border-dotted border-input text-muted-foreground',
+  pausado: 'border-transparent bg-muted text-muted-foreground',
 }
 
 /** Detalle de un hábito: calendario para editar cualquier día pasado y cambio de frecuencia. */
@@ -139,14 +142,14 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
               )}
             >
               <span aria-hidden>{numero}</span>
-              {d.registros.length > 0 && <Check aria-hidden className="size-3" />}
+              {d.registros.some((r) => r.tipo !== 'salto') && <Check aria-hidden className="size-3" />}
             </button>
           )
         })}
       </div>
 
       <ul aria-label={t('habito.leyenda')} className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        {(['cumplido_completa', 'cumplido_minima', 'fallido', 'en_curso'] as const).map((e) => (
+        {(['cumplido_completa', 'cumplido_minima', 'fallido', 'en_curso', 'saltado', 'pausado'] as const).map((e) => (
           <li key={e} className="flex items-center gap-2">
             <span aria-hidden className={cn('size-5 rounded border-2', ESTILO[e])} />
             {t(`habito.estado.${e}`)}
@@ -177,10 +180,15 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
             const otro = r.tipo === 'minima' ? 'completa' : 'minima'
             return (
               <li key={r.id} className="flex flex-wrap items-center gap-2">
-                <span className="flex-1 font-semibold">{t(`habito.tipo.${r.tipo}`)}</span>
-                <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
-                  {t(`habito.pasarA.${otro}`)}
-                </Button>
+                <span className="flex-1 font-semibold">
+                  {t(`habito.tipo.${r.tipo}`)}
+                  {r.motivo && <span className="font-normal text-muted-foreground"> · {r.motivo}</span>}
+                </span>
+                {r.tipo !== 'salto' && (
+                  <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
+                    {t(`habito.pasarA.${otro}`)}
+                  </Button>
+                )}
                 <Button variant="ghost" onClick={() => db.registros.delete(r.id)}>
                   {t('habito.deshacer')}
                 </Button>

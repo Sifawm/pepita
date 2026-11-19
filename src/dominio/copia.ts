@@ -1,6 +1,6 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
-import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Registro, VersionRegla } from './tipos'
+import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -53,7 +53,13 @@ const instante: Validador<string> = (v, r) => {
 }
 const entidad = { id, creadoEn: instante }
 
-const ajustes = objeto<Ajustes>({ horaCierre: hora, ultimaCopia: opcional(instante) })
+const pausa: Validador<Pausa> = (v, r) => {
+  const p = objeto<Pausa>({ desde: dia, hasta: dia })(v, r)
+  if (p.hasta < p.desde) throw new Invalido(r)
+  return p
+}
+
+const ajustes = objeto<Ajustes>({ horaCierre: hora, ultimaCopia: opcional(instante), pausaGlobal: opcional(pausa) })
 
 const identidad = objeto<Identidad>({
   ...entidad,
@@ -88,16 +94,22 @@ const habito = objeto<Habito>({
   fechaInicio: dia,
   archivado: booleano,
   orden: entero(0),
+  pausas: opcional(lista(pausa)),
   versiones: opcional(versiones),
 })
 
-const registro = objeto<Registro>({
-  ...entidad,
-  habitoId: id,
-  dia,
-  tipo: literal('minima', 'completa'),
-  nota: opcional(texto),
-})
+const registro: Validador<Registro> = (v, r) => {
+  const reg = objeto<Registro>({
+    ...entidad,
+    habitoId: id,
+    dia,
+    tipo: literal('minima', 'completa', 'salto'),
+    nota: opcional(texto),
+    motivo: opcional(texto),
+  })(v, r)
+  if (reg.motivo !== undefined && reg.tipo !== 'salto') throw new Invalido(`${r}.motivo`)
+  return reg
+}
 
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
@@ -172,8 +184,8 @@ export function registrosCsv({ habitos, registros }: Pick<Datos, 'habitos' | 're
   const campo = (v = '') => (/[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)
   const filas = [...registros]
     .sort((a, b) => a.dia.localeCompare(b.dia) || a.creadoEn.localeCompare(b.creadoEn))
-    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.nota, r.creadoEn])
-  return [['dia', 'habitoId', 'habito', 'tipo', 'nota', 'creadoEn'], ...filas]
+    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.nota, r.motivo, r.creadoEn])
+  return [['dia', 'habitoId', 'habito', 'tipo', 'nota', 'motivo', 'creadoEn'], ...filas]
     .map((fila) => fila.map(campo).join(',') + '\r\n')
     .join('')
 }

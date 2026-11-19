@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Archive, Plus, Users } from 'lucide-react'
+import { Archive, Palmtree, Plus, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { db, useAjustes } from '@/db'
 import { componerHoy } from '@/dominio'
-import { cn, nombreIdentidad } from '@/lib/utils'
+import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
 
 /** El reloj de la pantalla: avanza cada minuto para que Hoy cambie de día sola. */
 function useAhora() {
@@ -47,12 +47,7 @@ export default function Hoy() {
   const activas = datos.identidades.filter((i) => !i.archivada).sort((a, b) => a.orden - b.orden)
   const filtro = activas.find((i) => i.id === params.get('identidad'))
   const hoy = componerHoy({ ...datos, ahora, ajustes, identidadId: filtro?.id })
-  const [a, m, d] = hoy.dia.split('-').map(Number)
-  const fecha = new Date(a, m - 1, d).toLocaleDateString(i18n.language, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  })
+  const fecha = fechaDia(hoy.dia, i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })
 
   return (
     <div className="space-y-6">
@@ -65,6 +60,13 @@ export default function Hoy() {
       </header>
 
       <AvisoCopia ahora={ahora} />
+
+      {hoy.pausaGlobal && (
+        <aside aria-label={t('pausas.global.titulo')} className="flex items-start gap-3 rounded-lg border bg-accent p-4 text-accent-foreground">
+          <Palmtree aria-hidden className="mt-0.5 size-6 shrink-0" />
+          <p>{t('pausas.global.aviso', { fecha: fechaDia(hoy.pausaGlobal.hasta, i18n.language) })}</p>
+        </aside>
+      )}
 
       {activas.length > 1 && (
         <div className="space-y-2">

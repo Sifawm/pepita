@@ -172,14 +172,17 @@
       "cumplido_minima": "Hecho (mínima)",
       "fallido": "Sin apuntar",
       "en_curso": "En curso",
-      "no_programado": "No tocaba"
+      "no_programado": "No tocaba",
+      "saltado": "Saltado",
+      "pausado": "En pausa"
     },
     "registros_one": "{{count}} registro",
     "registros_other": "{{count}} registros",
     "sinRegistros": "Nada apuntado. Si se te olvidó, puedes hacerlo ahora.",
     "tipo": {
       "minima": "Versión mínima",
-      "completa": "Versión completa"
+      "completa": "Versión completa",
+      "salto": "Salto"
     },
     "pasarA": {
       "minima": "Era la mínima",
@@ -199,5 +202,36 @@
     "titulo": "Hábitos archivados",
     "intro": "Descansan aquí con su historial. Sus votos siguen contando.",
     "vacio": "No tienes hábitos archivados."
+  },
+  "pausas": {
+    "motivo": "Motivo (si quieres)",
+    "motivoEjemplo": "Por ejemplo: estoy con fiebre",
+    "saltarAyuda": "Saltar no suma ni resta: es un descanso con permiso.",
+    "saltar_dia": "Saltar hoy",
+    "saltar_semana": "Saltar esta semana",
+    "saltar_mes": "Saltar este mes",
+    "saltado": "Saltado, sin problema",
+    "saltadoAviso": "Listo, lo has saltado. No cuenta como fallo.",
+    "deshacerSalto": "Deshacer el salto",
+    "saltoDeshecho": "Salto deshecho.",
+    "pausar": "Pausar unos días",
+    "desde": "Desde",
+    "hasta": "Hasta (incluido)",
+    "pausarAccion": "Pausar",
+    "pausadoAviso": "En pausa hasta el {{fecha}}. Esos días no cuentan como fallo.",
+    "enPausa": "En pausa hasta el {{fecha}}",
+    "reanudar": "Reanudar hoy",
+    "reanudado": "¡De vuelta! Cuenta de nuevo desde hoy.",
+    "global": {
+      "titulo": "Vacaciones",
+      "intro": "Pausa todos tus hábitos hasta una fecha. Esos días no cuentan como fallo, y la pausa termina sola.",
+      "hasta": "Hasta (incluido)",
+      "empezar": "Empezar las vacaciones",
+      "empezada": "Vacaciones hasta el {{fecha}}. ¡A descansar!",
+      "activa": "Estás de vacaciones hasta el {{fecha}}. Tus hábitos te esperan sin prisa.",
+      "terminar": "Volver antes",
+      "terminada": "¡Hola de nuevo! Tus hábitos cuentan otra vez desde hoy.",
+      "aviso": "De vacaciones hasta el {{fecha}}. Nada de esto cuenta como fallo."
+    }
   }
 }

@@ -2,11 +2,12 @@ import { CalendarDays, Check, Circle, Ellipsis } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { SaltarYPausar } from '@/components/Pausas'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { conId, db } from '@/db'
 import { anotar, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
-import { cn, nombreIdentidad } from '@/lib/utils'
+import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
 
 /** Calibración: lo que hay que mantener pulsado para la versión completa. Afínalo con el uso real. */
 const PULSACION_LARGA_MS = 500
@@ -28,8 +29,8 @@ export function TarjetaHabito({
   abrir: (panel?: Panel) => void
   celebrar: () => void
 }) {
-  const { t } = useTranslation()
-  const { habito, identidad, hecho, periodo } = tarjeta
+  const { t, i18n } = useTranslation()
+  const { habito, identidad, hecho, periodo, pausa } = tarjeta
   const ultimo = tarjeta.registros.at(-1)
   const f = habito.frecuencia
   // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
@@ -39,6 +40,14 @@ export function TarjetaHabito({
       : null
   const menuId = `menu-${habito.id}`
   const botonMenu = useRef<HTMLButtonElement>(null)
+  const [aviso, setAviso] = useState('')
+  const estado = hecho
+    ? t(ultimo?.tipo === 'completa' ? 'hoy.hechoCompleta' : 'hoy.hechoMinima')
+    : pausa
+      ? t('pausas.enPausa', { fecha: fechaDia(pausa.hasta, i18n.language) })
+      : periodo.estado === 'saltado'
+        ? t('pausas.saltado')
+        : t('hoy.pendiente')
 
   const registrar = async (version: 'minima' | 'completa') => {
     abrir()
@@ -110,7 +119,7 @@ export function TarjetaHabito({
               {nombreIdentidad(identidad, t)}
               {contador && ` · ${contador}`}
               {' · '}
-              {t(!hecho ? 'hoy.pendiente' : ultimo?.tipo === 'completa' ? 'hoy.hechoCompleta' : 'hoy.hechoMinima')}
+              {estado}
             </span>
           </span>
         </button>
@@ -127,7 +136,10 @@ export function TarjetaHabito({
           aria-label={t('hoy.opciones', { nombre: habito.nombre })}
           aria-expanded={panel === 'menu'}
           aria-controls={menuId}
-          onClick={() => abrir(panel === 'menu' ? undefined : 'menu')}
+          onClick={() => {
+            setAviso('')
+            abrir(panel === 'menu' ? undefined : 'menu')
+          }}
           className={buttonVariants({ variant: 'ghost', className: 'min-h-16 min-w-11 border px-0' })}
         >
           <Ellipsis aria-hidden />
@@ -153,7 +165,6 @@ export function TarjetaHabito({
               </Button>
             </>
           )}
-          {/* Ticket 07: «Saltar» va aquí. */}
           {ultimo && (
             <>
               <Button variant="ghost" className="justify-start" autoFocus={hecho} onClick={() => abrir('nota')}>
@@ -167,8 +178,19 @@ export function TarjetaHabito({
           <Link to={`/habito/${habito.id}/editar`} className={buttonVariants({ variant: 'ghost', className: 'justify-start' })}>
             {t('asistente.editar')}
           </Link>
+          <SaltarYPausar
+            tarjeta={tarjeta}
+            ajustes={ajustes}
+            hecho={(texto) => {
+              setAviso(texto)
+              cerrarMenu()
+            }}
+          />
         </div>
       )}
+      <p role="status" className="text-sm font-semibold text-primary">
+        {aviso}
+      </p>
 
       {panel === 'nota' && ultimo && <EditorNota registro={ultimo} cerrar={cerrarMenu} />}
     </div>
