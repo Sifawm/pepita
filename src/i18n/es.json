@@ -23,5 +23,28 @@
     "ayuda": "Mejor algo pequeño y fácil de empezar.",
     "crear": "Crear hábito",
     "cancelar": "Cancelar"
+  },
+  "frecuencia": {
+    "titulo": "¿Cada cuánto?",
+    "veces_por_periodo": "Unas veces al día, a la semana o al mes",
+    "veces": "Cuántas veces",
+    "periodo": "Periodo",
+    "por_dia_one": "vez al día",
+    "por_dia_other": "veces al día",
+    "por_semana_one": "vez a la semana",
+    "por_semana_other": "veces a la semana",
+    "por_mes_one": "vez al mes",
+    "por_mes_other": "veces al mes",
+    "dias_semana": "Unos días concretos de la semana",
+    "que_dias": "Qué días",
+    "lleva_dia": "{{hechos}} de {{pide}} hoy",
+    "lleva_semana": "{{hechos}} de {{pide}} esta semana",
+    "lleva_mes": "{{hechos}} de {{pide}} este mes"
+  },
+  "ajustes": {
+    "titulo": "Ajustes",
+    "hora_cierre": "Hora de cierre del día",
+    "hora_cierre_ayuda": "Lo que hagas antes de las {{hora}} cuenta para el día anterior. Así, trasnochar no te quita el día.",
+    "volver": "Volver a Hoy"
   }
 }

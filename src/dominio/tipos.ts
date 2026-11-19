@@ -28,7 +28,12 @@ export interface Identidad extends Entidad {
 // Los tipos son estrechos a propósito: cada ticket los amplía cuando el núcleo sabe evaluarlos.
 export type TipoHabito = 'si_no'
 
-export type Frecuencia = { tipo: 'veces_por_periodo'; veces: number; periodo: 'dia' }
+/** 1 = lunes … 7 = domingo. */
+export type DiaSemana = 1 | 2 | 3 | 4 | 5 | 6 | 7
+
+export type Frecuencia =
+  | { tipo: 'veces_por_periodo'; veces: number; periodo: 'dia' | 'semana' | 'mes' }
+  | { tipo: 'dias_semana'; dias: DiaSemana[] }
 
 export interface Habito extends Entidad {
   identidadId: string

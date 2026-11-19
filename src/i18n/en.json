@@ -23,5 +23,28 @@
     "ayuda": "Small and easy to start is best.",
     "crear": "Create habit",
     "cancelar": "Cancel"
+  },
+  "frecuencia": {
+    "titulo": "How often?",
+    "veces_por_periodo": "A few times a day, week or month",
+    "veces": "How many times",
+    "periodo": "Period",
+    "por_dia_one": "time a day",
+    "por_dia_other": "times a day",
+    "por_semana_one": "time a week",
+    "por_semana_other": "times a week",
+    "por_mes_one": "time a month",
+    "por_mes_other": "times a month",
+    "dias_semana": "Specific days of the week",
+    "que_dias": "Which days",
+    "lleva_dia": "{{hechos}} of {{pide}} today",
+    "lleva_semana": "{{hechos}} of {{pide}} this week",
+    "lleva_mes": "{{hechos}} of {{pide}} this month"
+  },
+  "ajustes": {
+    "titulo": "Settings",
+    "hora_cierre": "End of the day",
+    "hora_cierre_ayuda": "Anything you do before {{hora}} counts for the day before, so a late night still counts.",
+    "volver": "Back to Today"
   }
 }

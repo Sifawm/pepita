@@ -51,6 +51,15 @@ describe('nuevo hábito', () => {
       orden: 3,
     })
   })
+
+  it('acepta otra frecuencia', () => {
+    const h = nuevoHabito(
+      { nombre: 'Nadar', identidadId: 'general', orden: 0, frecuencia: { tipo: 'dias_semana', dias: [2, 4] } },
+      local(2026, 3, 15, 9),
+      ajustes,
+    )
+    expect(h.frecuencia).toEqual({ tipo: 'dias_semana', dias: [2, 4] })
+  })
 })
 
 describe('Hoy', () => {
@@ -94,6 +103,28 @@ describe('Hoy', () => {
     })
     expect(hoy.habitos).toEqual([])
   })
+
+  it('muestra solo los hábitos que tocan hoy, con lo que llevan del periodo', () => {
+    // El domingo 15 de marzo: correr toca lunes y miércoles; nadar, 3 veces por semana.
+    const correr: Habito = { ...habito('correr', 'Correr', 2), frecuencia: { tipo: 'dias_semana', dias: [1, 3] } }
+    const nadar: Habito = {
+      ...habito('nadar', 'Nadar', 3),
+      frecuencia: { tipo: 'veces_por_periodo', veces: 3, periodo: 'semana' },
+    }
+    const hoy = componerHoy({
+      habitos: [correr, nadar],
+      identidades: [general],
+      registros: [registro('nadar', '2026-03-10'), registro('nadar', '2026-03-12')],
+      ahora: local(2026, 3, 15, 9),
+      ajustes,
+    })
+    expect(hoy.habitos).toHaveLength(1)
+    expect(hoy.habitos[0]).toMatchObject({
+      habito: { id: 'nadar' },
+      hecho: false,
+      periodo: { desde: '2026-03-09', hasta: '2026-03-15', pide: 3, hechos: 2, estado: 'en_curso' },
+    })
+  })
 })
 
 describe('toque', () => {
@@ -111,5 +142,29 @@ describe('toque', () => {
     expect(
       toque({ habito: leer, registros: [hoy, ayer, otro], ahora: local(2026, 3, 15, 22), ajustes }),
     ).toEqual({ tipo: 'deshacer', registroId: hoy.id })
+  })
+
+  it('en un hábito de 2 veces al día, el segundo toque registra y el tercero deshace', () => {
+    const dosAlDia: Habito = { ...leer, frecuencia: { tipo: 'veces_por_periodo', veces: 2, periodo: 'dia' } }
+    const primero = registro('leer', '2026-03-15', 0)
+    const segundo = registro('leer', '2026-03-15', 1)
+    const ahora = local(2026, 3, 15, 22)
+    expect(toque({ habito: dosAlDia, registros: [primero], ahora, ajustes }).tipo).toBe('registrar')
+    expect(toque({ habito: dosAlDia, registros: [primero, segundo], ahora, ajustes })).toEqual({
+      tipo: 'deshacer',
+      registroId: segundo.id,
+    })
+  })
+
+  it('en un hábito semanal, se registra una vez por día aunque la semana ya esté cumplida', () => {
+    const semanal: Habito = { ...leer, frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'semana' } }
+    const lunes = registro('leer', '2026-03-09')
+    const miercoles = registro('leer', '2026-03-11')
+    const ahora = local(2026, 3, 11, 22)
+    expect(toque({ habito: semanal, registros: [lunes], ahora, ajustes }).tipo).toBe('registrar')
+    expect(toque({ habito: semanal, registros: [lunes, miercoles], ahora, ajustes })).toEqual({
+      tipo: 'deshacer',
+      registroId: miercoles.id,
+    })
   })
 })
