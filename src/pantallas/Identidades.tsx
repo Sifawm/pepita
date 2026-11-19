@@ -6,9 +6,8 @@ import { Link } from 'react-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { conId, db } from '@/db'
+import { conId, db, useAjustes } from '@/db'
 import {
-  AJUSTES_POR_DEFECTO,
   moverIdentidad,
   nuevaIdentidad,
   resumirIdentidades,
@@ -21,6 +20,7 @@ export default function Identidades() {
   const { t } = useTranslation()
   const [nombre, setNombre] = useState('')
   const [aviso, setAviso] = useState('')
+  const ajustes = useAjustes()
   const datos = useLiveQuery(async () => {
     const [identidades, habitos, registros] = await Promise.all([
       db.identidades.toArray(),
@@ -30,9 +30,8 @@ export default function Identidades() {
     return { identidades, habitos, registros }
   })
 
-  if (!datos) return null
-  // ponytail: ajustes fijos hasta que exista la tabla de ajustes (ticket 04).
-  const resumen = resumirIdentidades({ ...datos, ahora: new Date(), ajustes: AJUSTES_POR_DEFECTO })
+  if (!datos || !ajustes) return null
+  const resumen = resumirIdentidades({ ...datos, ahora: new Date(), ajustes })
   const activas = resumen.filter((r) => !r.identidad.archivada)
   const archivadas = resumen.filter((r) => r.identidad.archivada)
 

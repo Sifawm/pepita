@@ -1,6 +1,6 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
-import type { Ajustes, Datos, Habito, Identidad, Instante, Registro } from './tipos'
+import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Registro } from './tipos'
 import {
   booleano,
   conPatron,
@@ -10,6 +10,7 @@ import {
   literal,
   objeto,
   opcional,
+  segunTipo,
   texto,
   type Validador,
 } from './validacion'
@@ -67,10 +68,9 @@ const habito = objeto<Habito>({
   identidadId: id,
   nombre: conPatron(/\S/),
   tipo: literal('si_no'),
-  frecuencia: objeto<Habito['frecuencia']>({
-    tipo: literal('veces_por_periodo'),
-    veces: entero(1),
-    periodo: literal('dia'),
+  frecuencia: segunTipo<Frecuencia>({
+    veces_por_periodo: objeto({ tipo: literal('veces_por_periodo'), veces: entero(1), periodo: literal('dia', 'semana', 'mes') }),
+    dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
   }),
   fechaInicio: dia,
   archivado: booleano,

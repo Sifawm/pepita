@@ -47,6 +47,19 @@ const esObjeto = (v: unknown): v is Record<string, unknown> =>
   typeof v === 'object' && v !== null && !Array.isArray(v)
 
 /**
+ * Unión discriminada por `tipo`: un validador (normalmente `objeto`) por cada variante.
+ * Ojo: TypeScript exige una entrada por variante, pero no detecta un validador más estrecho
+ * que su tipo (p. ej. `literal('dia')` donde cabe `'dia' | 'semana'`): cúbrelo con datos de test.
+ */
+export const segunTipo =
+  <T extends { tipo: string }>(variantes: { [K in T['tipo']]: Validador<Extract<T, { tipo: K }>> }): Validador<T> =>
+  (v, r) => {
+    const tipo = esObjeto(v) ? v.tipo : undefined
+    if (typeof tipo !== 'string' || !Object.hasOwn(variantes, tipo)) return falla(r ? `${r}.tipo` : 'tipo')
+    return variantes[tipo as T['tipo']](v, r)
+  }
+
+/**
  * Objeto estricto: exige un validador por cada campo de `T` (si amplías el tipo, TypeScript
  * te obliga a ampliar aquí) y rechaza cualquier campo que no conozca.
  */
