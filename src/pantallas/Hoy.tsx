@@ -1,14 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, Circle, Plus, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { Archive, Plus, Users } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import AvisoCopia from '@/components/AvisoCopia'
+import { Celebracion, TarjetaHabito, type Panel } from '@/components/TarjetaHabito'
 import { buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
-import { conId, db, useAjustes } from '@/db'
-import { componerHoy, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
+import { db, useAjustes } from '@/db'
+import { componerHoy } from '@/dominio'
 import { cn, nombreIdentidad } from '@/lib/utils'
 
 /** El reloj de la pantalla: avanza cada minuto para que Hoy cambie de día sola. */
@@ -36,6 +37,11 @@ export default function Hoy() {
     ])
     return { habitos, identidades, registros }
   })
+
+  // Un solo panel abierto (menú o nota) en toda la lista.
+  const [abierto, setAbierto] = useState<{ habitoId: string; panel: Panel }>()
+  const [celebracion, setCelebracion] = useState<{ habitoId: string; texto: string; n: number }>()
+  const cerrarCelebracion = useCallback(() => setCelebracion(undefined), [])
 
   if (!datos || !ajustes) return null
   const activas = datos.identidades.filter((i) => !i.archivada).sort((a, b) => a.orden - b.orden)
@@ -84,7 +90,20 @@ export default function Hoy() {
         <ul aria-label={t('hoy.lista')} className="space-y-3">
           {hoy.habitos.map((tarjeta) => (
             <li key={tarjeta.habito.id}>
-              <Tarjeta tarjeta={tarjeta} registros={datos.registros} ajustes={ajustes} />
+              <TarjetaHabito
+                tarjeta={tarjeta}
+                registros={datos.registros}
+                ajustes={ajustes}
+                panel={abierto?.habitoId === tarjeta.habito.id ? abierto.panel : undefined}
+                abrir={(panel) => setAbierto(panel && { habitoId: tarjeta.habito.id, panel })}
+                celebrar={() =>
+                  setCelebracion((c) => ({
+                    habitoId: tarjeta.habito.id,
+                    texto: t('hoy.celebracion', { identidad: nombreIdentidad(tarjeta.identidad, t) }),
+                    n: (c?.n ?? 0) + 1,
+                  }))
+                }
+              />
             </li>
           ))}
         </ul>
@@ -99,57 +118,23 @@ export default function Hoy() {
           <Users aria-hidden />
           {t('identidades.titulo')}
         </Link>
-      </div>
-    </div>
-  )
-}
-
-function Tarjeta({ tarjeta, registros, ajustes }: { tarjeta: TarjetaHoy; registros: Registro[]; ajustes: Ajustes }) {
-  const { t } = useTranslation()
-  const { habito, identidad, hecho, periodo } = tarjeta
-  const f = habito.frecuencia
-  // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
-  const contador =
-    f.tipo === 'veces_por_periodo' && (f.periodo !== 'dia' || f.veces > 1)
-      ? t(`frecuencia.lleva_${f.periodo}`, { hechos: periodo.hechos, pide: periodo.pide })
-      : null
-
-  const alTocar = async () => {
-    // El instante del toque, no el de la última vez que se pintó la pantalla.
-    const accion = toque({ habito, registros, ahora: new Date(), ajustes })
-    if (accion.tipo === 'registrar') await db.registros.add(conId<Registro>(accion.registro))
-    else await db.registros.delete(accion.registroId)
-  }
-
-  return (
-    <button
-      type="button"
-      aria-pressed={hecho}
-      onClick={alTocar}
-      className={cn(
-        'flex min-h-16 w-full items-center gap-4 rounded-lg border bg-card p-4 text-left transition-colors outline-none',
-        'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-        hecho ? 'border-primary bg-accent' : 'hover:bg-muted',
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          'flex size-10 shrink-0 items-center justify-center rounded-full border-2',
-          hecho ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
+        {datos.habitos.some((h) => h.archivado) && (
+          <Link to="/archivados" className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>
+            <Archive aria-hidden />
+            {t('archivados.titulo')}
+          </Link>
         )}
-      >
-        {hecho ? <Check className="size-6" /> : <Circle className="size-6" />}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
-        <span className="block text-sm text-muted-foreground">
-          {nombreIdentidad(identidad, t)}
-          {contador && ` · ${contador}`}
-          {' · '}
-          {t(hecho ? 'hoy.hecho' : 'hoy.pendiente')}
-        </span>
-      </span>
-    </button>
+      </div>
+
+      <Celebracion
+        texto={celebracion?.texto}
+        clave={celebracion?.n ?? 0}
+        cerrar={cerrarCelebracion}
+        anotar={() => {
+          if (celebracion) setAbierto({ habitoId: celebracion.habitoId, panel: 'nota' })
+          setCelebracion(undefined)
+        }}
+      />
+    </div>
   )
 }

@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
 import Ajustes from '@/pantallas/Ajustes'
+import Archivados from '@/pantallas/Archivados'
+import AsistenteHabito from '@/pantallas/AsistenteHabito'
 import Hoy from '@/pantallas/Hoy'
 import Identidades from '@/pantallas/Identidades'
-import NuevoHabito from '@/pantallas/NuevoHabito'
 
 export default function App() {
   const { t } = useTranslation()
@@ -32,7 +33,9 @@ export default function App() {
         <main id="principal" tabIndex={-1} className="outline-none">
           <Routes>
             <Route path="/" element={<Hoy />} />
-            <Route path="/nuevo" element={<NuevoHabito />} />
+            <Route path="/nuevo" element={<AsistenteHabito />} />
+            <Route path="/habito/:id" element={<AsistenteHabito />} />
+            <Route path="/archivados" element={<Archivados />} />
             <Route path="/identidades" element={<Identidades />} />
             <Route path="/ajustes" element={<Ajustes />} />
           </Routes>

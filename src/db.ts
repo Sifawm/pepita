@@ -38,6 +38,13 @@ export const guardarAjustes = (cambios: Partial<Ajustes>) =>
     await db.ajustes.put({ ...(await db.ajustes.get('ajustes')), ...cambios, id: 'ajustes' })
   })
 
+/** Borra un hábito y todo lo que cuelga de él. Si añades una tabla con `habitoId`, bórrala aquí también. */
+export const borrarHabito = (id: string) =>
+  db.transaction('rw', db.habitos, db.registros, async () => {
+    await db.registros.where('habitoId').equals(id).delete()
+    await db.habitos.delete(id)
+  })
+
 /** Todos los datos, de una vez y coherentes entre sí: lo que va en una copia. */
 export const leerDatos = (): Promise<Datos> =>
   db.transaction('r', db.tables, async () => {
