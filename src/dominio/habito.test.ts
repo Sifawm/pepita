@@ -29,13 +29,18 @@ describe('asistente: editar un hábito', () => {
   }
 
   it('cambia los campos del asistente y conserva lo demás (inicio, orden, archivo)', () => {
-    const editado = editarHabito(leer, {
-      nombre: ' Leer novelas ',
-      identidadId: 'lectora',
-      frecuencia: { tipo: 'dias_semana', dias: [6, 7] },
-      versionMinima: 'Una página',
-      versionCompleta: ' Un capítulo ',
-    })
+    const editado = editarHabito(
+      leer,
+      {
+        nombre: ' Leer novelas ',
+        identidadId: 'lectora',
+        frecuencia: { tipo: 'dias_semana', dias: [6, 7] },
+        versionMinima: 'Una página',
+        versionCompleta: ' Un capítulo ',
+      },
+      ahora,
+      ajustes,
+    )
     expect(editado).toEqual({
       ...leer,
       nombre: 'Leer novelas',
@@ -46,8 +51,20 @@ describe('asistente: editar un hábito', () => {
   })
 
   it('vaciar una versión la borra', () => {
-    const editado = editarHabito(leer, { ...leer, versionMinima: '' })
+    const editado = editarHabito(leer, { ...leer, versionMinima: '' }, ahora, ajustes)
     expect(editado).not.toHaveProperty('versionMinima')
     expect(editado.nombre).toBe('Leer')
+  })
+
+  it('cambiar la frecuencia días después no reescribe los periodos pasados', () => {
+    const viernes = new Date(2026, 2, 20, 9)
+    const editado = editarHabito(leer, { ...leer, frecuencia: { tipo: 'dias_semana', dias: [6, 7] } }, viernes, ajustes)
+    expect(editado.frecuencia).toEqual({ tipo: 'dias_semana', dias: [6, 7] })
+    expect(editado.versiones).toEqual([{ frecuencia: leer.frecuencia, hasta: '2026-03-19' }])
+  })
+
+  it('editar otros campos días después no crea una versión de la regla', () => {
+    const viernes = new Date(2026, 2, 20, 9)
+    expect(editarHabito(leer, { ...leer, nombre: 'Leer más' }, viernes, ajustes)).not.toHaveProperty('versiones')
   })
 })

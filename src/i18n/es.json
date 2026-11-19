@@ -160,7 +160,40 @@
     "borrarTexto_other": "También se borrarán sus {{count}} registros, con sus votos. No se puede deshacer. Si solo quieres dejarlo, archívalo.",
     "borrarConfirmar": "Sí, borrar para siempre",
     "cancelar": "Cancelar",
-    "noExiste": "Este hábito ya no existe."
+    "noExiste": "No encontramos este hábito.",
+    "abrir": "Calendario de «{{nombre}}»",
+    "volver": "Volver a Hoy",
+    "mesAnterior": "Mes anterior",
+    "mesSiguiente": "Mes siguiente",
+    "ayuda": "Toca cualquier día para apuntarlo, corregirlo o deshacerlo. Todo se recalcula solo.",
+    "leyenda": "Leyenda",
+    "estado": {
+      "cumplido_completa": "Hecho (completa)",
+      "cumplido_minima": "Hecho (mínima)",
+      "fallido": "Sin apuntar",
+      "en_curso": "En curso",
+      "no_programado": "No tocaba"
+    },
+    "registros_one": "{{count}} registro",
+    "registros_other": "{{count}} registros",
+    "sinRegistros": "Nada apuntado. Si se te olvidó, puedes hacerlo ahora.",
+    "tipo": {
+      "minima": "Versión mínima",
+      "completa": "Versión completa"
+    },
+    "pasarA": {
+      "minima": "Era la mínima",
+      "completa": "Era la completa"
+    },
+    "deshacer": "Deshacer",
+    "anadir": {
+      "minima": "Apuntar la mínima",
+      "completa": "Apuntar la completa"
+    },
+    "frecuencia": "Cambiar la frecuencia",
+    "frecuenciaAyuda": "Cuenta desde el periodo en curso. Lo ya cerrado se sigue contando con la regla de entonces: tu historia sigue siendo verdad.",
+    "guardarFrecuencia": "Guardar frecuencia",
+    "frecuenciaGuardada": "Listo, frecuencia guardada."
   },
   "archivados": {
     "titulo": "Hábitos archivados",

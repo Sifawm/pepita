@@ -1,4 +1,5 @@
 import { diaLogico } from './calendario'
+import { cambiarRegla } from './versiones'
 import type { Ajustes, Frecuencia, Habito, Nuevo } from './tipos'
 
 /** Lo que pide el asistente. Solo el nombre es obligatorio; un paso saltado deja su campo vacío. */
@@ -39,9 +40,19 @@ export function nuevoHabito(
   }
 }
 
-/** Aplica lo que devuelve el asistente al editar. Inicio, orden y archivo no cambian. */
-export function editarHabito(habito: Habito, { nombre, identidadId, frecuencia, versionMinima, versionCompleta }: CamposHabito): Habito {
-  const editado = { ...habito, ...limpiar({ nombre, identidadId, frecuencia }) }
+/**
+ * Aplica lo que devuelve el asistente al editar. Inicio, orden y archivo no cambian; una
+ * frecuencia nueva pasa por `cambiarRegla` para que los periodos cerrados conserven la suya.
+ */
+export function editarHabito(
+  habito: Habito,
+  { nombre, identidadId, frecuencia, versionMinima, versionCompleta }: CamposHabito,
+  ahora: Date,
+  ajustes: Ajustes,
+): Habito {
+  const otraRegla = JSON.stringify(frecuencia) !== JSON.stringify(habito.frecuencia)
+  const conRegla = otraRegla ? cambiarRegla({ habito, regla: { frecuencia }, ahora, ajustes }) : habito
+  const editado = { ...conRegla, ...limpiar({ nombre, identidadId }) }
   delete editado.versionMinima
   delete editado.versionCompleta
   return { ...editado, ...limpiar({ versionMinima, versionCompleta }) }

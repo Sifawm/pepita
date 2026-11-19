@@ -34,6 +34,11 @@ const datos: Datos = {
       fechaInicio: '2026-05-04',
       archivado: false,
       orden: 1,
+      // Historial de reglas: fue diario, luego días concretos, y ahora 3 por semana.
+      versiones: [
+        { hasta: '2026-05-05', frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' } },
+        { hasta: '2026-05-10', frecuencia: { tipo: 'dias_semana', dias: [1, 3, 5] } },
+      ],
     },
     {
       id: 'yoga',
@@ -96,6 +101,8 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['ids repetidos', con((c) => (c.datos.registros[1].id = 'r1')), { motivo: 'invalido', ruta: 'datos.registros[1].id' }],
     ['un registro de un hábito que no existe', con((c) => (c.datos.registros[0].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.registros[0].habitoId' }],
     ['un hábito de una identidad que no existe', con((c) => (c.datos.habitos[0].identidadId = 'nadie')), { motivo: 'invalido', ruta: 'datos.habitos[0].identidadId' }],
+    ['una versión de regla mal formada', con((c) => (c.datos.habitos[1].versiones[0].frecuencia.veces = 0)), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[0].frecuencia.veces' }],
+    ['versiones de regla desordenadas', con((c) => (c.datos.habitos[1].versiones[1].hasta = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[1].hasta' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

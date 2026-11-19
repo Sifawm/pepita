@@ -1,4 +1,4 @@
-import { Check, Circle, Ellipsis } from 'lucide-react'
+import { CalendarDays, Check, Circle, Ellipsis } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -114,6 +114,13 @@ export function TarjetaHabito({
             </span>
           </span>
         </button>
+        <Link
+          to={`/habito/${habito.id}`}
+          aria-label={t('habito.abrir', { nombre: habito.nombre })}
+          className={buttonVariants({ variant: 'ghost', className: 'min-h-16 min-w-11 border px-0' })}
+        >
+          <CalendarDays aria-hidden />
+        </Link>
         <button
           ref={botonMenu}
           type="button"
@@ -157,7 +164,7 @@ export function TarjetaHabito({
               </Button>
             </>
           )}
-          <Link to={`/habito/${habito.id}`} className={buttonVariants({ variant: 'ghost', className: 'justify-start' })}>
+          <Link to={`/habito/${habito.id}/editar`} className={buttonVariants({ variant: 'ghost', className: 'justify-start' })}>
             {t('asistente.editar')}
           </Link>
         </div>

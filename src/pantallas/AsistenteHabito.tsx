@@ -80,7 +80,7 @@ export default function AsistenteHabito() {
       // Las archivadas no se ofrecen, salvo la que ya tiene el hábito.
       identidades={identidades.filter((i) => !i.archivada || i.id === inicial.identidadId)}
       guardar={async (b) => {
-        if (habito) await db.habitos.put(editarHabito(habito, b))
+        if (habito) await db.habitos.put(editarHabito(habito, b, new Date(), ajustes))
         else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: await db.habitos.count() }, new Date(), ajustes)))
       }}
     />

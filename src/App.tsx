@@ -5,6 +5,7 @@ import { buttonVariants } from '@/components/ui/button'
 import Ajustes from '@/pantallas/Ajustes'
 import Archivados from '@/pantallas/Archivados'
 import AsistenteHabito from '@/pantallas/AsistenteHabito'
+import Habito from '@/pantallas/Habito'
 import Hoy from '@/pantallas/Hoy'
 import Identidades from '@/pantallas/Identidades'
 
@@ -34,9 +35,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Hoy />} />
             <Route path="/nuevo" element={<AsistenteHabito />} />
-            <Route path="/habito/:id" element={<AsistenteHabito />} />
+            <Route path="/habito/:id/editar" element={<AsistenteHabito />} />
             <Route path="/archivados" element={<Archivados />} />
             <Route path="/identidades" element={<Identidades />} />
+            <Route path="/habito/:id" element={<Habito />} />
             <Route path="/ajustes" element={<Ajustes />} />
           </Routes>
         </main>
