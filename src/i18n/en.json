@@ -109,5 +109,38 @@
     "persistenteSi": "Your browser will keep your data even if it runs low on space.",
     "persistenteNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
     "persistenteNoDisponible": "This browser can't be asked for persistent storage. Backups keep you covered."
+  },
+  "pausas": {
+    "opciones": "Skip or pause",
+    "opcionesDe": "Skip or pause “{{nombre}}”",
+    "motivo": "Reason (if you like)",
+    "motivoEjemplo": "For example: I have a fever",
+    "saltarAyuda": "Skipping adds nothing and takes nothing away: it's a rest with permission.",
+    "saltar_dia": "Skip today",
+    "saltar_semana": "Skip this week",
+    "saltar_mes": "Skip this month",
+    "saltado": "Skipped, no problem",
+    "saltadoAviso": "Done, you skipped it. It doesn't count as a miss.",
+    "deshacerSalto": "Undo the skip",
+    "saltoDeshecho": "Skip undone.",
+    "pausar": "Pause for a few days",
+    "desde": "From",
+    "hasta": "Until (included)",
+    "pausarAccion": "Pause",
+    "pausadoAviso": "Paused until {{fecha}}. Those days don't count as a miss.",
+    "enPausa": "Paused until {{fecha}}",
+    "reanudar": "Resume today",
+    "reanudado": "Welcome back! It counts again from today.",
+    "global": {
+      "titulo": "Holidays",
+      "intro": "Pause all your habits until a date. Those days don't count as a miss, and the pause ends on its own.",
+      "hasta": "Until (included)",
+      "empezar": "Start the holidays",
+      "empezada": "Holidays until {{fecha}}. Time to rest!",
+      "activa": "You're on holiday until {{fecha}}. Your habits will wait, no rush.",
+      "terminar": "Come back early",
+      "terminada": "Hello again! Your habits count again from today.",
+      "aviso": "On holiday until {{fecha}}. None of this counts as a miss."
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { diaLogico } from './calendario'
+import { esVoto } from './evaluacion'
 import type { Ajustes, Habito, Identidad, Nuevo, Registro } from './tipos'
 
 /** Una identidad nueva («Soy una persona que…»), al final de la lista. */
@@ -51,7 +52,7 @@ export function resumirIdentidades({
   // ponytail: +1 por registro (regla de `si_no`); los votos por periodo de otros tipos llegan con la evaluación.
   for (const r of registros) {
     const id = identidadDe.get(r.habitoId)
-    if (!id || (r.tipo !== 'minima' && r.tipo !== 'completa')) continue
+    if (!id || !esVoto(r)) continue
     const v = votos.get(id) ?? { votos: 0, votosHoy: 0 }
     v.votos++
     if (r.dia === dia) v.votosHoy++

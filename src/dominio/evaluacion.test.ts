@@ -209,3 +209,108 @@ describe('evaluación: votos', () => {
     expect(e.votos).toBe(2)
   })
 })
+
+describe('evaluación: saltos', () => {
+  it('un periodo saltado no es fallo, y el salto no suma votos ni cuenta como hecho', () => {
+    const e = evaluarHabito({
+      habito: diario,
+      registros: [{ ...registro('2026-03-03', 'salto'), motivo: 'Fiebre' }],
+      ahora: local(2026, 3, 5, 12),
+      ajustes,
+    })
+    expect(e.periodos.map((p) => [p.desde, p.hechos, p.estado])).toEqual([
+      ['2026-03-02', 0, 'fallido'],
+      ['2026-03-03', 0, 'saltado'],
+      ['2026-03-04', 0, 'fallido'],
+      ['2026-03-05', 0, 'en_curso'],
+    ])
+    expect(e.votos).toBe(0)
+  })
+
+  it('saltar un día salta la semana entera; si aun así se cumple, cuenta como cumplida', () => {
+    const tresPorSemana = habito({ tipo: 'veces_por_periodo', veces: 3, periodo: 'semana' })
+    const saltada = evaluarHabito({
+      habito: tresPorSemana,
+      registros: [registro('2026-03-03'), registro('2026-03-04', 'salto')],
+      ahora: local(2026, 3, 9, 12),
+      ajustes,
+    })
+    expect(estados(saltada)).toEqual([
+      ['2026-03-02', 'saltado'],
+      ['2026-03-09', 'en_curso'],
+    ])
+    const cumplida = evaluarHabito({
+      habito: tresPorSemana,
+      registros: [registro('2026-03-04', 'salto'), ...['03', '05', '06'].map((d) => registro(`2026-03-${d}`))],
+      ahora: local(2026, 3, 9, 12),
+      ajustes,
+    })
+    expect(cumplida.periodos[0]).toMatchObject({ hechos: 3, estado: 'cumplido_minima' })
+  })
+})
+
+describe('evaluación: pausa global («vacaciones»)', () => {
+  const vacaciones = { ...ajustes, pausaGlobal: { desde: '2026-03-03', hasta: '2026-03-05' } }
+
+  it('durante la pausa global, hoy está en pausa', () => {
+    const e = evaluarHabito({ habito: diario, registros: [], ahora: local(2026, 3, 4, 12), ajustes: vacaciones })
+    expect(e.actual?.estado).toBe('pausado')
+  })
+
+  it('termina sola: pasado `hasta`, los días vuelven a contar sin tocar nada', () => {
+    const e = evaluarHabito({ habito: diario, registros: [], ahora: local(2026, 3, 7, 12), ajustes: vacaciones })
+    expect(estados(e)).toEqual([
+      ['2026-03-02', 'fallido'],
+      ['2026-03-03', 'pausado'],
+      ['2026-03-04', 'pausado'],
+      ['2026-03-05', 'pausado'],
+      ['2026-03-06', 'fallido'],
+      ['2026-03-07', 'en_curso'],
+    ])
+  })
+
+  it('el último día de pausa acaba a la hora de cierre, no a medianoche', () => {
+    const e = evaluarHabito({ habito: diario, registros: [], ahora: local(2026, 3, 6, 3, 59), ajustes: vacaciones })
+    expect(e.actual).toMatchObject({ desde: '2026-03-05', estado: 'pausado' })
+  })
+})
+
+describe('evaluación: pausa de un hábito', () => {
+  const pausado = { ...diario, pausas: [{ desde: '2026-03-03', hasta: '2026-03-04' }] }
+
+  it('los días en pausa no fallan; al acabar la pausa vuelve a evaluarse', () => {
+    const e = evaluarHabito({ habito: pausado, registros: [], ahora: local(2026, 3, 6, 12), ajustes })
+    expect(estados(e)).toEqual([
+      ['2026-03-02', 'fallido'],
+      ['2026-03-03', 'pausado'],
+      ['2026-03-04', 'pausado'],
+      ['2026-03-05', 'fallido'],
+      ['2026-03-06', 'en_curso'],
+    ])
+  })
+
+  it('hoy en pausa: el periodo actual está pausado; lo que hagas cuenta igual', () => {
+    const e = evaluarHabito({ habito: pausado, registros: [registro('2026-03-03')], ahora: local(2026, 3, 4, 12), ajustes })
+    expect(estados(e)).toEqual([
+      ['2026-03-02', 'fallido'],
+      ['2026-03-03', 'cumplido_minima'],
+      ['2026-03-04', 'pausado'],
+    ])
+    expect(e.votos).toBe(1)
+  })
+
+  it('una semana con algún día en pausa no falla; una pausa que aún no ha llegado no cuenta', () => {
+    const semanal = {
+      ...habito({ tipo: 'veces_por_periodo', veces: 3, periodo: 'semana' }),
+      pausas: [{ desde: '2026-03-06', hasta: '2026-03-10' }],
+    }
+    expect(estados(evaluarHabito({ habito: semanal, registros: [], ahora: local(2026, 3, 5, 12), ajustes }))).toEqual([
+      ['2026-03-02', 'en_curso'],
+    ])
+    expect(estados(evaluarHabito({ habito: semanal, registros: [], ahora: local(2026, 3, 18, 12), ajustes }))).toEqual([
+      ['2026-03-02', 'pausado'],
+      ['2026-03-09', 'pausado'],
+      ['2026-03-16', 'en_curso'],
+    ])
+  })
+})

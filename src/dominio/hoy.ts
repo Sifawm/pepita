@@ -1,16 +1,21 @@
 import { diaLogico } from './calendario'
-import { evaluarHabito, type Periodo } from './evaluacion'
-import type { Ajustes, Dia, Habito, Identidad, Nuevo, Registro } from './tipos'
+import { esVoto, evaluarHabito, type Periodo } from './evaluacion'
+import { pausaEn, pausaGlobalEn } from './pausa'
+import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './tipos'
 
 export interface TarjetaHoy {
   habito: Habito
   identidad: Identidad
-  /** Registros del hábito en el día lógico actual, del más antiguo al más reciente. */
+  /** Registros (mínima o completa) del hábito en el día lógico actual, del más antiguo al más reciente. */
   registros: Registro[]
   /** Hoy ya está hecho: un toque más deshace el último registro del día. */
   hecho: boolean
   /** El periodo en curso, con lo que lleva («2 de 3»). */
   periodo: Periodo
+  /** El salto que deja neutro el periodo en curso (para deshacerlo). */
+  salto?: Registro
+  /** La pausa (del hábito o global) en la que está hoy. */
+  pausa?: Pausa
 }
 
 export interface Hoy {
@@ -18,6 +23,8 @@ export interface Hoy {
   /** Votos sumados hoy: +1 por cada registro de versión mínima o completa. */
   votos: number
   habitos: TarjetaHoy[]
+  /** La pausa global, si dura hoy. */
+  pausaGlobal?: Pausa
 }
 
 interface Contexto {
@@ -27,7 +34,7 @@ interface Contexto {
 
 const delDia = (registros: Registro[], habitoId: string, dia: Dia) =>
   registros
-    .filter((r) => r.habitoId === habitoId && r.dia === dia)
+    .filter((r) => r.habitoId === habitoId && r.dia === dia && esVoto(r))
     .sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
 
 /** Registros que un día admite por toques: `veces` si el periodo es el día; si no, uno. */
@@ -60,12 +67,21 @@ export function componerHoy({
       // Sin periodo, aún no ha empezado; no programado, hoy no le toca.
       if (!periodo || periodo.estado === 'no_programado') return []
       const propios = delDia(registros, habito.id, dia)
-      return [{ habito, identidad, registros: propios, hecho: hechoHoy(habito, propios), periodo }]
+      const salto =
+        periodo.estado === 'saltado'
+          ? registros.findLast(
+              (r) => r.habitoId === habito.id && r.tipo === 'salto' && r.dia >= periodo.desde && r.dia <= periodo.hasta,
+            )
+          : undefined
+      return [
+        { habito, identidad, registros: propios, hecho: hechoHoy(habito, propios), periodo, salto, pausa: pausaEn(habito, ajustes, dia) },
+      ]
     })
   return {
     dia,
     votos: tarjetas.reduce((n, t) => n + t.registros.length, 0),
     habitos: tarjetas,
+    pausaGlobal: pausaGlobalEn(ajustes, dia),
   }
 }
 
@@ -84,4 +100,15 @@ export function toque({
   const propios = delDia(registros, habito.id, dia)
   if (hechoHoy(habito, propios)) return { tipo: 'deshacer', registroId: propios[propios.length - 1].id }
   return { tipo: 'registrar', registro: { habitoId: habito.id, dia, tipo: 'minima' } }
+}
+
+/** Saltar el periodo en curso: un registro neutro en el día lógico, con motivo si lo hay. */
+export function saltar({ habito, motivo, ahora, ajustes }: Contexto & { habito: Habito; motivo?: string }): Nuevo<Registro> {
+  const texto = motivo?.trim()
+  return {
+    habitoId: habito.id,
+    dia: diaLogico(ahora, ajustes.horaCierre),
+    tipo: 'salto',
+    ...(texto ? { motivo: texto } : {}),
+  }
 }

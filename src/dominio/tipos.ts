@@ -5,8 +5,16 @@ export type Hora = string
 /** Instante como cadena ISO 8601 (`Date.toISOString()`). */
 export type Instante = string
 
+/** Rango de días sin evaluación, ambos incluidos. */
+export interface Pausa {
+  desde: Dia
+  hasta: Dia
+}
+
 export interface Ajustes {
   horaCierre: Hora
+  /** «Vacaciones»: pausa todos los hábitos. Deja de aplicar sola después de `hasta`. */
+  pausaGlobal?: Pausa
   /** Instante de la última copia JSON exportada (o la de la copia importada). */
   ultimaCopia?: Instante
 }
@@ -45,15 +53,20 @@ export interface Habito extends Entidad {
   fechaInicio: Dia
   archivado: boolean
   orden: number
+  /** Opcional: los hábitos guardados antes de las pausas no la tienen. */
+  pausas?: Pausa[]
 }
 
-export type TipoRegistro = 'minima' | 'completa'
+/** `salto`: el periodo que lo contiene queda neutro (ni suma ni falla). */
+export type TipoRegistro = 'minima' | 'completa' | 'salto'
 
 export interface Registro extends Entidad {
   habitoId: string
   dia: Dia
   tipo: TipoRegistro
   nota?: string
+  /** Solo en `salto`, y opcional. */
+  motivo?: string
 }
 
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */

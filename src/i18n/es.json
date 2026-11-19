@@ -109,5 +109,38 @@
     "persistenteSi": "Tu navegador guardará tus datos aunque le falte espacio.",
     "persistenteNo": "Tu navegador podría borrar tus datos si se queda sin espacio. Las copias te protegen.",
     "persistenteNoDisponible": "Este navegador no permite pedir almacenamiento persistente. Las copias te protegen."
+  },
+  "pausas": {
+    "opciones": "Saltar o pausar",
+    "opcionesDe": "Saltar o pausar «{{nombre}}»",
+    "motivo": "Motivo (si quieres)",
+    "motivoEjemplo": "Por ejemplo: estoy con fiebre",
+    "saltarAyuda": "Saltar no suma ni resta: es un descanso con permiso.",
+    "saltar_dia": "Saltar hoy",
+    "saltar_semana": "Saltar esta semana",
+    "saltar_mes": "Saltar este mes",
+    "saltado": "Saltado, sin problema",
+    "saltadoAviso": "Listo, lo has saltado. No cuenta como fallo.",
+    "deshacerSalto": "Deshacer el salto",
+    "saltoDeshecho": "Salto deshecho.",
+    "pausar": "Pausar unos días",
+    "desde": "Desde",
+    "hasta": "Hasta (incluido)",
+    "pausarAccion": "Pausar",
+    "pausadoAviso": "En pausa hasta el {{fecha}}. Esos días no cuentan como fallo.",
+    "enPausa": "En pausa hasta el {{fecha}}",
+    "reanudar": "Reanudar hoy",
+    "reanudado": "¡De vuelta! Cuenta de nuevo desde hoy.",
+    "global": {
+      "titulo": "Vacaciones",
+      "intro": "Pausa todos tus hábitos hasta una fecha. Esos días no cuentan como fallo, y la pausa termina sola.",
+      "hasta": "Hasta (incluido)",
+      "empezar": "Empezar las vacaciones",
+      "empezada": "Vacaciones hasta el {{fecha}}. ¡A descansar!",
+      "activa": "Estás de vacaciones hasta el {{fecha}}. Tus hábitos te esperan sin prisa.",
+      "terminar": "Volver antes",
+      "terminada": "¡Hola de nuevo! Tus hábitos cuentan otra vez desde hoy.",
+      "aviso": "De vacaciones hasta el {{fecha}}. Nada de esto cuenta como fallo."
+    }
   }
 }
