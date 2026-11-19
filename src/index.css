@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/nunito';
+
+/* Tema de Pepita sobre los tokens de shadcn/ui. Claro y oscuro según el sistema. Contrastes AA. */
+:root {
+  --radius: 0.75rem;
+  --background: #fbf8f3;
+  --foreground: #1f2a24;
+  --card: #ffffff;
+  --card-foreground: #1f2a24;
+  --primary: #2f6b4f;
+  --primary-foreground: #ffffff;
+  --secondary: #e9efe9;
+  --secondary-foreground: #1f2a24;
+  --muted: #efebe4;
+  --muted-foreground: #57635c;
+  --accent: #e3efe7;
+  --accent-foreground: #1f2a24;
+  --destructive: #b42318;
+  --border: #ddd6cb;
+  --input: #8a8277;
+  --ring: #2f6b4f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #141a17;
+    --foreground: #eef2ee;
+    --card: #1c2420;
+    --card-foreground: #eef2ee;
+    --primary: #7fcba3;
+    --primary-foreground: #0f1a14;
+    --secondary: #26302b;
+    --secondary-foreground: #eef2ee;
+    --muted: #222a26;
+    --muted-foreground: #b3bdb7;
+    --accent: #23362c;
+    --accent-foreground: #eef2ee;
+    --destructive: #f2867c;
+    --border: #36413b;
+    --input: #7d8a83;
+    --ring: #7fcba3;
+  }
+}
+
+@theme inline {
+  --font-sans: 'Nunito Variable', ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}

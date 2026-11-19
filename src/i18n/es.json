@@ -1,0 +1,27 @@
+{
+  "app": {
+    "nombre": "Pepita",
+    "saltar": "Saltar al contenido"
+  },
+  "identidad": {
+    "general": "General"
+  },
+  "hoy": {
+    "titulo": "Hoy",
+    "votos_one": "{{count}} voto hoy",
+    "votos_other": "{{count}} votos hoy",
+    "vacio": "Aún no tienes hábitos. Empieza por uno pequeño: con eso basta.",
+    "nuevo": "Nuevo hábito",
+    "lista": "Hábitos de hoy",
+    "pendiente": "Toca cuando lo hagas",
+    "hecho": "Hecho · +1 voto"
+  },
+  "nuevo": {
+    "titulo": "Nuevo hábito",
+    "nombre": "¿Qué quieres hacer?",
+    "ejemplo": "Por ejemplo: leer una página",
+    "ayuda": "Mejor algo pequeño y fácil de empezar.",
+    "crear": "Crear hábito",
+    "cancelar": "Cancelar"
+  }
+}
