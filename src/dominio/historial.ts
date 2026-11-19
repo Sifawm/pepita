@@ -8,6 +8,8 @@ export interface DiaCalendario {
   registros: Registro[]
   /** Estado del periodo que contiene el día; falta antes del inicio y después de hoy. */
   estado?: EstadoPeriodo
+  /** `desde` del periodo que contiene el día (lo que guarda una AnotacionDeFallo); falta igual que `estado`. */
+  periodo?: Dia
   /** Se puede registrar, corregir o deshacer: cualquier día desde el inicio hasta hoy. */
   editable: boolean
 }
@@ -41,13 +43,9 @@ export function calendarioHabito({
   const dias: DiaCalendario[] = []
   for (let dia = desde; dia <= hasta; dia = sumarDias(dia, 1)) {
     const editable = dia >= habito.fechaInicio && dia <= hoy
-    dias.push({
-      dia,
-      registros: propios.filter((r) => r.dia === dia),
-      // El primer periodo puede empezar antes del inicio (semana natural): antes del inicio no hay estado.
-      estado: editable ? periodos.find((p) => p.desde <= dia && dia <= p.hasta)?.estado : undefined,
-      editable,
-    })
+    // El primer periodo puede empezar antes del inicio (semana natural): antes del inicio no hay estado.
+    const periodo = editable ? periodos.find((p) => p.desde <= dia && dia <= p.hasta) : undefined
+    dias.push({ dia, registros: propios.filter((r) => r.dia === dia), estado: periodo?.estado, periodo: periodo?.desde, editable })
   }
   return { desde, hasta, dias }
 }

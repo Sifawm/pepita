@@ -5,19 +5,25 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { conId, db, useAjustes } from '@/db'
 import {
   calendarioHabito,
   cambiarRegla,
   diaDeLaSemana,
   diaLogico,
+  evaluarHabito,
   sumarDias,
   type Ajustes,
+  type AnotacionDeFallo,
   type DiaCalendario,
   type Dia,
   type EstadoPeriodo,
   type Frecuencia,
   type Habito as THabito,
+  type Ley,
   type Registro,
 } from '@/dominio'
 import { cn } from '@/lib/utils'
@@ -60,7 +66,15 @@ export default function Habito() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold break-words">{datos.habito.nombre}</h1>
+      <header className="space-y-1">
+        <h1 className="text-3xl font-bold break-words">{datos.habito.nombre}</h1>
+        {/* En segundo plano: la racha es referencia, no lo principal. */}
+        <p className="text-sm text-muted-foreground">
+          {t('recuperacion.racha', { ...evaluarHabito({ ...datos, habito: datos.habito, ahora: new Date(), ajustes }).racha })}
+          {' · '}
+          {t('recuperacion.rachaAyuda')}
+        </p>
+      </header>
       <Calendario habito={datos.habito} registros={datos.registros} ajustes={ajustes} />
       <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />
       <Volver />
@@ -200,7 +214,65 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
           {t('habito.anadir.completa')}
         </Button>
       </div>
+      {dia.estado === 'fallido' && dia.periodo && <AnotarFallo habitoId={habito.id} periodo={dia.periodo} />}
     </div>
+  )
+}
+
+/** Motivo opcional de un fallo (uno por periodo). Guardarlo vacío lo borra. */
+function AnotarFallo({ habitoId, periodo }: { habitoId: string; periodo: Dia }) {
+  const anotaciones = useLiveQuery(() => db.anotacionesDeFallo.where({ habitoId, periodo }).toArray(), [habitoId, periodo])
+  if (!anotaciones) return null
+  return <FormFallo key={`${habitoId} ${periodo}`} habitoId={habitoId} periodo={periodo} anotacion={anotaciones[0]} />
+}
+
+function FormFallo({ habitoId, periodo, anotacion }: { habitoId: string; periodo: Dia; anotacion?: AnotacionDeFallo }) {
+  const { t } = useTranslation()
+  const [ley, setLey] = useState(anotacion?.ley ? String(anotacion.ley) : '')
+  const [nota, setNota] = useState(anotacion?.nota ?? '')
+  const [guardada, setGuardada] = useState(false)
+
+  const guardar = async (e: FormEvent) => {
+    e.preventDefault()
+    const texto = nota.trim()
+    const datos = { habitoId, periodo, ...(ley ? { ley: Number(ley) as Ley } : {}), ...(texto ? { nota: texto } : {}) }
+    if (!ley && !texto) {
+      if (anotacion) await db.anotacionesDeFallo.delete(anotacion.id)
+    } else
+      await db.anotacionesDeFallo.put(
+        anotacion ? { id: anotacion.id, creadoEn: anotacion.creadoEn, ...datos } : conId<AnotacionDeFallo>(datos),
+      )
+    setGuardada(true)
+  }
+
+  return (
+    <form onSubmit={guardar} aria-labelledby="anotar-fallo" className="space-y-3 border-t pt-3">
+      <h4 id="anotar-fallo" className="font-semibold">
+        {t('recuperacion.anotar')}
+      </h4>
+      <p className="text-sm text-muted-foreground">{t('recuperacion.anotarAyuda')}</p>
+      <div className="space-y-2">
+        <Label htmlFor="ley">{t('recuperacion.ley')}</Label>
+        <Select id="ley" value={ley} onChange={(e) => (setLey(e.target.value), setGuardada(false))}>
+          <option value="">{t('recuperacion.sinLey')}</option>
+          {[1, 2, 3, 4].map((l) => (
+            <option key={l} value={l}>
+              {t(`recuperacion.leyes.${l}`)}
+            </option>
+          ))}
+        </Select>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="nota-fallo">{t('recuperacion.nota')}</Label>
+        <Input id="nota-fallo" value={nota} onChange={(e) => (setNota(e.target.value), setGuardada(false))} />
+      </div>
+      <Button type="submit" variant="secondary">
+        {t('recuperacion.guardar')}
+      </Button>
+      <p aria-live="polite" className="text-sm font-semibold text-primary">
+        {guardada && t('recuperacion.guardada')}
+      </p>
+    </form>
   )
 }
 

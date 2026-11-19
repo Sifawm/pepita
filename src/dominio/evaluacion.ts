@@ -28,6 +28,19 @@ export interface EvaluacionHabito {
   actual?: Periodo
   /** `si_no`: un voto por registro, también en días no programados. */
   votos: number
+  /** En periodos. Un fallo aislado no suma ni la rompe; el segundo seguido la pone a 0. */
+  racha: Racha
+  /** El último periodo cerrado y evaluable fue un fallo, y el actual se puede cumplir aún. */
+  enRecuperacion: boolean
+  /** Fallos seguidos al final (saltos, pausas y días no programados no cortan la serie). */
+  fallosSeguidos: number
+  /** Cada periodo que rompió la racha: el segundo fallo de cada serie, uno por ruptura. */
+  rupturas: Periodo[]
+}
+
+export interface Racha {
+  actual: number
+  mejor: number
 }
 
 /** El periodo que contiene `dia` y lo que pide según la frecuencia. */
@@ -86,5 +99,29 @@ export function evaluarHabito({
     periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(pide, dentro, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  return { periodos, actual: periodos.at(-1), votos: propios.filter(esVoto).length }
+  return { periodos, actual: periodos.at(-1), votos: propios.filter(esVoto).length, ...racha(periodos) }
+}
+
+const cumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'
+
+/** Racha, recuperación y fallos seguidos. Solo cuentan los periodos cumplidos o fallidos. */
+function racha(periodos: Periodo[]) {
+  let actual = 0
+  let mejor = 0
+  let fallosSeguidos = 0
+  let fallosAntesDeHoy = 0
+  const rupturas: Periodo[] = []
+  periodos.forEach((p, i) => {
+    if (i === periodos.length - 1) fallosAntesDeHoy = fallosSeguidos
+    if (cumplido(p)) {
+      fallosSeguidos = 0
+      mejor = Math.max(mejor, ++actual)
+    } else if (p.estado === 'fallido' && ++fallosSeguidos === 2) {
+      actual = 0
+      rupturas.push(p)
+    }
+  })
+  const hoy = periodos.at(-1)?.estado
+  const evaluable = hoy === 'en_curso' || hoy === 'cumplido_minima' || hoy === 'cumplido_completa'
+  return { racha: { actual, mejor }, enRecuperacion: evaluable && fallosAntesDeHoy > 0, fallosSeguidos, rupturas }
 }

@@ -1,13 +1,14 @@
 // Persistencia: tablas Dexie y escrituras. Sin lógica de negocio (vive en @/dominio).
 import Dexie, { type EntityTable } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { AJUSTES_POR_DEFECTO, type Ajustes, type Entidad, type Habito, type Identidad, type Nuevo, type Registro } from '@/dominio'
+import { AJUSTES_POR_DEFECTO, type Ajustes, type AnotacionDeFallo, type Entidad, type Habito, type Identidad, type Nuevo, type Registro } from '@/dominio'
 import type { Datos } from '@/dominio'
 
 export const db = new Dexie('pepita') as Dexie & {
   identidades: EntityTable<Identidad, 'id'>
   habitos: EntityTable<Habito, 'id'>
   registros: EntityTable<Registro, 'id'>
+  anotacionesDeFallo: EntityTable<AnotacionDeFallo, 'id'>
   /** Una sola fila, con `id: 'ajustes'`. */
   ajustes: EntityTable<Partial<Ajustes> & { id: string }, 'id'>
 }
@@ -20,6 +21,8 @@ db.version(1).stores({
 })
 
 db.version(2).stores({ ajustes: 'id' })
+
+db.version(3).stores({ anotacionesDeFallo: 'id, habitoId, [habitoId+periodo]' })
 
 /** Añade `id` y `creadoEn` a lo que crea el núcleo. */
 export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
@@ -48,6 +51,7 @@ export const leerDatos = (): Promise<Datos> =>
       identidades: await db.identidades.toArray(),
       habitos: await db.habitos.toArray(),
       registros: await db.registros.toArray(),
+      anotacionesDeFallo: await db.anotacionesDeFallo.toArray(),
     }
   })
 

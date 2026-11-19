@@ -80,6 +80,18 @@ export interface Registro extends Entidad {
   motivo?: string
 }
 
+/** Las 4 leyes del cambio: 1 obvio (señal), 2 atractivo (anhelo), 3 fácil (respuesta), 4 satisfactorio (recompensa). */
+export type Ley = 1 | 2 | 3 | 4
+
+/** Por qué falló un periodo, si la persona quiere contarlo. Una como mucho por fallo. */
+export interface AnotacionDeFallo extends Entidad {
+  habitoId: string
+  /** `desde` del periodo fallido. */
+  periodo: Dia
+  ley?: Ley
+  nota?: string
+}
+
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */
 export type Nuevo<T extends Entidad> = Omit<T, keyof Entidad>
 
@@ -92,4 +104,5 @@ export interface Datos {
   identidades: Identidad[]
   habitos: Habito[]
   registros: Registro[]
+  anotacionesDeFallo: AnotacionDeFallo[]
 }

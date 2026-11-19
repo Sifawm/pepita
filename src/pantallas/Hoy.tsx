@@ -119,7 +119,7 @@ export default function Hoy() {
 
 function Tarjeta({ tarjeta, registros, ajustes }: { tarjeta: TarjetaHoy; registros: Registro[]; ajustes: Ajustes }) {
   const { t, i18n } = useTranslation()
-  const { habito, identidad, hecho, periodo, pausa } = tarjeta
+  const { habito, identidad, hecho, periodo, pausa, enRecuperacion, racha } = tarjeta
   const f = habito.frecuencia
   // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
   const contador =
@@ -143,6 +143,8 @@ function Tarjeta({ tarjeta, registros, ajustes }: { tarjeta: TarjetaHoy; registr
         'flex min-h-16 w-full items-center gap-4 rounded-lg border bg-card p-4 text-left transition-colors outline-none',
         'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         hecho ? 'border-primary bg-accent' : 'hover:bg-muted',
+        // Recuperación: borde grueso además del texto de sugerencia (no solo color).
+        enRecuperacion && !hecho && 'border-2 border-primary',
       )}
     >
       <span
@@ -168,6 +170,8 @@ function Tarjeta({ tarjeta, registros, ajustes }: { tarjeta: TarjetaHoy; registr
                 ? t('pausas.saltado')
                 : t('hoy.pendiente')}
         </span>
+        {enRecuperacion && !hecho && <span className="block text-sm font-semibold text-primary">{t('recuperacion.sugerencia')}</span>}
+        {racha.mejor > 0 && <span className="block text-xs text-muted-foreground">{t('recuperacion.racha', { ...racha })}</span>}
       </span>
     </button>
   )

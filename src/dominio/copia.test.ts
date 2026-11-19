@@ -59,6 +59,11 @@ const datos: Datos = {
     { id: 'r2', creadoEn: '2026-05-03T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-03', tipo: 'completa', nota: 'un capítulo' },
     { id: 'r3', creadoEn: '2026-05-04T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-04', tipo: 'salto', motivo: 'Viaje' },
   ],
+  anotacionesDeFallo: [
+    { id: 'a1', creadoEn: '2026-05-06T09:00:00.000Z', habitoId: 'leer', periodo: '2026-05-05', ley: 3, nota: 'Estaba agotada' },
+    { id: 'a2', creadoEn: '2026-05-07T09:00:00.000Z', habitoId: 'correr', periodo: '2026-05-04', ley: 1 },
+    { id: 'a3', creadoEn: '2026-05-08T09:00:00.000Z', habitoId: 'leer', periodo: '2026-05-06', nota: 'Ni idea' },
+  ],
 }
 
 describe('exportar', () => {
@@ -108,6 +113,9 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['un motivo en un registro que no es un salto', con((c) => (c.datos.registros[0].motivo = 'porque sí')), { motivo: 'invalido', ruta: 'datos.registros[0].motivo' }],
     ['una versión de regla mal formada', con((c) => (c.datos.habitos[1].versiones[0].frecuencia.veces = 0)), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[0].frecuencia.veces' }],
     ['versiones de regla desordenadas', con((c) => (c.datos.habitos[1].versiones[1].hasta = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[1].hasta' }],
+    ['una ley que no es de 1 a 4', con((c) => (c.datos.anotacionesDeFallo[0].ley = 5)), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[0].ley' }],
+    ['una anotación de un hábito que no existe', con((c) => (c.datos.anotacionesDeFallo[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[1].habitoId' }],
+    ['dos anotaciones del mismo fallo', con((c) => (c.datos.anotacionesDeFallo[2].periodo = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[2].periodo' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

@@ -181,5 +181,23 @@
       "terminada": "Hello again! Your habits count again from today.",
       "aviso": "On holiday until {{fecha}}. None of this counts as a miss."
     }
+  },
+  "recuperacion": {
+    "sugerencia": "Time to come back. The minimum version is enough.",
+    "racha": "Streak {{actual}} · best {{mejor}}",
+    "rachaAyuda": "Counts the periods you completed. A single miss doesn't break it.",
+    "anotar": "What happened? (if you'd like to say)",
+    "anotarAyuda": "No blame: it just helps to understand what the habit needs.",
+    "ley": "What weighed most",
+    "sinLey": "Not chosen",
+    "leyes": {
+      "1": "I didn't notice it (1st law: make it obvious)",
+      "2": "I didn't feel like it (2nd law: make it attractive)",
+      "3": "It was hard (3rd law: make it easy)",
+      "4": "It didn't feel worth it (4th law: make it satisfying)"
+    },
+    "nota": "Note",
+    "guardar": "Save",
+    "guardada": "Noted. Thanks for sharing."
   }
 }
