@@ -55,7 +55,18 @@ export interface Habito extends Entidad {
   orden: number
   /** Opcional: los hábitos guardados antes de las pausas no la tienen. */
   pausas?: Pausa[]
+  /**
+   * Reglas anteriores, de la más antigua a la más reciente: cada una rigió hasta `hasta`
+   * (incluido) desde el día siguiente a la anterior (o desde el inicio). Después rige la actual.
+   * Falta si la regla nunca cambió. Se cambia solo con `cambiarRegla`.
+   */
+  versiones?: VersionRegla[]
 }
+
+/** Lo que decide cómo se evalúa un periodo. El objetivo cuantitativo entrará aquí. */
+export type Regla = Pick<Habito, 'frecuencia'>
+
+export type VersionRegla = Regla & { hasta: Dia }
 
 /** `salto`: el periodo que lo contiene queda neutro (ni suma ni falla). */
 export type TipoRegistro = 'minima' | 'completa' | 'salto'

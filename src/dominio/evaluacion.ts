@@ -1,5 +1,6 @@
 import { diaDeLaSemana, diaLogico, periodoDe, sumarDias } from './calendario'
 import type { Ajustes, Dia, Frecuencia, Habito, Pausa, Registro } from './tipos'
+import { reglaEn } from './versiones'
 
 export type EstadoPeriodo =
   | 'cumplido_minima'
@@ -75,8 +76,12 @@ export function evaluarHabito({
   const pausas = pausasDe(habito, ajustes)
   const periodos: Periodo[] = []
   for (let dia = habito.fechaInicio; dia <= hoy; ) {
-    // La regla se pide por periodo: aquí entrarán las versiones con fecha de vigencia.
-    const { desde, hasta, pide } = periodoQueContiene(dia, habito.frecuencia)
+    // Cada periodo se evalúa con la regla que regía entonces, recortado a su tramo de vigencia.
+    const regla = reglaEn(habito, dia)
+    const periodo = periodoQueContiene(dia, regla.frecuencia)
+    const desde = regla.desde && periodo.desde < regla.desde ? regla.desde : periodo.desde
+    const hasta = regla.hasta && regla.hasta < periodo.hasta ? regla.hasta : periodo.hasta
+    const { pide } = periodo
     const dentro = propios.filter((r) => r.dia >= desde && r.dia <= hasta)
     periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(pide, dentro, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)

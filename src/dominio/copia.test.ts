@@ -36,6 +36,11 @@ const datos: Datos = {
         { desde: '2026-05-05', hasta: '2026-05-05' },
         { desde: '2026-06-01', hasta: '2026-06-30' },
       ],
+      // Historial de reglas: fue diario, luego días concretos, y ahora 3 por semana.
+      versiones: [
+        { hasta: '2026-05-05', frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' } },
+        { hasta: '2026-05-10', frecuencia: { tipo: 'dias_semana', dias: [1, 3, 5] } },
+      ],
     },
     {
       id: 'yoga',
@@ -101,6 +106,8 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una pausa que acaba antes de empezar', con((c) => (c.datos.habitos[1].pausas[0].desde = '2026-05-06')), { motivo: 'invalido', ruta: 'datos.habitos[1].pausas[0]' }],
     ['una pausa global con un día imposible', con((c) => (c.datos.ajustes.pausaGlobal.hasta = '2026-13-01')), { motivo: 'invalido', ruta: 'datos.ajustes.pausaGlobal.hasta' }],
     ['un motivo en un registro que no es un salto', con((c) => (c.datos.registros[0].motivo = 'porque sí')), { motivo: 'invalido', ruta: 'datos.registros[0].motivo' }],
+    ['una versión de regla mal formada', con((c) => (c.datos.habitos[1].versiones[0].frecuencia.veces = 0)), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[0].frecuencia.veces' }],
+    ['versiones de regla desordenadas', con((c) => (c.datos.habitos[1].versiones[1].hasta = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.habitos[1].versiones[1].hasta' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })
