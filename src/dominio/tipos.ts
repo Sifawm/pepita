@@ -45,7 +45,18 @@ export interface Habito extends Entidad {
   fechaInicio: Dia
   archivado: boolean
   orden: number
+  /**
+   * Reglas anteriores, de la más antigua a la más reciente: cada una rigió hasta `hasta`
+   * (incluido) desde el día siguiente a la anterior (o desde el inicio). Después rige la actual.
+   * Falta si la regla nunca cambió. Se cambia solo con `cambiarRegla`.
+   */
+  versiones?: VersionRegla[]
 }
+
+/** Lo que decide cómo se evalúa un periodo. El objetivo cuantitativo entrará aquí. */
+export type Regla = Pick<Habito, 'frecuencia'>
+
+export type VersionRegla = Regla & { hasta: Dia }
 
 export type TipoRegistro = 'minima' | 'completa'
 

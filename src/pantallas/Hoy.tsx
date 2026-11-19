@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Check, Circle, Plus, Users } from 'lucide-react'
+import { CalendarDays, Check, Circle, Plus, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
@@ -83,8 +83,15 @@ export default function Hoy() {
       ) : (
         <ul aria-label={t('hoy.lista')} className="space-y-3">
           {hoy.habitos.map((tarjeta) => (
-            <li key={tarjeta.habito.id}>
+            <li key={tarjeta.habito.id} className="flex items-stretch gap-2">
               <Tarjeta tarjeta={tarjeta} registros={datos.registros} ajustes={ajustes} />
+              <Link
+                to={`/habito/${tarjeta.habito.id}`}
+                aria-label={t('habito.abrir', { nombre: tarjeta.habito.nombre })}
+                className={cn(buttonVariants({ variant: 'ghost' }), 'h-auto min-w-11 px-0')}
+              >
+                <CalendarDays aria-hidden />
+              </Link>
             </li>
           ))}
         </ul>

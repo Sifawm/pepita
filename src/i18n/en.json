@@ -109,5 +109,41 @@
     "persistenteSi": "Your browser will keep your data even if it runs low on space.",
     "persistenteNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
     "persistenteNoDisponible": "This browser can't be asked for persistent storage. Backups keep you covered."
+  },
+  "habito": {
+    "abrir": "Calendar for “{{nombre}}”",
+    "volver": "Back to Today",
+    "noExiste": "We couldn't find this habit.",
+    "mesAnterior": "Previous month",
+    "mesSiguiente": "Next month",
+    "ayuda": "Tap any day to log it, fix it or undo it. Everything updates on its own.",
+    "leyenda": "Legend",
+    "estado": {
+      "cumplido_completa": "Done (full)",
+      "cumplido_minima": "Done (minimum)",
+      "fallido": "Not logged",
+      "en_curso": "In progress",
+      "no_programado": "Not scheduled"
+    },
+    "registros_one": "{{count}} entry",
+    "registros_other": "{{count}} entries",
+    "sinRegistros": "Nothing logged. If you forgot, you can log it now.",
+    "tipo": {
+      "minima": "Minimum version",
+      "completa": "Full version"
+    },
+    "pasarA": {
+      "minima": "It was the minimum",
+      "completa": "It was the full one"
+    },
+    "deshacer": "Undo",
+    "anadir": {
+      "minima": "Log the minimum",
+      "completa": "Log the full one"
+    },
+    "frecuencia": "Change how often",
+    "frecuenciaAyuda": "It applies from the current period. Anything already closed still counts with the rule you had then, so your history stays true.",
+    "guardarFrecuencia": "Save frequency",
+    "frecuenciaGuardada": "Done, frequency saved."
   }
 }

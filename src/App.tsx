@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
 import Ajustes from '@/pantallas/Ajustes'
+import Habito from '@/pantallas/Habito'
 import Hoy from '@/pantallas/Hoy'
 import Identidades from '@/pantallas/Identidades'
 import NuevoHabito from '@/pantallas/NuevoHabito'
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/" element={<Hoy />} />
             <Route path="/nuevo" element={<NuevoHabito />} />
             <Route path="/identidades" element={<Identidades />} />
+            <Route path="/habito/:id" element={<Habito />} />
             <Route path="/ajustes" element={<Ajustes />} />
           </Routes>
         </main>

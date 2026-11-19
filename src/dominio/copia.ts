@@ -1,6 +1,6 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
-import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Registro } from './tipos'
+import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -63,18 +63,30 @@ const identidad = objeto<Identidad>({
   orden: entero(0),
 })
 
+const frecuencia = segunTipo<Frecuencia>({
+  veces_por_periodo: objeto({ tipo: literal('veces_por_periodo'), veces: entero(1), periodo: literal('dia', 'semana', 'mes') }),
+  dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
+})
+
+/** Historial de reglas: cada versión acaba después que la anterior (si no, un tramo quedaría vacío). */
+const versiones: Validador<VersionRegla[]> = (v, r) => {
+  const vs = lista(objeto<VersionRegla>({ hasta: dia, frecuencia }))(v, r)
+  vs.forEach((x, i) => {
+    if (i > 0 && x.hasta <= vs[i - 1].hasta) throw new Invalido(`${r}[${i}].hasta`)
+  })
+  return vs
+}
+
 const habito = objeto<Habito>({
   ...entidad,
   identidadId: id,
   nombre: conPatron(/\S/),
   tipo: literal('si_no'),
-  frecuencia: segunTipo<Frecuencia>({
-    veces_por_periodo: objeto({ tipo: literal('veces_por_periodo'), veces: entero(1), periodo: literal('dia', 'semana', 'mes') }),
-    dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
-  }),
+  frecuencia,
   fechaInicio: dia,
   archivado: booleano,
   orden: entero(0),
+  versiones: opcional(versiones),
 })
 
 const registro = objeto<Registro>({
