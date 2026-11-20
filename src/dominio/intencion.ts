@@ -2,7 +2,7 @@
 import type { Habito, Hora } from './tipos'
 
 /** El ancla de un hábito, solo mientras exista y no esté archivada: si falta, el hábito queda «sin hora». */
-function anclaDe(habito: Pick<Habito, 'intencion'>, habitos: Habito[]) {
+export function anclaDe(habito: Pick<Habito, 'intencion'>, habitos: Habito[]) {
   const c = habito.intencion?.cuando
   return c && 'despuesDeHabitoId' in c ? habitos.find((h) => h.id === c.despuesDeHabitoId && !h.archivado) : undefined
 }

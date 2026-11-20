@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { PausaGlobal } from '@/components/Pausas'
+import { SeccionRecordatorios } from '@/components/Recordatorios'
 import SeccionCopias from '@/components/SeccionCopias'
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -31,7 +32,17 @@ export default function Ajustes() {
         </p>
       </div>
       <PausaGlobal />
+      <SeccionRecordatorios />
       <SeccionCopias />
+      <section aria-labelledby="primeros-pasos" className="space-y-3">
+        <h2 id="primeros-pasos" className="text-xl font-bold">
+          {t('primerosPasos.titulo')}
+        </h2>
+        <p className="text-muted-foreground">{t('primerosPasos.repetirAyuda')}</p>
+        <Link to="/primeros-pasos" className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
+          {t('primerosPasos.repetir')}
+        </Link>
+      </section>
       <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
         {t('ajustes.volver')}
       </Link>

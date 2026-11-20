@@ -1,34 +1,14 @@
 import { Download, FileSpreadsheet, Upload } from 'lucide-react'
-import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { guardarAjustes, leerDatos, sustituirDatos, useAjustes } from '@/db'
 import { diaLogico, exportar, importar, registrosCsv, type Datos, type ErrorImportacion } from '@/dominio'
-
-function descargar(nombre: string, partes: BlobPart[], tipo: string) {
-  const url = URL.createObjectURL(new Blob(partes, { type: tipo }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = nombre
-  a.click()
-  // Safari necesita la URL viva un rato después del clic.
-  setTimeout(() => URL.revokeObjectURL(url), 60_000)
-}
+import { usePersistente } from '@/lib/instalacion'
+import { descargar } from '@/lib/utils'
 
 /** `AAAA-MM-DD` local para el nombre del fichero. */
 const hoyLocal = (ahora: Date) => diaLogico(ahora, '00:00')
-
-/** `true`/`false`: respuesta del navegador; `null`: no lo permite; `undefined`: preguntando. */
-function usePersistente() {
-  const [persistente, setPersistente] = useState<boolean | null | undefined>(() =>
-    'storage' in navigator ? undefined : null,
-  )
-  useEffect(() => {
-    // Devuelve `true` si ya estaba concedido; si no, lo pide (también se pide al arrancar).
-    navigator.storage?.persist().then(setPersistente, () => setPersistente(false))
-  }, [])
-  return persistente
-}
 
 export default function SeccionCopias() {
   const { t, i18n } = useTranslation()

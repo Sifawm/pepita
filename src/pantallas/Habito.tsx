@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { SumarValor } from '@/components/Cuantitativo'
+import { Diagnosticos } from '@/components/Diagnostico'
 import { GraficoSerie } from '@/components/GraficoSerie'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -57,6 +58,10 @@ export default function Habito() {
   const datos = useLiveQuery(async () => ({
     habito: await db.habitos.get(id),
     registros: await db.registros.where('habitoId').equals(id).toArray(),
+    // El sin responder (pendiente o pospuesto): como mucho uno por hábito.
+    diagnostico: (await db.diagnosticos.where('habitoId').equals(id).toArray()).find(
+      (d) => d.estado === 'pendiente' || d.estado === 'pospuesto',
+    ),
   }), [id])
 
   if (!datos || !ajustes) return null
@@ -82,6 +87,7 @@ export default function Habito() {
           {t('recuperacion.rachaAyuda')}
         </p>
       </header>
+      <Diagnosticos items={datos.diagnostico ? [{ diagnostico: datos.diagnostico, habito: datos.habito }] : []} />
       <Fuerza evaluacion={evaluacion} hoy={diaLogico(ahora, ajustes.horaCierre)} />
       <MapaDeCalor habito={datos.habito} registros={datos.registros} ahora={ahora} ajustes={ajustes} />
       {/* Al evitar no hay versiones: todo día limpio es completo. */}

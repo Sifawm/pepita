@@ -17,6 +17,8 @@ export interface Ajustes {
   pausaGlobal?: Pausa
   /** Instante de la última copia JSON exportada (o la de la copia importada). */
   ultimaCopia?: Instante
+  /** Avisos del navegador mientras la app está abierta. Falta = desactivados. */
+  notificaciones?: boolean
 }
 
 export const AJUSTES_POR_DEFECTO: Ajustes = { horaCierre: '04:00' }
@@ -148,6 +150,35 @@ export interface AnotacionDeFallo extends Entidad {
   nota?: string
 }
 
+export type EstadoDiagnostico = 'pendiente' | 'respondido' | 'pospuesto' | 'descartado'
+
+/**
+ * Lo que ofrece cada causa, con un toque (`ACCIONES_DIAGNOSTICO`). Ticket 15 completa
+ * `'solo_minima'` con la sugerencia `bajar`.
+ */
+export type AccionDiagnostico =
+  | 'editar_intencion'
+  | 'exportar_ics'
+  | 'editar_recompensa'
+  | 'editar_identidad'
+  | 'solo_minima'
+  | 'editar_entorno'
+  | 'ver_votos'
+  | 'pausar'
+  | 'archivar'
+
+/** «¿Qué ha pasado?» tras dos fallos seguidos. Uno como mucho por ruptura de racha. */
+export interface Diagnostico extends Entidad {
+  habitoId: string
+  /** `desde` del segundo periodo fallido (la ruptura). */
+  periodoQueLoDisparo: Dia
+  /** La causa elegida; solo (y siempre) en `respondido`. */
+  ley?: Ley
+  estado: EstadoDiagnostico
+  /** Una de las acciones de su ley, si se aplicó. */
+  accionAplicada?: AccionDiagnostico
+}
+
 /** Un hito (`HITOS`) de una identidad ya celebrado: no se vuelve a celebrar nunca. */
 export interface HitoCelebrado extends Entidad {
   identidadId: string
@@ -168,4 +199,5 @@ export interface Datos {
   registros: Registro[]
   anotacionesDeFallo: AnotacionDeFallo[]
   hitosCelebrados: HitoCelebrado[]
+  diagnosticos: Diagnostico[]
 }

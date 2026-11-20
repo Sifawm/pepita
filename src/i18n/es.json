@@ -3,6 +3,40 @@
     "nombre": "Pepita",
     "saltar": "Saltar al contenido"
   },
+  "primerosPasos": {
+    "titulo": "Primeros pasos",
+    "habito": "Tu primer hábito",
+    "empezar": "Ir a Hoy",
+    "repetir": "Repetir los primeros pasos",
+    "repetirAyuda": "Vuelve a elegir idioma, crea una identidad y un hábito, y repasa cómo instalar Pepita. No borra nada.",
+    "idioma": {
+      "titulo": "¡Hola! Soy Pepita. ¿En qué idioma hablamos?",
+      "ayuda": "Te propongo el de tu navegador; puedes cambiarlo cuando quieras. Sin cuentas: todo se queda en este dispositivo.",
+      "copia": "¿Tienes una copia? Restáurala en Ajustes"
+    },
+    "identidad": {
+      "titulo": "¿Quién quieres ser?",
+      "ayuda": "Escríbelo como una frase: «Soy una persona que…». Cada hábito será un voto por esa persona."
+    },
+    "registrar": {
+      "titulo": "¿Lo hacemos ahora?",
+      "ayuda": "Haz tu versión mínima y tócala: será tu primer voto. Si ahora no puedes, no pasa nada."
+    },
+    "instalar": {
+      "titulo": "Ten a Pepita a mano",
+      "ayuda": "Instalada en tu pantalla de inicio, se abre al momento y cuida mejor tus datos.",
+      "boton": "Instalar Pepita",
+      "menu": "Si tu navegador lo permite, añádela a la pantalla de inicio desde su menú.",
+      "yaInstalada": "Ya tienes Pepita instalada. ¡Genial!",
+      "ios": {
+        "titulo": "Cómo instalarla en tu iPhone o iPad",
+        "compartir": "En Safari, toca el botón Compartir (el cuadrado con una flecha hacia arriba).",
+        "anadir": "Elige «Añadir a pantalla de inicio» y toca «Añadir».",
+        "abrir": "A partir de ahora, abre Pepita desde su icono.",
+        "porque": "Safari puede borrar los datos de las webs que no abres en unas semanas. Instalada, Pepita los conserva."
+      }
+    }
+  },
   "identidad": {
     "general": "General"
   },
@@ -420,5 +454,57 @@
       "saltado": "Saltado",
       "pausado": "En pausa"
     }
+  },
+  "recordatorios": {
+    "titulo": "Recordatorios",
+    "intro": "Lleva tus hábitos con hora al calendario del móvil: te avisará aunque Pepita esté cerrada.",
+    "exportar": "Exportar recordatorios (.ics)",
+    "exportarAyuda": "Salen los hábitos con hora, cada uno con su alarma. Los que van después de otro aparecen en su descripción.",
+    "exportados": "Listo. Abre el fichero para añadirlo a tu calendario.",
+    "ninguno": "Aún no tienes hábitos con hora. Cuando le pongas una a alguno en «Cuándo», saldrá aquí.",
+    "notificaciones": "Avisarme mientras Pepita está abierta",
+    "notificacionesAyuda": "Te avisamos a la hora de cada hábito que te quede hoy. Solo funciona con la app abierta.",
+    "bloqueadas": "Tu navegador no deja a Pepita avisarte. Si te apetece, puedes permitirlo en sus ajustes.",
+    "noDisponibles": "Este navegador no admite avisos. El calendario (.ics) sí te servirá.",
+    "despues": "Y después: {{lista}}"
+  },
+  "diagnostico": {
+    "avisos": "Preguntas de Pepita",
+    "aviso": "¿Qué ha pasado con «{{nombre}}»? Echémosle un vistazo",
+    "titulo": "¿Qué ha pasado con «{{nombre}}»?",
+    "intro": "Dos veces seguidas sin hacerlo. No pasa nada: es una pista, no un fallo tuyo. ¿Qué pesó más?",
+    "causas": {
+      "titulo": "Causas",
+      "1": "No lo vi",
+      "2": "No me apetecía",
+      "3": "Era difícil",
+      "4": "No compensaba"
+    },
+    "consejos": {
+      "1": "Que sea obvio: átalo a un momento y un lugar concretos, y lo verás venir.",
+      "2": "Que sea atractivo: júntalo con algo que te guste, o recuerda quién quieres ser.",
+      "3": "Que sea fácil: hazlo tan pequeño que no puedas decir que no, y prepara el terreno.",
+      "4": "Que sea satisfactorio: mira cuánto llevas sumado. Y si ahora no toca, pausarlo también vale."
+    },
+    "acciones": {
+      "titulo": "Qué puedes cambiar",
+      "editar_intencion": "Elegir cuándo y dónde",
+      "editar_recompensa": "Añadir una recompensa",
+      "editar_identidad": "Repasar mis identidades",
+      "solo_minima": "Quedarme solo con la versión mínima",
+      "editar_entorno": "Preparar mi entorno",
+      "ver_votos": "Ver mis votos",
+      "pausar": "Pausarlo {{dias}} días",
+      "archivar": "Archivarlo, sin culpa"
+    },
+    "soloApuntar": "Solo apuntarlo",
+    "listo": "Listo",
+    "otraCausa": "Elegir otra causa",
+    "posponer": "Ahora no, más tarde",
+    "descartar": "Descartar",
+    "gracias": "Apuntado. Gracias por contarlo.",
+    "pospuesto": "Lo dejamos para luego. Lo tienes en el detalle del hábito.",
+    "descartado": "Descartado. Seguimos.",
+    "archivado": "Archivado. Puedes recuperarlo cuando quieras."
   }
 }

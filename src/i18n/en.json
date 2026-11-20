@@ -3,6 +3,40 @@
     "nombre": "Pepita",
     "saltar": "Skip to content"
   },
+  "primerosPasos": {
+    "titulo": "First steps",
+    "habito": "Your first habit",
+    "empezar": "Go to Today",
+    "repetir": "Repeat the first steps",
+    "repetirAyuda": "Choose your language again, create an identity and a habit, and see how to install Pepita. Nothing gets deleted.",
+    "idioma": {
+      "titulo": "Hi! I'm Pepita. Which language shall we use?",
+      "ayuda": "I'm suggesting your browser's language; you can change it any time. No accounts: everything stays on this device.",
+      "copia": "Have a backup? Restore it in Settings"
+    },
+    "identidad": {
+      "titulo": "Who do you want to be?",
+      "ayuda": "Write it as a sentence: “I am a person who…”. Each habit will be a vote for that person."
+    },
+    "registrar": {
+      "titulo": "Shall we do it now?",
+      "ayuda": "Do your minimum version and tap it: that's your first vote. If you can't right now, that's fine."
+    },
+    "instalar": {
+      "titulo": "Keep Pepita close",
+      "ayuda": "Installed on your home screen, it opens instantly and takes better care of your data.",
+      "boton": "Install Pepita",
+      "menu": "If your browser allows it, add it to your home screen from its menu.",
+      "yaInstalada": "You already have Pepita installed. Great!",
+      "ios": {
+        "titulo": "How to install it on your iPhone or iPad",
+        "compartir": "In Safari, tap the Share button (the square with an arrow pointing up).",
+        "anadir": "Choose “Add to Home Screen” and tap “Add”.",
+        "abrir": "From now on, open Pepita from its icon.",
+        "porque": "Safari may delete data from websites you haven't opened in a few weeks. Once installed, Pepita keeps it."
+      }
+    }
+  },
   "identidad": {
     "general": "General"
   },
@@ -420,5 +454,57 @@
       "saltado": "Skipped",
       "pausado": "Paused"
     }
+  },
+  "recordatorios": {
+    "titulo": "Reminders",
+    "intro": "Bring your timed habits to your phone's calendar: it will remind you even when Pepita is closed.",
+    "exportar": "Export reminders (.ics)",
+    "exportarAyuda": "Habits with a time are included, each with its alarm. Habits that come after another one appear in its description.",
+    "exportados": "Done. Open the file to add it to your calendar.",
+    "ninguno": "You don't have habits with a time yet. Once you give one a time under “When”, it will show up here.",
+    "notificaciones": "Remind me while Pepita is open",
+    "notificacionesAyuda": "We'll nudge you at the time of each habit still left for today. Only works while the app is open.",
+    "bloqueadas": "Your browser doesn't let Pepita notify you. If you like, you can allow it in its settings.",
+    "noDisponibles": "This browser doesn't support notifications. The calendar file (.ics) will still work.",
+    "despues": "And then: {{lista}}"
+  },
+  "diagnostico": {
+    "avisos": "Questions from Pepita",
+    "aviso": "What happened with “{{nombre}}”? Let’s look at it together",
+    "titulo": "What happened with “{{nombre}}”?",
+    "intro": "Twice in a row without doing it. That’s okay: it’s a clue, not your fault. What weighed most?",
+    "causas": {
+      "titulo": "Causes",
+      "1": "I didn’t notice",
+      "2": "I didn’t feel like it",
+      "3": "It was hard",
+      "4": "It didn’t feel worth it"
+    },
+    "consejos": {
+      "1": "Make it obvious: tie it to a specific time and place, and you’ll see it coming.",
+      "2": "Make it attractive: pair it with something you enjoy, or remember who you want to be.",
+      "3": "Make it easy: make it so small you can’t say no, and set things up beforehand.",
+      "4": "Make it satisfying: look at how much you’ve added up. And if now isn’t the time, pausing is fine too."
+    },
+    "acciones": {
+      "titulo": "What you can change",
+      "editar_intencion": "Choose when and where",
+      "editar_recompensa": "Add a reward",
+      "editar_identidad": "Review my identities",
+      "solo_minima": "Stick to the minimum version",
+      "editar_entorno": "Set up my environment",
+      "ver_votos": "See my votes",
+      "pausar": "Pause it for {{dias}} days",
+      "archivar": "Archive it, guilt-free"
+    },
+    "soloApuntar": "Just note it",
+    "listo": "Done",
+    "otraCausa": "Choose another cause",
+    "posponer": "Not now, later",
+    "descartar": "Dismiss",
+    "gracias": "Noted. Thanks for sharing.",
+    "pospuesto": "We’ll leave it for later. It’s waiting in the habit’s details.",
+    "descartado": "Dismissed. Let’s keep going.",
+    "archivado": "Archived. You can bring it back whenever you like."
   }
 }
