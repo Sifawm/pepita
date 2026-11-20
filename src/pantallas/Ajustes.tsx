@@ -34,6 +34,15 @@ export default function Ajustes() {
       <PausaGlobal />
       <SeccionRecordatorios />
       <SeccionCopias />
+      <section aria-labelledby="primeros-pasos" className="space-y-3">
+        <h2 id="primeros-pasos" className="text-xl font-bold">
+          {t('primerosPasos.titulo')}
+        </h2>
+        <p className="text-muted-foreground">{t('primerosPasos.repetirAyuda')}</p>
+        <Link to="/primeros-pasos" className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
+          {t('primerosPasos.repetir')}
+        </Link>
+      </section>
       <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
         {t('ajustes.volver')}
       </Link>

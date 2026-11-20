@@ -10,6 +10,7 @@ import Habito from '@/pantallas/Habito'
 import Hoy from '@/pantallas/Hoy'
 import Identidad from '@/pantallas/Identidad'
 import Identidades from '@/pantallas/Identidades'
+import PrimerosPasos from '@/pantallas/PrimerosPasos'
 
 export default function App() {
   const { t } = useTranslation()
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="/identidades/:id" element={<Identidad />} />
             <Route path="/habito/:id" element={<Habito />} />
             <Route path="/ajustes" element={<Ajustes />} />
+            <Route path="/primeros-pasos" element={<PrimerosPasos />} />
           </Routes>
         </main>
       </div>
