@@ -3,6 +3,7 @@ import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
+import { Diagnosticos } from '@/components/Diagnostico'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -53,6 +54,10 @@ export default function Habito() {
   const datos = useLiveQuery(async () => ({
     habito: await db.habitos.get(id),
     registros: await db.registros.where('habitoId').equals(id).toArray(),
+    // El sin responder (pendiente o pospuesto): como mucho uno por hábito.
+    diagnostico: (await db.diagnosticos.where('habitoId').equals(id).toArray()).find(
+      (d) => d.estado === 'pendiente' || d.estado === 'pospuesto',
+    ),
   }), [id])
 
   if (!datos || !ajustes) return null
@@ -75,6 +80,7 @@ export default function Habito() {
           {t('recuperacion.rachaAyuda')}
         </p>
       </header>
+      <Diagnosticos items={datos.diagnostico ? [{ diagnostico: datos.diagnostico, habito: datos.habito }] : []} />
       <Calendario habito={datos.habito} registros={datos.registros} ajustes={ajustes} />
       <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />
       <Link to={`/habito/${id}/editar`} className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>

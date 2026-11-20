@@ -93,6 +93,7 @@ export default function AsistenteHabito() {
       // Las archivadas no se ofrecen, salvo la que ya tiene el hábito.
       identidades={identidades.filter((i) => !i.archivada || i.id === inicial.identidadId)}
       habitos={habitos}
+      paso={params.get('paso') ?? undefined}
       guardar={async (b) => {
         if (habito) await db.habitos.put(editarHabito(habito, b, new Date(), ajustes))
         else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: await db.habitos.count() }, new Date(), ajustes)))
@@ -106,12 +107,15 @@ function Asistente({
   habito,
   identidades,
   habitos,
+  paso: pasoPedido,
   guardar,
 }: {
   inicial: Borrador
   habito?: Habito
   identidades: Identidad[]
   habitos: Habito[]
+  /** `?paso=<clave>`: abre directamente ese paso (lo usa el diagnóstico). */
+  paso?: string
   guardar: (b: Borrador) => Promise<void>
 }) {
   const { t } = useTranslation()
@@ -121,13 +125,14 @@ function Asistente({
   const anclas = anclasPosibles(habito?.id, habitos)
   const props = { borrador, cambiar, identidades, habitos, anclas, titulo: 'paso-titulo' }
   const pasos = PASOS.filter((p) => !p.visible || p.visible(props))
-  const [n, setN] = useState(0)
+  const [n, setN] = useState(() => Math.max(0, pasos.findIndex((p) => p.clave === pasoPedido)))
   const paso = pasos[n]
   const ultimo = n === pasos.length - 1
 
   // Al cambiar de paso, el foco va a su título (al abrir, lo coge el campo del nombre).
   const tituloRef = useRef<HTMLHeadingElement>(null)
-  const anterior = useRef(n)
+  // Abierto en un paso pedido, el foco empieza también en su título.
+  const anterior = useRef(0)
   useEffect(() => {
     if (anterior.current !== n) tituloRef.current?.focus()
     anterior.current = n

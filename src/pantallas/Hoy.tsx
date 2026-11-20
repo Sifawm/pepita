@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import AvisoCopia from '@/components/AvisoCopia'
 import { CelebracionHito } from '@/components/CelebracionHito'
+import { Diagnosticos } from '@/components/Diagnostico'
 import { Celebracion, TarjetaHabito, type Panel } from '@/components/TarjetaHabito'
 import { buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { db, useAjustes } from '@/db'
-import { componerHoy, resumirIdentidades } from '@/dominio'
+import { componerHoy, diagnosticosPendientes, resumirIdentidades } from '@/dominio'
 import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
 
 /** El reloj de la pantalla: avanza cada minuto para que Hoy cambie de día sola. */
@@ -31,13 +32,14 @@ export default function Hoy() {
   const [params, setParams] = useSearchParams()
   // ponytail: carga todos los registros (el periodo en curso puede ser un mes); acotar por fecha si pesa.
   const datos = useLiveQuery(async () => {
-    const [habitos, identidades, registros, hitosCelebrados] = await Promise.all([
+    const [habitos, identidades, registros, hitosCelebrados, diagnosticos] = await Promise.all([
       db.habitos.toArray(),
       db.identidades.toArray(),
       db.registros.toArray(),
       db.hitosCelebrados.toArray(),
+      db.diagnosticos.toArray(),
     ])
-    return { habitos, identidades, registros, hitosCelebrados }
+    return { habitos, identidades, registros, hitosCelebrados, diagnosticos }
   })
 
   // Un solo panel abierto (menú o nota) en toda la lista.
@@ -62,6 +64,8 @@ export default function Hoy() {
       </header>
 
       <AvisoCopia ahora={ahora} />
+
+      <Diagnosticos items={diagnosticosPendientes(datos)} />
 
       {hoy.pausaGlobal && (
         <aside aria-label={t('pausas.global.titulo')} className="flex items-start gap-3 rounded-lg border bg-accent p-4 text-accent-foreground">

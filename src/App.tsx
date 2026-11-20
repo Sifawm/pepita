@@ -2,6 +2,7 @@ import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
+import { useDiagnosticosAlDia } from '@/db'
 import Ajustes from '@/pantallas/Ajustes'
 import Archivados from '@/pantallas/Archivados'
 import AsistenteHabito from '@/pantallas/AsistenteHabito'
@@ -12,6 +13,7 @@ import Identidades from '@/pantallas/Identidades'
 
 export default function App() {
   const { t } = useTranslation()
+  useDiagnosticosAlDia()
   return (
     <HashRouter>
       <a

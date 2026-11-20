@@ -318,5 +318,43 @@
     "celebracionIdentidad": "Mira cuánto has votado por «{{identidad}}». Esa persona ya eres tú.",
     "verCurva": "Ver tu curva",
     "cerrar": "Cerrar"
+  },
+  "diagnostico": {
+    "avisos": "Preguntas de Pepita",
+    "aviso": "¿Qué ha pasado con «{{nombre}}»? Echémosle un vistazo",
+    "titulo": "¿Qué ha pasado con «{{nombre}}»?",
+    "intro": "Dos veces seguidas sin hacerlo. No pasa nada: es una pista, no un fallo tuyo. ¿Qué pesó más?",
+    "causas": {
+      "titulo": "Causas",
+      "1": "No lo vi",
+      "2": "No me apetecía",
+      "3": "Era difícil",
+      "4": "No compensaba"
+    },
+    "consejos": {
+      "1": "Que sea obvio: átalo a un momento y un lugar concretos, y lo verás venir.",
+      "2": "Que sea atractivo: júntalo con algo que te guste, o recuerda quién quieres ser.",
+      "3": "Que sea fácil: hazlo tan pequeño que no puedas decir que no, y prepara el terreno.",
+      "4": "Que sea satisfactorio: mira cuánto llevas sumado. Y si ahora no toca, pausarlo también vale."
+    },
+    "acciones": {
+      "titulo": "Qué puedes cambiar",
+      "editar_intencion": "Elegir cuándo y dónde",
+      "editar_recompensa": "Añadir una recompensa",
+      "editar_identidad": "Repasar mis identidades",
+      "solo_minima": "Quedarme solo con la versión mínima",
+      "editar_entorno": "Preparar mi entorno",
+      "ver_votos": "Ver mis votos",
+      "pausar": "Pausarlo {{dias}} días",
+      "archivar": "Archivarlo, sin culpa"
+    },
+    "soloApuntar": "Solo apuntarlo",
+    "otraCausa": "Elegir otra causa",
+    "posponer": "Ahora no, más tarde",
+    "descartar": "Descartar",
+    "gracias": "Apuntado. Gracias por contarlo.",
+    "pospuesto": "Lo dejamos para luego. Lo tienes en el detalle del hábito.",
+    "descartado": "Descartado. Seguimos.",
+    "archivado": "Archivado. Puedes recuperarlo cuando quieras."
   }
 }

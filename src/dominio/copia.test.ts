@@ -76,6 +76,14 @@ const datos: Datos = {
     { id: 'h1', creadoEn: '2026-05-09T20:00:00.000Z', identidadId: 'lectora', umbral: 10 },
     { id: 'h2', creadoEn: '2026-05-10T20:00:00.000Z', identidadId: 'g', umbral: 1000 },
   ],
+  // Un diagnóstico en cada estado.
+  diagnosticos: [
+    { id: 'd1', creadoEn: '2026-05-07T09:00:00.000Z', habitoId: 'leer', periodoQueLoDisparo: '2026-05-06', ley: 3, estado: 'respondido', accionAplicada: 'editar_entorno' },
+    { id: 'd2', creadoEn: '2026-05-08T09:00:00.000Z', habitoId: 'correr', periodoQueLoDisparo: '2026-05-04', estado: 'pendiente' },
+    { id: 'd3', creadoEn: '2026-05-09T09:00:00.000Z', habitoId: 'yoga', periodoQueLoDisparo: '2026-05-05', estado: 'pospuesto' },
+    { id: 'd4', creadoEn: '2026-05-09T09:00:00.000Z', habitoId: 'yoga', periodoQueLoDisparo: '2026-05-07', estado: 'descartado' },
+    { id: 'd5', creadoEn: '2026-05-09T09:00:00.000Z', habitoId: 'leer', periodoQueLoDisparo: '2026-05-08', ley: 1, estado: 'respondido' },
+  ],
 }
 
 describe('exportar', () => {
@@ -136,6 +144,13 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['un hito que no es un umbral de Pepita', con((c) => (c.datos.hitosCelebrados[0].umbral = 11)), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[0].umbral' }],
     ['un hito de una identidad que no existe', con((c) => (c.datos.hitosCelebrados[1].identidadId = 'nadie')), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[1].identidadId' }],
     ['el mismo hito celebrado dos veces', con((c) => (c.datos.hitosCelebrados[1].identidadId = 'lectora', c.datos.hitosCelebrados[1].umbral = 10)), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[1].umbral' }],
+    ['un estado de diagnóstico desconocido', con((c) => (c.datos.diagnosticos[1].estado = 'olvidado')), { motivo: 'invalido', ruta: 'datos.diagnosticos[1].estado' }],
+    ['una acción de diagnóstico desconocida', con((c) => (c.datos.diagnosticos[0].accionAplicada = 'magia')), { motivo: 'invalido', ruta: 'datos.diagnosticos[0].accionAplicada' }],
+    ['una acción que no es de la ley elegida', con((c) => (c.datos.diagnosticos[0].accionAplicada = 'archivar')), { motivo: 'invalido', ruta: 'datos.diagnosticos[0].accionAplicada' }],
+    ['un diagnóstico respondido sin causa', con((c) => delete c.datos.diagnosticos[4].ley), { motivo: 'invalido', ruta: 'datos.diagnosticos[4].ley' }],
+    ['una causa en un diagnóstico sin responder', con((c) => (c.datos.diagnosticos[1].ley = 2)), { motivo: 'invalido', ruta: 'datos.diagnosticos[1].ley' }],
+    ['un diagnóstico de un hábito que no existe', con((c) => (c.datos.diagnosticos[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.diagnosticos[1].habitoId' }],
+    ['dos diagnósticos de la misma ruptura', con((c) => (c.datos.diagnosticos[4].periodoQueLoDisparo = '2026-05-06')), { motivo: 'invalido', ruta: 'datos.diagnosticos[4].periodoQueLoDisparo' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

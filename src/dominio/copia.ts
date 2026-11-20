@@ -1,7 +1,8 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
+import { ACCIONES_DIAGNOSTICO } from './diagnostico'
 import { HITOS } from './identidad'
-import type { Ajustes, AnotacionDeFallo, Cuando, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, Pausa, Registro, VersionRegla } from './tipos'
+import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -135,6 +136,21 @@ const anotacionDeFallo = objeto<AnotacionDeFallo>({
 
 const hitoCelebrado = objeto<HitoCelebrado>({ ...entidad, identidadId: id, umbral: literal(...HITOS) })
 
+/** La causa va si y solo si está respondido; la acción, solo si es de esa causa. */
+const diagnostico: Validador<Diagnostico> = (v, r) => {
+  const d = objeto<Diagnostico>({
+    ...entidad,
+    habitoId: id,
+    periodoQueLoDisparo: dia,
+    ley: opcional(literal(1, 2, 3, 4)),
+    estado: literal('pendiente', 'respondido', 'pospuesto', 'descartado'),
+    accionAplicada: opcional(literal(...Object.values(ACCIONES_DIAGNOSTICO).flat() as AccionDiagnostico[])),
+  })(v, r)
+  if ((d.ley === undefined) === (d.estado === 'respondido')) throw new Invalido(`${r}.ley`)
+  if (d.accionAplicada && !(d.ley && ACCIONES_DIAGNOSTICO[d.ley].includes(d.accionAplicada))) throw new Invalido(`${r}.accionAplicada`)
+  return d
+}
+
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
   ajustes,
@@ -143,6 +159,7 @@ const datos = objeto<Datos>({
   registros: lista(registro),
   anotacionesDeFallo: lista(anotacionDeFallo),
   hitosCelebrados: lista(hitoCelebrado),
+  diagnosticos: lista(diagnostico),
 })
 
 const copia = objeto<Copia>({
@@ -168,6 +185,7 @@ function comprobarReferencias(d: Datos) {
   ids('registros', d.registros)
   ids('anotacionesDeFallo', d.anotacionesDeFallo)
   ids('hitosCelebrados', d.hitosCelebrados)
+  ids('diagnosticos', d.diagnosticos)
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
@@ -187,6 +205,12 @@ function comprobarReferencias(d: Datos) {
     if (!identidades.has(h.identidadId)) throw new Invalido(`datos.hitosCelebrados[${i}].identidadId`)
     if (hitos.has(`${h.identidadId} ${h.umbral}`)) throw new Invalido(`datos.hitosCelebrados[${i}].umbral`)
     hitos.add(`${h.identidadId} ${h.umbral}`)
+  })
+  const rupturas = new Set<string>()
+  d.diagnosticos.forEach((x, i) => {
+    if (!habitos.has(x.habitoId)) throw new Invalido(`datos.diagnosticos[${i}].habitoId`)
+    if (rupturas.has(`${x.habitoId} ${x.periodoQueLoDisparo}`)) throw new Invalido(`datos.diagnosticos[${i}].periodoQueLoDisparo`)
+    rupturas.add(`${x.habitoId} ${x.periodoQueLoDisparo}`)
   })
 }
 

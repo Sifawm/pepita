@@ -318,5 +318,43 @@
     "celebracionIdentidad": "Look how many times you voted for “{{identidad}}”. That person is already you.",
     "verCurva": "See your curve",
     "cerrar": "Close"
+  },
+  "diagnostico": {
+    "avisos": "Questions from Pepita",
+    "aviso": "What happened with “{{nombre}}”? Let’s look at it together",
+    "titulo": "What happened with “{{nombre}}”?",
+    "intro": "Twice in a row without doing it. That’s okay: it’s a clue, not your fault. What weighed most?",
+    "causas": {
+      "titulo": "Causes",
+      "1": "I didn’t notice",
+      "2": "I didn’t feel like it",
+      "3": "It was hard",
+      "4": "It didn’t feel worth it"
+    },
+    "consejos": {
+      "1": "Make it obvious: tie it to a specific time and place, and you’ll see it coming.",
+      "2": "Make it attractive: pair it with something you enjoy, or remember who you want to be.",
+      "3": "Make it easy: make it so small you can’t say no, and set things up beforehand.",
+      "4": "Make it satisfying: look at how much you’ve added up. And if now isn’t the time, pausing is fine too."
+    },
+    "acciones": {
+      "titulo": "What you can change",
+      "editar_intencion": "Choose when and where",
+      "editar_recompensa": "Add a reward",
+      "editar_identidad": "Review my identities",
+      "solo_minima": "Stick to the minimum version",
+      "editar_entorno": "Set up my environment",
+      "ver_votos": "See my votes",
+      "pausar": "Pause it for {{dias}} days",
+      "archivar": "Archive it, guilt-free"
+    },
+    "soloApuntar": "Just note it",
+    "otraCausa": "Choose another cause",
+    "posponer": "Not now, later",
+    "descartar": "Dismiss",
+    "gracias": "Noted. Thanks for sharing.",
+    "pospuesto": "We’ll leave it for later. It’s waiting in the habit’s details.",
+    "descartado": "Dismissed. Let’s keep going.",
+    "archivado": "Archived. You can bring it back whenever you like."
   }
 }
