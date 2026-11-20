@@ -19,6 +19,10 @@ const datos: Datos = {
       frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
       versionMinima: 'Abrir el libro',
       versionCompleta: 'Leer 30 minutos',
+      // Una variante de «cuándo» en cada hábito.
+      intencion: { cuando: { despuesDeHabitoId: 'correr' }, donde: 'el sofá' },
+      entorno: ['Dejar el libro en la almohada', 'Gafas a mano'],
+      recompensaAsociada: 'Un té mientras leo',
       fechaInicio: '2026-05-01',
       archivado: false,
       orden: 0,
@@ -31,6 +35,7 @@ const datos: Datos = {
       nombre: 'Correr',
       tipo: 'si_no',
       frecuencia: { tipo: 'veces_por_periodo', veces: 3, periodo: 'semana' },
+      intencion: { cuando: { hora: '07:30' } },
       fechaInicio: '2026-05-04',
       archivado: false,
       orden: 1,
@@ -51,6 +56,7 @@ const datos: Datos = {
       nombre: 'Yoga',
       tipo: 'si_no',
       frecuencia: { tipo: 'dias_semana', dias: [2, 4] },
+      intencion: { cuando: { despuesDeAccion: 'despertarme' } },
       fechaInicio: '2026-05-01',
       archivado: true,
       orden: 2,
@@ -119,6 +125,10 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una ley que no es de 1 a 4', con((c) => (c.datos.anotacionesDeFallo[0].ley = 5)), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[0].ley' }],
     ['una anotación de un hábito que no existe', con((c) => (c.datos.anotacionesDeFallo[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[1].habitoId' }],
     ['dos anotaciones del mismo fallo', con((c) => (c.datos.anotacionesDeFallo[2].periodo = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[2].periodo' }],
+    ['un cuándo con dos disparadores', con((c) => (c.datos.habitos[1].intencion.cuando.despuesDeAccion = 'cenar')), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.despuesDeAccion' }],
+    ['un cuándo desconocido', con((c) => (c.datos.habitos[1].intencion.cuando = { alAmanecer: true })), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.alAmanecer' }],
+    ['una hora de intención imposible', con((c) => (c.datos.habitos[1].intencion.cuando.hora = '7:30')), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.hora' }],
+    ['un entorno que no es una lista de textos', con((c) => (c.datos.habitos[0].entorno = [1])), { motivo: 'invalido', ruta: 'datos.habitos[0].entorno[0]' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })
