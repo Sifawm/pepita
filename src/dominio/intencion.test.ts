@@ -110,6 +110,12 @@ describe('frase de intención', () => {
     expect(fraseIntencion(habito('nada'), habitos)).toBeUndefined()
   })
 
+  it('sirve de vista previa en el asistente: ignora lo que aún está en blanco', () => {
+    const borrador = { nombre: 'Leer', versionMinima: ' ', intencion: { cuando: { hora: '' }, donde: ' el sofá ' } }
+    expect(fraseIntencion(borrador, habitos)).toEqual({ donde: 'el sofá', que: 'Leer' })
+    expect(fraseIntencion({ ...borrador, intencion: { cuando: { despuesDeAccion: ' ' } } }, habitos)).toBeUndefined()
+  })
+
   it('va en la tarjeta de Hoy', () => {
     const leer = habito('leer', { cuando: { hora: '07:30' }, donde: 'el sofá' }, { nombre: 'Leer' })
     const [tarjeta] = componerHoy({ habitos: [leer], identidades: [general], registros: [], ahora, ajustes }).habitos

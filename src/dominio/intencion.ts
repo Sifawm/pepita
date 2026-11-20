@@ -57,15 +57,19 @@ export interface FraseIntencion {
   que: string
 }
 
-/** Sin cuándo ni dónde no hay frase. Un ancla perdida se omite de la frase. */
+/**
+ * Sin cuándo ni dónde no hay frase. Un ancla perdida se omite de la frase. Lo que está en
+ * blanco se ignora, así sirve también de vista previa con el borrador del asistente.
+ */
 export function fraseIntencion(
   habito: Pick<Habito, 'nombre' | 'versionMinima' | 'intencion'>,
   habitos: Habito[],
 ): FraseIntencion | undefined {
   const c = habito.intencion?.cuando
   const ancla = anclaDe(habito, habitos)
-  const cuando: FraseIntencion['cuando'] = c && 'despuesDeHabitoId' in c ? ancla && { despuesDe: ancla.nombre } : c
-  const donde = habito.intencion?.donde
+  const cuando: FraseIntencion['cuando'] =
+    c && 'despuesDeHabitoId' in c ? ancla && { despuesDe: ancla.nombre } : c && Object.values(c)[0].trim() ? c : undefined
+  const donde = habito.intencion?.donde?.trim()
   if (!cuando && !donde) return undefined
-  return { ...(cuando && { cuando }), ...(donde && { donde }), que: habito.versionMinima ?? habito.nombre }
+  return { ...(cuando && { cuando }), ...(donde && { donde }), que: habito.versionMinima?.trim() || habito.nombre.trim() }
 }
