@@ -64,6 +64,24 @@ export interface Habito extends Entidad {
    * Falta si la regla nunca cambió. Se cambia solo con `cambiarRegla`.
    */
   versiones?: VersionRegla[]
+  /** Intención de implementación: cuándo y dónde. Falta si se saltó el paso. */
+  intencion?: Intencion
+  /** «Prepara tu entorno»: lo que dejar listo antes de empezar. */
+  entorno?: string[]
+  /** «Solo escucho mi podcast mientras camino». */
+  recompensaAsociada?: string
+}
+
+/**
+ * El disparador del hábito. Un ancla archivada o borrada no se limpia: el hábito pasa a
+ * «sin hora» mientras falte, y vuelve a su cadena si el ancla se recupera.
+ */
+export type Cuando = { hora: Hora } | { despuesDeHabitoId: string } | { despuesDeAccion: string }
+
+export interface Intencion {
+  /** Opcional: se puede indicar solo el «dónde». */
+  cuando?: Cuando
+  donde?: string
 }
 
 /** Lo que decide cómo se evalúa un periodo. El objetivo cuantitativo entrará aquí. */
