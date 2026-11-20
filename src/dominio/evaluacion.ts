@@ -26,7 +26,7 @@ export interface EvaluacionHabito {
   periodos: Periodo[]
   /** El periodo que contiene hoy; no existe si el hábito aún no ha empezado. */
   actual?: Periodo
-  /** `si_no`: un voto por registro, también en días no programados; `cuantitativo`: uno por periodo cumplido. Es `diasVoto.length`. */
+  /** `si_no`: un voto por registro, también en días no programados; `cuantitativo`: uno por periodo cumplido; `evitar`: uno por día limpio ya cerrado. Es `diasVoto.length`. */
   votos: number
   /**
    * El día en que se ganó cada voto, en orden: la única fuente de votos del núcleo (resumen de
@@ -48,8 +48,9 @@ export interface Racha {
   mejor: number
 }
 
-/** El periodo que contiene `dia` y lo que pide según la frecuencia. */
-function periodoQueContiene(dia: Dia, frecuencia: Frecuencia) {
+/** El periodo que contiene `dia` y lo que pide según la frecuencia. Al evitar, siempre el día. */
+function periodoQueContiene(dia: Dia, frecuencia: Frecuencia, habito: Habito) {
+  if (habito.tipo === 'evitar') return { desde: dia, hasta: dia, pide: 1 }
   if (frecuencia.tipo === 'dias_semana')
     return { desde: dia, hasta: dia, pide: frecuencia.dias.includes(diaDeLaSemana(dia)) ? 1 : 0 }
   return { ...periodoDe(dia, frecuencia.periodo), pide: frecuencia.veces }
@@ -81,8 +82,16 @@ function cumplido(pide: number, registros: Registro[], { cuantitativo: c }: Regl
   return hechos.every((r) => r.tipo === 'completa') ? 'cumplido_completa' : 'cumplido_minima'
 }
 
-function estado(pide: number, registros: Registro[], regla: Regla, { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
+function estado(habito: Habito, pide: number, registros: Registro[], regla: Regla, { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
   if (pide === 0) return 'no_programado'
+  if (habito.tipo === 'evitar') {
+    // Un día saltado o en pausa no se evalúa: ni suma por limpio ni falla por recaída.
+    if (registros.some((r) => r.tipo === 'salto')) return 'saltado'
+    if (pausas.some((p) => p.desde <= desde && p.hasta >= desde)) return 'pausado'
+    // La recaída es fallo en el acto; limpio solo se cumple al cerrar el día.
+    if (registros.some((r) => r.tipo === 'recaida')) return 'fallido'
+    return hasta < hoy ? 'cumplido_completa' : 'en_curso'
+  }
   // Cumplir gana a saltar o pausar: lo hecho, hecho está.
   const hecho = cumplido(pide, registros, regla, hasta < hoy)
   if (hecho) return hecho
@@ -112,7 +121,7 @@ export function evaluarHabito({
   for (let dia = habito.fechaInicio; dia <= hoy; ) {
     // Cada periodo se evalúa con la regla que regía entonces, recortado a su tramo de vigencia.
     const regla = reglaEn(habito, dia)
-    const periodo = periodoQueContiene(dia, regla.frecuencia)
+    const periodo = periodoQueContiene(dia, regla.frecuencia, habito)
     const desde = regla.desde && periodo.desde < regla.desde ? regla.desde : periodo.desde
     const hasta = regla.hasta && regla.hasta < periodo.hasta ? regla.hasta : periodo.hasta
     const c = regla.cuantitativo
@@ -120,11 +129,18 @@ export function evaluarHabito({
     const pide = c && periodo.pide > 0 ? c.objetivo : periodo.pide
     const dentro = propios.filter((r) => r.dia >= desde && r.dia <= hasta)
     const hechos = c ? suma(dentro) : dentro.filter(esVoto).length
-    periodos.push({ desde, hasta, pide, hechos, estado: estado(pide, dentro, regla, { desde, hasta }, pausas, hoy) })
+    periodos.push({ desde, hasta, pide, hechos, estado: estado(habito, pide, dentro, regla, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  // `si_no`: 1 voto por registro; `cuantitativo`: 1 por periodo cumplido, el día en que se ganó.
-  const diasVoto = (habito.tipo === 'cuantitativo' ? diasVotoCuantitativo(periodos, propios, habito) : propios.filter(esVoto).map((r) => r.dia)).sort()
+  // `si_no`: 1 voto por registro; `cuantitativo`: 1 por periodo cumplido, el día en que se ganó;
+  // `evitar`: el día limpio (ya cerrado), no un registro.
+  const diasVoto = (
+    habito.tipo === 'cuantitativo'
+      ? diasVotoCuantitativo(periodos, propios, habito)
+      : habito.tipo === 'evitar'
+        ? periodos.filter(estaCumplido).map((p) => p.desde)
+        : propios.filter(esVoto).map((r) => r.dia)
+  ).sort()
   return { periodos, actual: periodos.at(-1), votos: diasVoto.length, diasVoto, ...racha(periodos) }
 }
 

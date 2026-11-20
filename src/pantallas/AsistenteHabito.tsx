@@ -11,25 +11,39 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { conId, db, useAjustes } from '@/db'
-import { editarHabito, nuevoHabito, type CamposHabito, type Habito, type Identidad, type TipoHabito } from '@/dominio'
-import { nombreIdentidad } from '@/lib/utils'
+import {
+  anclasPosibles,
+  editarHabito,
+  fraseIntencion,
+  nuevoHabito,
+  type CamposHabito,
+  type Cuando,
+  type Habito,
+  type Identidad,
+  type Intencion,
+  type LeyesInversas,
+  type TipoHabito,
+} from '@/dominio'
+import { nombreIdentidad, textoFrase } from '@/lib/utils'
 
-type Borrador = CamposHabito
-
-const OPCION =
-  'flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:checked]:font-bold has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring'
+/** Las leyes inversas van sueltas: cada una es un paso que se puede saltar por separado. */
+type Borrador = Omit<CamposHabito, 'leyesInversas'> & LeyesInversas & { tipo: TipoHabito }
 interface PropsPaso {
   borrador: Borrador
   cambiar: (c: Partial<Borrador>) => void
   identidades: Identidad[]
+  /** El tipo solo se elige al crear: cambiarlo reinterpretaría toda la historia. */
+  editando: boolean
+  /** Todos los hábitos (para nombrar el ancla en la frase). */
+  habitos: Habito[]
+  /** Los que pueden ser su ancla: activos y sin cerrar un ciclo. */
+  anclas: Habito[]
   /** Id del título del paso, para nombrar el campo cuando es uno solo. */
   titulo: string
-  /** Editando un hábito que ya existe (su tipo no cambia). */
-  editando: boolean
 }
 
-/** Los tipos que se pueden elegir al crear. Uno nuevo = una entrada aquí + `asistente.tipo.opciones.<tipo>`. */
-const TIPOS: TipoHabito[] = ['si_no', 'cuantitativo']
+/** Los tipos que se pueden elegir al crear. Uno nuevo = una entrada aquí + `asistente.tipo.<tipo>` y `<tipo>Ayuda`. */
+const TIPOS: TipoHabito[] = ['si_no', 'cuantitativo', 'evitar']
 
 /**
  * Los pasos del método, en orden. Para añadir uno (tipo, intención, entorno, recompensa…):
@@ -59,17 +73,32 @@ const PASOS: {
     visible: ({ editando, borrador }) => !editando || borrador.tipo === 'cuantitativo',
     Campo: PasoTipo,
   },
-  { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, Campo: PasoFrecuencia },
+  { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, visible: noEvitar, Campo: PasoFrecuencia },
+  // En un cuantitativo, la versión mínima es su objetivo mínimo.
   {
     clave: 'versiones',
     campos: ['versionMinima', 'versionCompleta'],
     opcional: true,
-    // En un cuantitativo, la versión mínima es su objetivo mínimo.
-    visible: ({ borrador }) => (borrador.tipo ?? 'si_no') === 'si_no',
+    visible: ({ borrador }) => borrador.tipo === 'si_no',
     Campo: PasoVersiones,
   },
-  // Ticket 09: intención (cuándo y dónde), entorno y recompensa asociada.
+  // Las leyes para construir; al evitar, sus inversas (sin intención: no hay nada que recordar).
+  { clave: 'intencion', campos: ['intencion'], opcional: true, visible: noEvitar, Campo: PasoIntencion },
+  { clave: 'entorno', campos: ['entorno'], opcional: true, visible: noEvitar, Campo: PasoEntorno },
+  { clave: 'recompensa', campos: ['recompensaAsociada'], opcional: true, visible: noEvitar, Campo: PasoRecompensa },
+  // Leyes inversas (hábito a evitar): invisible, difícil y qué haré en su lugar.
+  ...(['senal', 'friccion', 'sustituto'] as const).map((clave) => ({
+    clave,
+    campos: [clave],
+    opcional: true,
+    visible: ({ borrador }: PropsPaso) => borrador.tipo === 'evitar',
+    Campo: (p: PropsPaso) => <PasoLey {...p} campo={clave} />,
+  })),
 ]
+
+function noEvitar({ borrador }: PropsPaso) {
+  return borrador.tipo !== 'evitar'
+}
 
 /** Crear (`/nuevo`) y editar (`/habito/:id`) son el mismo asistente. */
 export default function AsistenteHabito() {
@@ -77,25 +106,24 @@ export default function AsistenteHabito() {
   const [params] = useSearchParams()
   const ajustes = useAjustes()
   const datos = useLiveQuery(async () => {
-    const [identidades, habito] = await Promise.all([
-      db.identidades.orderBy('orden').toArray(),
-      id ? db.habitos.get(id) : undefined,
-    ])
-    return { identidades, habito: habito ?? null }
+    const [identidades, habitos] = await Promise.all([db.identidades.orderBy('orden').toArray(), db.habitos.orderBy('orden').toArray()])
+    return { identidades, habitos, habito: habitos.find((h) => h.id === id) ?? null }
   }, [id])
 
   if (!datos || !ajustes) return null
-  const { habito, identidades } = datos
+  const { habito, habitos, identidades } = datos
   if (id && !habito) return <NoExiste />
   const general = identidades.find((i) => i.esGeneral)!
   // Desde Hoy filtrado, la identidad del filtro viene elegida.
   const pedida = identidades.find((i) => i.id === params.get('identidad') && !i.archivada)
-  const inicial: Borrador = habito ?? {
-    nombre: '',
-    identidadId: (pedida ?? general).id,
-    tipo: 'si_no',
-    frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
-  }
+  const inicial: Borrador = habito
+    ? { ...habito, ...habito.leyesInversas }
+    : {
+        nombre: '',
+        identidadId: (pedida ?? general).id,
+        tipo: 'si_no',
+        frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      }
   return (
     <Asistente
       key={id ?? 'nuevo'}
@@ -103,7 +131,9 @@ export default function AsistenteHabito() {
       habito={habito ?? undefined}
       // Las archivadas no se ofrecen, salvo la que ya tiene el hábito.
       identidades={identidades.filter((i) => !i.archivada || i.id === inicial.identidadId)}
-      guardar={async (b) => {
+      habitos={habitos}
+      guardar={async ({ senal, friccion, sustituto, ...resto }) => {
+        const b = { ...resto, leyesInversas: { senal, friccion, sustituto } }
         if (habito) await db.habitos.put(editarHabito(habito, b, new Date(), ajustes))
         else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: await db.habitos.count() }, new Date(), ajustes)))
       }}
@@ -115,18 +145,21 @@ function Asistente({
   inicial,
   habito,
   identidades,
+  habitos,
   guardar,
 }: {
   inicial: Borrador
   habito?: Habito
   identidades: Identidad[]
+  habitos: Habito[]
   guardar: (b: Borrador) => Promise<void>
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [borrador, setBorrador] = useState(inicial)
   const cambiar = (c: Partial<Borrador>) => setBorrador((b) => ({ ...b, ...c }))
-  const props = { borrador, cambiar, identidades, titulo: 'paso-titulo', editando: !!habito }
+  const anclas = anclasPosibles(habito?.id, habitos)
+  const props = { borrador, cambiar, identidades, habitos, anclas, editando: !!habito, titulo: 'paso-titulo' }
   const pasos = PASOS.filter((p) => !p.visible || p.visible(props))
   const [n, setN] = useState(0)
   const paso = pasos[n]
@@ -257,36 +290,54 @@ function PasoIdentidad({ borrador, cambiar, identidades, titulo }: PropsPaso) {
 
 function PasoTipo({ borrador, cambiar, editando }: PropsPaso) {
   const { t } = useTranslation()
-  const tipo = borrador.tipo ?? 'si_no'
   return (
     <>
       {!editando && (
-        <fieldset className="space-y-2">
+        <fieldset className="space-y-3">
           {/* El título del paso ya hace la pregunta. */}
           <legend className="sr-only">{t('asistente.tipo.titulo')}</legend>
-          {TIPOS.map((opcion) => (
-            <label key={opcion} className={OPCION}>
+          {TIPOS.map((tipo) => (
+            <label
+              key={tipo}
+              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring"
+            >
               <input
                 type="radio"
                 name="tipo"
-                className="size-5 accent-primary"
-                checked={tipo === opcion}
+                className="mt-0.5 size-5 shrink-0 accent-primary"
+                checked={borrador.tipo === tipo}
                 onChange={() =>
                   cambiar({
-                    tipo: opcion,
-                    cuantitativo: opcion === 'cuantitativo' ? (borrador.cuantitativo ?? { unidad: '', objetivo: 0, modo: 'al_menos' }) : undefined,
+                    tipo,
+                    cuantitativo: tipo === 'cuantitativo' ? (borrador.cuantitativo ?? { unidad: '', objetivo: 0, modo: 'al_menos' }) : undefined,
                   })
                 }
               />
-              {t(`asistente.tipo.opciones.${opcion}`)}
+              <span>
+                <span className="block font-bold">{t(`asistente.tipo.${tipo}`)}</span>
+                <span className="block text-sm text-muted-foreground">{t(`asistente.tipo.${tipo}Ayuda`)}</span>
+              </span>
             </label>
           ))}
         </fieldset>
       )}
-      {borrador.cuantitativo && tipo === 'cuantitativo' && (
+      {borrador.tipo === 'cuantitativo' && borrador.cuantitativo && (
         <CamposCuantitativo valor={borrador.cuantitativo} cambiar={(cuantitativo) => cambiar({ cuantitativo })} />
       )}
     </>
+  )
+}
+
+function PasoLey({ borrador, cambiar, titulo, campo }: PropsPaso & { campo: keyof LeyesInversas }) {
+  const { t } = useTranslation()
+  return (
+    <Input
+      aria-labelledby={titulo}
+      value={borrador[campo] ?? ''}
+      onChange={(e) => cambiar({ [campo]: e.target.value })}
+      placeholder={t(`asistente.${campo}.ejemplo`)}
+      autoComplete="off"
+    />
   )
 }
 
@@ -317,6 +368,126 @@ function PasoVersiones({ borrador, cambiar }: PropsPaso) {
         </div>
       ))}
     </>
+  )
+}
+
+type ModoCuando = '' | 'hora' | 'despuesDeHabitoId' | 'despuesDeAccion'
+
+function PasoIntencion({ borrador, cambiar, habitos, anclas }: PropsPaso) {
+  const { t } = useTranslation()
+  const { cuando, donde } = borrador.intencion ?? {}
+  const modo = (cuando ? Object.keys(cuando)[0] : '') as ModoCuando
+  const valor = cuando ? Object.values(cuando)[0] : ''
+  const intencion = (c: Intencion) => cambiar({ intencion: { cuando, donde, ...c } })
+  const frase = fraseIntencion(borrador, habitos)
+  return (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="cuando">{t('asistente.intencion.cuando')}</Label>
+        <Select
+          id="cuando"
+          value={modo}
+          onChange={(e) => {
+            const m = e.target.value as ModoCuando
+            intencion({ cuando: m ? ({ [m]: m === 'despuesDeHabitoId' ? (anclas[0]?.id ?? '') : '' } as Cuando) : undefined })
+          }}
+        >
+          <option value="">{t('asistente.intencion.sinDecidir')}</option>
+          <option value="hora">{t('asistente.intencion.cuandoHora')}</option>
+          {(anclas.length > 0 || modo === 'despuesDeHabitoId') && (
+            <option value="despuesDeHabitoId">{t('asistente.intencion.cuandoHabito')}</option>
+          )}
+          <option value="despuesDeAccion">{t('asistente.intencion.cuandoAccion')}</option>
+        </Select>
+      </div>
+      {modo === 'hora' && (
+        <div className="space-y-2">
+          <Label htmlFor="hora">{t('asistente.intencion.hora')}</Label>
+          <Input id="hora" type="time" value={valor} onChange={(e) => intencion({ cuando: { hora: e.target.value } })} />
+        </div>
+      )}
+      {modo === 'despuesDeHabitoId' && (
+        <div className="space-y-2">
+          <Label htmlFor="ancla">{t('asistente.intencion.habito')}</Label>
+          {/* Un ancla archivada o borrada no se ofrece: queda «Elige un hábito». */}
+          <Select
+            id="ancla"
+            value={anclas.some((h) => h.id === valor) ? valor : ''}
+            onChange={(e) => intencion({ cuando: { despuesDeHabitoId: e.target.value } })}
+          >
+            <option value="" disabled>
+              {t('asistente.intencion.elige')}
+            </option>
+            {anclas.map((h) => (
+              <option key={h.id} value={h.id}>
+                {h.nombre}
+              </option>
+            ))}
+          </Select>
+        </div>
+      )}
+      {modo === 'despuesDeAccion' && (
+        <div className="space-y-2">
+          <Label htmlFor="accion">{t('asistente.intencion.accion')}</Label>
+          <Input
+            id="accion"
+            value={valor}
+            onChange={(e) => intencion({ cuando: { despuesDeAccion: e.target.value } })}
+            placeholder={t('asistente.intencion.accionEjemplo')}
+            autoComplete="off"
+          />
+        </div>
+      )}
+      <div className="space-y-2">
+        <Label htmlFor="donde">{t('asistente.intencion.donde')}</Label>
+        <Input
+          id="donde"
+          value={donde ?? ''}
+          onChange={(e) => intencion({ donde: e.target.value })}
+          placeholder={t('asistente.intencion.dondeEjemplo')}
+          autoComplete="off"
+        />
+      </div>
+      <div aria-live="polite" className="space-y-1">
+        {frase && (
+          <>
+            <p className="text-sm text-muted-foreground">{t('asistente.intencion.vistaPrevia')}</p>
+            <p className="rounded-lg border p-3 font-semibold break-words first-letter:uppercase">{textoFrase(frase, t)}</p>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
+
+function PasoEntorno({ borrador, cambiar }: PropsPaso) {
+  const { t } = useTranslation()
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="entorno">{t('asistente.entorno.lista')}</Label>
+      {/* Una cosa por línea: las líneas vacías no se guardan. */}
+      <textarea
+        id="entorno"
+        rows={4}
+        value={(borrador.entorno ?? []).join('\n')}
+        onChange={(e) => cambiar({ entorno: e.target.value.split('\n') })}
+        placeholder={t('asistente.entorno.ejemplo')}
+        className="w-full rounded-md border border-input bg-card px-3 py-2 text-base placeholder:text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+      />
+    </div>
+  )
+}
+
+function PasoRecompensa({ borrador, cambiar, titulo }: PropsPaso) {
+  const { t } = useTranslation()
+  return (
+    <Input
+      aria-labelledby={titulo}
+      value={borrador.recompensaAsociada ?? ''}
+      onChange={(e) => cambiar({ recompensaAsociada: e.target.value })}
+      placeholder={t('asistente.recompensa.ejemplo')}
+      autoComplete="off"
+    />
   )
 }
 

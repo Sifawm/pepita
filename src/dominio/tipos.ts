@@ -36,7 +36,8 @@ export interface Identidad extends Entidad {
 }
 
 // Los tipos son estrechos a propósito: cada ticket los amplía cuando el núcleo sabe evaluarlos.
-export type TipoHabito = 'si_no' | 'cuantitativo'
+/** `evitar`: el periodo es siempre el día; se cumple si cierra sin recaída. */
+export type TipoHabito = 'si_no' | 'cuantitativo' | 'evitar'
 
 /**
  * Un hábito que se mide: «al menos 20 páginas» o «como mucho 2 cafés» por periodo.
@@ -47,6 +48,16 @@ export interface Cuantitativo {
   objetivo: number
   objetivoMinimo?: number
   modo: 'al_menos' | 'como_mucho'
+}
+
+/** El asistente de leyes inversas de un hábito a evitar. Cada paso se puede saltar. */
+export interface LeyesInversas {
+  /** Qué señal voy a eliminar (invisible). */
+  senal?: string
+  /** Qué fricción voy a añadir (difícil). */
+  friccion?: string
+  /** Qué haré en su lugar. */
+  sustituto?: string
 }
 
 /** 1 = lunes … 7 = domingo. */
@@ -67,6 +78,8 @@ export interface Habito extends Entidad {
   /** La versión de 2 minutos. Las dos versiones son opcionales («Ahora no») y valen 1 voto. */
   versionMinima?: string
   versionCompleta?: string
+  /** Solo en `evitar`, y solo si se rellenó algún paso. */
+  leyesInversas?: LeyesInversas
   fechaInicio: Dia
   archivado: boolean
   orden: number
@@ -78,6 +91,24 @@ export interface Habito extends Entidad {
    * Falta si la regla nunca cambió. Se cambia solo con `cambiarRegla`.
    */
   versiones?: VersionRegla[]
+  /** Intención de implementación: cuándo y dónde. Falta si se saltó el paso. */
+  intencion?: Intencion
+  /** «Prepara tu entorno»: lo que dejar listo antes de empezar. */
+  entorno?: string[]
+  /** «Solo escucho mi podcast mientras camino». */
+  recompensaAsociada?: string
+}
+
+/**
+ * El disparador del hábito. Un ancla archivada o borrada no se limpia: el hábito pasa a
+ * «sin hora» mientras falte, y vuelve a su cadena si el ancla se recupera.
+ */
+export type Cuando = { hora: Hora } | { despuesDeHabitoId: string } | { despuesDeAccion: string }
+
+export interface Intencion {
+  /** Opcional: se puede indicar solo el «dónde». */
+  cuando?: Cuando
+  donde?: string
 }
 
 /** Lo que decide cómo se evalúa un periodo. */
@@ -85,8 +116,12 @@ export type Regla = Pick<Habito, 'frecuencia' | 'cuantitativo'>
 
 export type VersionRegla = Regla & { hasta: Dia }
 
-/** `salto`: el periodo que lo contiene queda neutro (ni suma ni falla). `valor`: una cantidad que se suma (cuantitativos). */
-export type TipoRegistro = 'minima' | 'completa' | 'salto' | 'valor'
+/**
+ * `salto`: el periodo que lo contiene queda neutro (ni suma ni falla).
+ * `recaida`: solo en `evitar`; convierte ese día en fallo.
+ * `valor`: una cantidad que se suma (cuantitativos).
+ */
+export type TipoRegistro = 'minima' | 'completa' | 'salto' | 'recaida' | 'valor'
 
 export interface Registro extends Entidad {
   habitoId: string
@@ -95,6 +130,8 @@ export interface Registro extends Entidad {
   nota?: string
   /** Solo en `salto`, y opcional. */
   motivo?: string
+  /** Solo en `recaida`, y opcional: qué la provocó. */
+  disparador?: string
   /** Solo (y siempre) en `valor`: mayor que 0. */
   valor?: number
 }

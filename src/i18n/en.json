@@ -141,12 +141,14 @@
       "ayuda": "Every time you do it, you cast a vote for the person you want to be."
     },
     "tipo": {
-      "titulo": "How will you count it?",
-      "ayuda": "Done or not done works for almost everything. If counting something helps (pages, kilometres, coffees), measure it.",
-      "opciones": {
-        "si_no": "Done or not done",
-        "cuantitativo": "Counting an amount"
-      }
+      "titulo": "What kind of habit is it?",
+      "ayuda": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
+      "si_no": "Do something",
+      "si_noAyuda": "You check it off when you do it.",
+      "cuantitativo": "Count an amount",
+      "cuantitativoAyuda": "At least 20 pages, or at most 2 coffees. You add up what you do.",
+      "evitar": "Avoid something",
+      "evitarAyuda": "You only log a slip. Every clean day adds a vote once it closes."
     },
     "frecuencia": {
       "titulo": "How often?",
@@ -159,6 +161,49 @@
       "versionMinimaEjemplo": "For example: open the book",
       "versionCompleta": "Full version",
       "versionCompletaEjemplo": "For example: read for 30 minutes"
+    },
+    "intencion": {
+      "titulo": "When and where?",
+      "ayuda": "Deciding when and where you will do it means starting doesn’t depend on feeling like it.",
+      "cuando": "When",
+      "sinDecidir": "Not decided",
+      "cuandoHora": "At a set time",
+      "cuandoHabito": "After another habit",
+      "cuandoAccion": "After something you already do",
+      "hora": "Time",
+      "habito": "Habit",
+      "elige": "Choose a habit",
+      "accion": "What you do right before",
+      "accionEjemplo": "For example: pouring my coffee",
+      "donde": "Where",
+      "dondeEjemplo": "For example: in the kitchen",
+      "vistaPrevia": "Your intention"
+    },
+    "entorno": {
+      "titulo": "Set up your space",
+      "ayuda": "Keep what you need in sight. The easier it is to start, the better.",
+      "lista": "One thing per line",
+      "ejemplo": "For example: leave the book on the pillow"
+    },
+    "recompensa": {
+      "titulo": "Paired reward",
+      "ayuda": "Pair the habit with something you enjoy and you’ll look forward to it.",
+      "ejemplo": "For example: I only listen to my podcast while walking"
+    },
+    "senal": {
+      "titulo": "Which cue will you remove from sight?",
+      "ayuda": "Make it invisible: what you don’t see barely tempts you.",
+      "ejemplo": "For example: leave the phone outside the bedroom"
+    },
+    "friccion": {
+      "titulo": "What friction will you add?",
+      "ayuda": "Make it difficult: the more steps, the less you’ll want to.",
+      "ejemplo": "For example: log out of the app"
+    },
+    "sustituto": {
+      "titulo": "What will you do instead?",
+      "ayuda": "A habit doesn’t just vanish: it helps to have something else at hand.",
+      "ejemplo": "For example: read one page"
     }
   },
   "habito": {
@@ -194,7 +239,8 @@
     "tipo": {
       "minima": "Minimum version",
       "completa": "Full version",
-      "salto": "Skip"
+      "salto": "Skip",
+      "recaida": "Slip"
     },
     "pasarA": {
       "minima": "It was the minimum",
@@ -264,6 +310,14 @@
     "guardar": "Save",
     "guardada": "Noted. Thanks for sharing."
   },
+  "intencion": {
+    "hora": "at {{hora}}",
+    "despuesDe": "after “{{nombre}}”",
+    "despuesDeAccion": "after {{texto}}",
+    "frase": "{{contexto}}: {{que}}",
+    "entorno": "Set up your space:",
+    "recompensa": "Reward:"
+  },
   "grafico": {
     "datos": "Show the data"
   },
@@ -325,5 +379,30 @@
     "sumar": "Add {{unidad}}",
     "sumarCorto": "Add",
     "sumarBoton": "Add to “{{nombre}}”"
+  },
+  "evitar": {
+    "limpio": "Clean day so far",
+    "recaido": "Slip logged. Tomorrow is another day",
+    "heRecaido": "I slipped",
+    "ayuda": "It happens to everyone. Logging it helps you see what sets it off.",
+    "disparador": "What set it off? (optional)",
+    "disparadorEjemplo": "For example: boredom after dinner",
+    "anotar": "Log slip",
+    "anotada": "Logged. One slip doesn’t erase how far you’ve come.",
+    "deshacer": "Undo today’s slip",
+    "deshecha": "Slip undone.",
+    "anadir": "Log a slip",
+    "sustituto": "Instead: {{texto}}",
+    "senal": "Cue removed: {{texto}}",
+    "friccion": "Friction: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Clean day",
+      "cumplido_minima": "Clean day",
+      "fallido": "Slip",
+      "en_curso": "In progress",
+      "no_programado": "Not scheduled",
+      "saltado": "Skipped",
+      "pausado": "Paused"
+    }
   }
 }

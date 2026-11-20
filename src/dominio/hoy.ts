@@ -1,5 +1,6 @@
 import { diaLogico } from './calendario'
 import { esVoto, evaluarHabito, type Periodo, type Racha } from './evaluacion'
+import { fraseIntencion, ordenarPorHora, type FraseIntencion } from './intencion'
 import { pausaEn, pausaGlobalEn } from './pausa'
 import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './tipos'
 
@@ -18,9 +19,13 @@ export interface TarjetaHoy {
   salto?: Registro
   /** La pausa (del hábito o global) en la que está hoy. */
   pausa?: Pausa
+  /** Hábito a evitar: las recaídas del día lógico actual (la última, para deshacerla). */
+  recaidas: Registro[]
   /** El periodo anterior fue un fallo: va arriba del todo y sugiere la versión mínima. */
   enRecuperacion: boolean
   racha: Racha
+  /** «Después de…, en…: …», si tiene cuándo o dónde. */
+  frase?: FraseIntencion
 }
 
 export interface Hoy {
@@ -61,9 +66,8 @@ export function componerHoy({
   identidadId?: string
 }): Hoy {
   const dia = diaLogico(ahora, ajustes.horaCierre)
-  const tarjetas = habitos
+  const todas = habitos
     .filter((h) => !h.archivado && (!identidadId || h.identidadId === identidadId))
-    .sort((a, b) => a.orden - b.orden)
     .flatMap((habito) => {
       const identidad = identidades.find((i) => i.id === habito.identidadId)
       // Archivar una identidad retira sus hábitos de Hoy sin tocarlos.
@@ -88,13 +92,15 @@ export function componerHoy({
           periodo,
           salto,
           pausa: pausaEn(habito, ajustes, dia),
+          recaidas: registros.filter((r) => r.habitoId === habito.id && r.dia === dia && r.tipo === 'recaida'),
           enRecuperacion,
           racha,
+          frase: fraseIntencion(habito, habitos),
         },
       ]
     })
-    // Primero los que están en recuperación (orden estable: dentro de cada grupo, por `orden`).
-    .sort((a, b) => Number(b.enRecuperacion) - Number(a.enRecuperacion))
+  // Primero los que están en recuperación; dentro de cada grupo, por hora con sus cadenas.
+  const tarjetas = [true, false].flatMap((r) => ordenarPorHora(todas.filter((t) => t.enRecuperacion === r), habitos))
   return {
     dia,
     votos: tarjetas.reduce((n, t) => n + t.votosHoy, 0),
@@ -156,5 +162,16 @@ export function saltar({ habito, motivo, ahora, ajustes }: Contexto & { habito: 
     dia: diaLogico(ahora, ajustes.horaCierre),
     tipo: 'salto',
     ...(texto ? { motivo: texto } : {}),
+  }
+}
+
+/** «He recaído» (hábito a evitar): un registro en el día lógico, con su disparador si lo hay. */
+export function recaer({ habito, disparador, ahora, ajustes }: Contexto & { habito: Habito; disparador?: string }): Nuevo<Registro> {
+  const texto = disparador?.trim()
+  return {
+    habitoId: habito.id,
+    dia: diaLogico(ahora, ajustes.horaCierre),
+    tipo: 'recaida',
+    ...(texto ? { disparador: texto } : {}),
   }
 }

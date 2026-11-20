@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import type { TFunction } from 'i18next'
 import { twMerge } from 'tailwind-merge'
-import type { Dia, Habito, Identidad, Periodo } from '@/dominio'
+import type { Dia, FraseIntencion, Habito, Identidad, Periodo } from '@/dominio'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -27,4 +27,19 @@ export const progresoCuantitativo = ({ cuantitativo: c, frecuencia: f }: Habito,
     unidad: c.unidad,
     periodo: t(`cuantitativo.periodo.${f.tipo === 'veces_por_periodo' ? f.periodo : 'dia'}`),
   })
+}
+
+/**
+ * La frase de intención en el idioma: «después de servirme el café, en la cocina: leer 1 página».
+ * Empieza en minúscula: muéstrala con `first-letter:uppercase` en un elemento de bloque.
+ */
+export function textoFrase({ cuando, donde, que }: FraseIntencion, t: TFunction) {
+  const inicio =
+    cuando &&
+    ('hora' in cuando
+      ? t('intencion.hora', { hora: cuando.hora })
+      : 'despuesDe' in cuando
+        ? t('intencion.despuesDe', { nombre: cuando.despuesDe })
+        : t('intencion.despuesDeAccion', { texto: cuando.despuesDeAccion }))
+  return t('intencion.frase', { contexto: [inicio, donde].filter(Boolean).join(', '), que })
 }

@@ -1,7 +1,7 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
 import { HITOS } from './identidad'
-import type { AnotacionDeFallo, Ajustes, Cuantitativo, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
+import type { Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -92,12 +92,22 @@ const versiones: Validador<VersionRegla[]> = (v, r) => {
   return vs
 }
 
+/** Uno solo de los tres disparadores. Un ancla que ya no existe vale: el hábito queda «sin hora». */
+const cuando: Validador<Cuando> = (v, r) => {
+  const c = typeof v === 'object' && v !== null ? v : {}
+  if ('hora' in c) return objeto<{ hora: string }>({ hora })(v, r)
+  if ('despuesDeHabitoId' in c) return objeto<{ despuesDeHabitoId: string }>({ despuesDeHabitoId: id })(v, r)
+  return objeto<{ despuesDeAccion: string }>({ despuesDeAccion: conPatron(/\S/) })(v, r)
+}
+
+const intencion = objeto<Intencion>({ cuando: opcional(cuando), donde: opcional(conPatron(/\S/)) })
+
 const habito: Validador<Habito> = (v, r) => {
   const h = objeto<Habito>({
     ...entidad,
     identidadId: id,
     nombre: conPatron(/\S/),
-    tipo: literal('si_no', 'cuantitativo'),
+    tipo: literal('si_no', 'cuantitativo', 'evitar'),
     cuantitativo: opcional(cuantitativo),
     frecuencia,
     versionMinima: opcional(texto),
@@ -107,6 +117,10 @@ const habito: Validador<Habito> = (v, r) => {
     orden: entero(0),
     pausas: opcional(lista(pausa)),
     versiones: opcional(versiones),
+    intencion: opcional(intencion),
+    entorno: opcional(lista(texto)),
+    recompensaAsociada: opcional(texto),
+    leyesInversas: opcional(objeto<LeyesInversas>({ senal: opcional(texto), friccion: opcional(texto), sustituto: opcional(texto) })),
   })(v, r)
   // Un cuantitativo lleva siempre su objetivo (también en cada regla anterior); otro tipo, nunca.
   const esCuantitativo = h.tipo === 'cuantitativo'
@@ -114,6 +128,7 @@ const habito: Validador<Habito> = (v, r) => {
   h.versiones?.forEach((x, i) => {
     if (esCuantitativo !== (x.cuantitativo !== undefined)) throw new Invalido(`${r}.versiones[${i}].cuantitativo`)
   })
+  if (h.leyesInversas !== undefined && h.tipo !== 'evitar') throw new Invalido(`${r}.leyesInversas`)
   return h
 }
 
@@ -122,12 +137,14 @@ const registro: Validador<Registro> = (v, r) => {
     ...entidad,
     habitoId: id,
     dia,
-    tipo: literal('minima', 'completa', 'salto', 'valor'),
+    tipo: literal('minima', 'completa', 'salto', 'recaida', 'valor'),
     valor: opcional(positivo),
     nota: opcional(texto),
     motivo: opcional(texto),
+    disparador: opcional(texto),
   })(v, r)
   if (reg.motivo !== undefined && reg.tipo !== 'salto') throw new Invalido(`${r}.motivo`)
+  if (reg.disparador !== undefined && reg.tipo !== 'recaida') throw new Invalido(`${r}.disparador`)
   if ((reg.valor !== undefined) !== (reg.tipo === 'valor')) throw new Invalido(`${r}.valor`)
   return reg
 }
@@ -231,8 +248,8 @@ export function registrosCsv({ habitos, registros }: Pick<Datos, 'habitos' | 're
   const campo = (v = '') => (/[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)
   const filas = [...registros]
     .sort((a, b) => a.dia.localeCompare(b.dia) || a.creadoEn.localeCompare(b.creadoEn))
-    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.valor?.toString(), r.nota, r.motivo, r.creadoEn])
-  return [['dia', 'habitoId', 'habito', 'tipo', 'valor', 'nota', 'motivo', 'creadoEn'], ...filas]
+    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.valor?.toString(), r.nota, r.motivo, r.disparador, r.creadoEn])
+  return [['dia', 'habitoId', 'habito', 'tipo', 'valor', 'nota', 'motivo', 'disparador', 'creadoEn'], ...filas]
     .map((fila) => fila.map(campo).join(',') + '\r\n')
     .join('')
 }

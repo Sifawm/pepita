@@ -141,12 +141,14 @@
       "ayuda": "Cada vez que lo hagas, sumarás un voto a la persona que quieres ser."
     },
     "tipo": {
-      "titulo": "¿Cómo lo vas a contar?",
-      "ayuda": "Hecho o no hecho basta para casi todo. Si te ayuda contar algo (páginas, kilómetros, cafés), mídelo.",
-      "opciones": {
-        "si_no": "Hecho o no hecho",
-        "cuantitativo": "Contando una cantidad"
-      }
+      "titulo": "¿Qué tipo de hábito es?",
+      "ayuda": "Para romper un hábito, el método se da la vuelta: hazlo invisible, poco atractivo, difícil e insatisfactorio.",
+      "si_no": "Hacer algo",
+      "si_noAyuda": "Lo marcas cuando lo haces.",
+      "cuantitativo": "Contar una cantidad",
+      "cuantitativoAyuda": "Al menos 20 páginas, o como mucho 2 cafés. Vas sumando lo que hagas.",
+      "evitar": "Evitar algo",
+      "evitarAyuda": "Solo apuntas si recaes. Cada día limpio suma un voto al cerrarse."
     },
     "frecuencia": {
       "titulo": "¿Cada cuánto?",
@@ -159,6 +161,49 @@
       "versionMinimaEjemplo": "Por ejemplo: abrir el libro",
       "versionCompleta": "Versión completa",
       "versionCompletaEjemplo": "Por ejemplo: leer 30 minutos"
+    },
+    "intencion": {
+      "titulo": "¿Cuándo y dónde?",
+      "ayuda": "Decidir cuándo y dónde lo harás hace que empezar no dependa de las ganas.",
+      "cuando": "Cuándo",
+      "sinDecidir": "Sin decidir",
+      "cuandoHora": "A una hora",
+      "cuandoHabito": "Después de otro hábito",
+      "cuandoAccion": "Después de algo que ya haces",
+      "hora": "Hora",
+      "habito": "Hábito",
+      "elige": "Elige un hábito",
+      "accion": "Qué haces justo antes",
+      "accionEjemplo": "Por ejemplo: servirme el café",
+      "donde": "Dónde",
+      "dondeEjemplo": "Por ejemplo: en la cocina",
+      "vistaPrevia": "Tu intención"
+    },
+    "entorno": {
+      "titulo": "Prepara tu entorno",
+      "ayuda": "Deja a la vista lo que necesitas. Cuanto menos cueste empezar, mejor.",
+      "lista": "Una cosa por línea",
+      "ejemplo": "Por ejemplo: dejar el libro en la almohada"
+    },
+    "recompensa": {
+      "titulo": "Recompensa asociada",
+      "ayuda": "Junta el hábito con algo que te guste y te apetecerá más.",
+      "ejemplo": "Por ejemplo: solo escucho mi podcast mientras camino"
+    },
+    "senal": {
+      "titulo": "¿Qué señal vas a quitar de tu vista?",
+      "ayuda": "Hazlo invisible: lo que no ves, apenas te tienta.",
+      "ejemplo": "Por ejemplo: dejar el móvil fuera del dormitorio"
+    },
+    "friccion": {
+      "titulo": "¿Qué fricción vas a añadir?",
+      "ayuda": "Hazlo difícil: cuantos más pasos, menos ganas.",
+      "ejemplo": "Por ejemplo: cerrar sesión en la app"
+    },
+    "sustituto": {
+      "titulo": "¿Qué harás en su lugar?",
+      "ayuda": "Un hábito no se borra sin más: ayuda tener otra cosa a mano.",
+      "ejemplo": "Por ejemplo: leer una página"
     }
   },
   "habito": {
@@ -194,7 +239,8 @@
     "tipo": {
       "minima": "Versión mínima",
       "completa": "Versión completa",
-      "salto": "Salto"
+      "salto": "Salto",
+      "recaida": "Recaída"
     },
     "pasarA": {
       "minima": "Era la mínima",
@@ -264,6 +310,14 @@
     "guardar": "Guardar",
     "guardada": "Apuntado. Gracias por contarlo."
   },
+  "intencion": {
+    "hora": "a las {{hora}}",
+    "despuesDe": "después de «{{nombre}}»",
+    "despuesDeAccion": "después de {{texto}}",
+    "frase": "{{contexto}}: {{que}}",
+    "entorno": "Prepara tu entorno:",
+    "recompensa": "Recompensa:"
+  },
   "grafico": {
     "datos": "Ver los datos"
   },
@@ -325,5 +379,30 @@
     "sumar": "Añadir {{unidad}}",
     "sumarCorto": "Sumar",
     "sumarBoton": "Sumar a «{{nombre}}»"
+  },
+  "evitar": {
+    "limpio": "Hoy, día limpio por ahora",
+    "recaido": "Recaída anotada. Mañana es otro día",
+    "heRecaido": "He recaído",
+    "ayuda": "Le pasa a cualquiera. Anotarlo te ayuda a ver qué lo provoca.",
+    "disparador": "¿Qué lo provocó? (opcional)",
+    "disparadorEjemplo": "Por ejemplo: aburrimiento después de cenar",
+    "anotar": "Anotar recaída",
+    "anotada": "Anotado. Un tropiezo no borra lo que llevas.",
+    "deshacer": "Deshacer la recaída de hoy",
+    "deshecha": "Recaída deshecha.",
+    "anadir": "Apuntar una recaída",
+    "sustituto": "En su lugar: {{texto}}",
+    "senal": "Señal fuera: {{texto}}",
+    "friccion": "Fricción: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Día limpio",
+      "cumplido_minima": "Día limpio",
+      "fallido": "Recaída",
+      "en_curso": "En curso",
+      "no_programado": "No tocaba",
+      "saltado": "Saltado",
+      "pausado": "En pausa"
+    }
   }
 }
