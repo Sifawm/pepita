@@ -18,8 +18,9 @@ function pasoDe(habito: Habito, s: Sugerencia): string | undefined {
   return s.tipo === 'subir' ? 'frecuencia' : 'versiones'
 }
 
-/** La clave del texto de Pepita para la sugerencia. */
-const claveTexto = (habito: Habito, s: Sugerencia) =>
+/** La clave del texto de Pepita para la sugerencia (también en la revisión semanal). */
+// eslint-disable-next-line react-refresh/only-export-components
+export const claveTexto = (habito: Habito, s: Sugerencia) =>
   s.tipo === 'subir' ? `escalado.subir.${s.predomina}` : habito.tipo === 'evitar' ? 'escalado.bajar.evitar' : 'escalado.bajar.otro'
 
 /**

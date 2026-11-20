@@ -44,6 +44,22 @@
   }
 }
 
+/* Papel: siempre claro, aunque el sistema esté en oscuro. */
+@media print {
+  :root {
+    --background: #ffffff;
+    --foreground: #000000;
+    --card: #ffffff;
+    --card-foreground: #000000;
+    --primary: #2f6b4f;
+    --muted-foreground: #333333;
+    --border: #bbbbbb;
+  }
+  @page {
+    margin: 1.5cm;
+  }
+}
+
 @theme inline {
   --font-sans: 'Nunito Variable', ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);

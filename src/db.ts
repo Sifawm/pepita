@@ -2,7 +2,7 @@
 import Dexie, { liveQuery, type EntityTable } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
-import { AJUSTES_POR_DEFECTO, reconciliarDiagnosticos, type Ajustes, type AnotacionDeFallo, type Diagnostico, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro, type SugerenciaDescartada } from '@/dominio'
+import { AJUSTES_POR_DEFECTO, reconciliarDiagnosticos, type Ajustes, type AnotacionDeFallo, type Diagnostico, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro, type RevisionSemanal, type SugerenciaDescartada } from '@/dominio'
 import type { Datos } from '@/dominio'
 
 export const db = new Dexie('pepita') as Dexie & {
@@ -13,6 +13,7 @@ export const db = new Dexie('pepita') as Dexie & {
   hitosCelebrados: EntityTable<HitoCelebrado, 'id'>
   diagnosticos: EntityTable<Diagnostico, 'id'>
   sugerenciasDescartadas: EntityTable<SugerenciaDescartada, 'id'>
+  revisionesSemanales: EntityTable<RevisionSemanal, 'id'>
   /** Una sola fila, con `id: 'ajustes'`. */
   ajustes: EntityTable<Partial<Ajustes> & { id: string }, 'id'>
 }
@@ -33,6 +34,8 @@ db.version(4).stores({ hitosCelebrados: 'id, identidadId' })
 db.version(5).stores({ diagnosticos: 'id, habitoId' })
 
 db.version(6).stores({ sugerenciasDescartadas: 'id, habitoId' })
+
+db.version(7).stores({ revisionesSemanales: 'id, &semana' })
 
 /** Añade `id` y `creadoEn` a lo que crea el núcleo. */
 export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
@@ -67,6 +70,14 @@ export const celebrarHitos = (identidadId: string, umbrales: number[]) =>
     const ya = new Set((await db.hitosCelebrados.where('identidadId').equals(identidadId).toArray()).map((h) => h.umbral))
     const nuevos = umbrales.filter((umbral) => !ya.has(umbral))
     await db.hitosCelebrados.bulkAdd(nuevos.map((umbral) => conId<HitoCelebrado>({ identidadId, umbral })))
+  })
+
+/** Guarda la nota de la semana (su lunes). Sin texto, la borra: una nota vacía no se guarda. */
+export const guardarNotaSemanal = (semana: string, nota: string) =>
+  db.transaction('rw', db.revisionesSemanales, async () => {
+    const actual = await db.revisionesSemanales.where('semana').equals(semana).first()
+    if (!nota.trim()) return void (actual && (await db.revisionesSemanales.delete(actual.id)))
+    await db.revisionesSemanales.put(actual ? { ...actual, nota: nota.trim() } : conId<RevisionSemanal>({ semana, nota: nota.trim() }))
   })
 
 /**
@@ -115,6 +126,7 @@ export const leerDatos = (): Promise<Datos> =>
       hitosCelebrados: await db.hitosCelebrados.toArray(),
       diagnosticos: await db.diagnosticos.toArray(),
       sugerenciasDescartadas: await db.sugerenciasDescartadas.toArray(),
+      revisionesSemanales: await db.revisionesSemanales.toArray(),
     }
   })
 

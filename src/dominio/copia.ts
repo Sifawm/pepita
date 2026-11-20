@@ -1,8 +1,9 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
+import { diaDeLaSemana } from './calendario'
 import { ACCIONES_DIAGNOSTICO } from './diagnostico'
 import { HITOS } from './identidad'
-import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, SugerenciaDescartada, VersionRegla } from './tipos'
+import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, RevisionSemanal, SugerenciaDescartada, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -177,6 +178,13 @@ const diagnostico: Validador<Diagnostico> = (v, r) => {
 
 const sugerenciaDescartada = objeto<SugerenciaDescartada>({ ...entidad, habitoId: id, tipo: literal('subir', 'bajar'), hasta: dia })
 
+const lunes: Validador<string> = (v, r) => {
+  const d = dia(v, r)
+  if (diaDeLaSemana(d) !== 1) throw new Invalido(r)
+  return d
+}
+const revisionSemanal = objeto<RevisionSemanal>({ ...entidad, semana: lunes, nota: conPatron(/\S/) })
+
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
   ajustes,
@@ -187,6 +195,7 @@ const datos = objeto<Datos>({
   hitosCelebrados: lista(hitoCelebrado),
   diagnosticos: lista(diagnostico),
   sugerenciasDescartadas: lista(sugerenciaDescartada),
+  revisionesSemanales: lista(revisionSemanal),
 })
 
 const copia = objeto<Copia>({
@@ -214,6 +223,7 @@ function comprobarReferencias(d: Datos) {
   ids('hitosCelebrados', d.hitosCelebrados)
   ids('diagnosticos', d.diagnosticos)
   ids('sugerenciasDescartadas', d.sugerenciasDescartadas)
+  ids('revisionesSemanales', d.revisionesSemanales)
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
@@ -242,6 +252,11 @@ function comprobarReferencias(d: Datos) {
   })
   d.sugerenciasDescartadas.forEach((s, i) => {
     if (!habitos.has(s.habitoId)) throw new Invalido(`datos.sugerenciasDescartadas[${i}].habitoId`)
+  })
+  const semanas = new Set<string>()
+  d.revisionesSemanales.forEach((x, i) => {
+    if (semanas.has(x.semana)) throw new Invalido(`datos.revisionesSemanales[${i}].semana`)
+    semanas.add(x.semana)
   })
 }
 

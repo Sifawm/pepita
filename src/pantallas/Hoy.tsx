@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Archive, Palmtree, Plus, Users } from 'lucide-react'
+import { Archive, NotebookPen, Palmtree, Plus, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useSearchParams } from 'react-router'
@@ -131,6 +131,10 @@ export default function Hoy() {
         <Link to="/identidades" className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
           <Users aria-hidden />
           {t('identidades.titulo')}
+        </Link>
+        <Link to="/revision" className={cn(buttonVariants({ variant: 'secondary' }), 'w-full')}>
+          <NotebookPen aria-hidden />
+          {t('revision.titulo')}
         </Link>
         {datos.habitos.some((h) => h.archivado) && (
           <Link to="/archivados" className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>

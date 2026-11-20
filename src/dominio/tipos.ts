@@ -198,6 +198,13 @@ export interface SugerenciaDescartada extends Entidad {
   hasta: Dia
 }
 
+/** La nota libre de una revisión semanal. Una como mucho por semana; sin texto, no se guarda. */
+export interface RevisionSemanal extends Entidad {
+  /** Lunes de esa semana. */
+  semana: Dia
+  nota: string
+}
+
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */
 export type Nuevo<T extends Entidad> = Omit<T, keyof Entidad>
 
@@ -214,4 +221,5 @@ export interface Datos {
   hitosCelebrados: HitoCelebrado[]
   diagnosticos: Diagnostico[]
   sugerenciasDescartadas: SugerenciaDescartada[]
+  revisionesSemanales: RevisionSemanal[]
 }

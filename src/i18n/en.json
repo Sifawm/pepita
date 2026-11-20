@@ -533,5 +533,65 @@
     "cambiado": "Done. Your habit has its new bar.",
     "animo": "Go for it!",
     "descartado": "OK. I won't suggest it again for a few weeks."
+  },
+  "revision": {
+    "titulo": "Weekly review",
+    "intro": "Five minutes to look back on your week, kindly.",
+    "semanas": "Weeks",
+    "semana": "{{desde}} to {{hasta}}",
+    "anterior": "Previous week",
+    "siguiente": "Next week",
+    "volver": "Back to Today",
+    "votos": {
+      "titulo": "Votes by identity",
+      "n_one": "{{count}} vote",
+      "n_other": "{{count}} votes",
+      "vacia": "No votes this time. Any day is a good day to come back."
+    },
+    "recuperacion": {
+      "titulo": "Getting back on track",
+      "vacia": "Nothing to get back on track."
+    },
+    "diagnosticos": {
+      "titulo": "Open questions",
+      "item": "What happened with “{{nombre}}”?",
+      "vacia": "No open questions."
+    },
+    "sugerencias": {
+      "titulo": "Ideas from Pepita",
+      "ver": "See the idea for “{{nombre}}”",
+      "verCorto": "See it",
+      "vacia": "No new ideas for now."
+    },
+    "campos": {
+      "titulo": "Steps left blank",
+      "intro": "No rush: whenever you feel like going back to the book, here's what you left for later.",
+      "vacia": "No steps left blank.",
+      "rellenar": "Fill in {{campo}} for “{{nombre}}”",
+      "identidad": "identity",
+      "versionMinima": "minimum version",
+      "intencion": "intention",
+      "entorno": "environment",
+      "recompensa": "reward"
+    },
+    "nota": {
+      "titulo": "Free note",
+      "ayuda": "What went well? What would you like to change? Just for you.",
+      "guardar": "Save note",
+      "guardada": "Note saved.",
+      "borrada": "Note deleted.",
+      "semana": "Week of {{fecha}}",
+      "vacia": "No notes in this period."
+    },
+    "imprimir": {
+      "titulo": "Print or save as PDF",
+      "ayuda": "Choose the period and what to include. Whole weeks count, Monday to Sunday.",
+      "desde": "From",
+      "hasta": "To",
+      "incluir": "What to include",
+      "boton": "Print",
+      "informe": "Pepita review",
+      "estado": "Votes and notes for the period. Everything else, as it stands on {{fecha}}."
+    }
   }
 }

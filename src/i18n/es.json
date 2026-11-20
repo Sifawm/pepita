@@ -533,5 +533,65 @@
     "cambiado": "Hecho. Tu hábito ya tiene su nuevo listón.",
     "animo": "¡A por ello!",
     "descartado": "Vale. No te lo vuelvo a proponer en unas semanas."
+  },
+  "revision": {
+    "titulo": "Revisión semanal",
+    "intro": "Cinco minutos para mirar tu semana con cariño.",
+    "semanas": "Semanas",
+    "semana": "Del {{desde}} al {{hasta}}",
+    "anterior": "Semana anterior",
+    "siguiente": "Semana siguiente",
+    "volver": "Volver a Hoy",
+    "votos": {
+      "titulo": "Votos por identidad",
+      "n_one": "{{count}} voto",
+      "n_other": "{{count}} votos",
+      "vacia": "Esta vez no hubo votos. Cualquier día es bueno para volver."
+    },
+    "recuperacion": {
+      "titulo": "En recuperación",
+      "vacia": "Nada en recuperación."
+    },
+    "diagnosticos": {
+      "titulo": "Preguntas pendientes",
+      "item": "¿Qué ha pasado con «{{nombre}}»?",
+      "vacia": "No hay preguntas pendientes."
+    },
+    "sugerencias": {
+      "titulo": "Ideas de Pepita",
+      "ver": "Ver la idea para «{{nombre}}»",
+      "verCorto": "Verla",
+      "vacia": "Ninguna idea nueva por ahora."
+    },
+    "campos": {
+      "titulo": "Pasos por rellenar",
+      "intro": "Sin prisa: cuando te apetezca volver al libro, aquí tienes lo que dejaste para luego.",
+      "vacia": "No queda ningún paso por rellenar.",
+      "rellenar": "Rellenar {{campo}} de «{{nombre}}»",
+      "identidad": "identidad",
+      "versionMinima": "versión mínima",
+      "intencion": "intención",
+      "entorno": "entorno",
+      "recompensa": "recompensa"
+    },
+    "nota": {
+      "titulo": "Nota libre",
+      "ayuda": "¿Qué ha ido bien? ¿Qué te gustaría cambiar? Solo para ti.",
+      "guardar": "Guardar nota",
+      "guardada": "Nota guardada.",
+      "borrada": "Nota borrada.",
+      "semana": "Semana del {{fecha}}",
+      "vacia": "Sin notas en este periodo."
+    },
+    "imprimir": {
+      "titulo": "Imprimir o guardar en PDF",
+      "ayuda": "Elige el periodo y qué incluir. Se cuentan semanas enteras, de lunes a domingo.",
+      "desde": "Desde",
+      "hasta": "Hasta",
+      "incluir": "Qué incluir",
+      "boton": "Imprimir",
+      "informe": "Revisión de Pepita",
+      "estado": "Votos y notas del periodo. El resto, tal y como está a {{fecha}}."
+    }
   }
 }
