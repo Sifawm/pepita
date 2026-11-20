@@ -1,15 +1,17 @@
 import { diaLogico } from './calendario'
-import { esVoto, evaluarHabito, type Periodo, type Racha } from './evaluacion'
+import { esVoto, evaluarHabito, votosDe, type Periodo, type Racha } from './evaluacion'
 import { pausaEn, pausaGlobalEn } from './pausa'
 import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './tipos'
 
 export interface TarjetaHoy {
   habito: Habito
   identidad: Identidad
-  /** Registros (mínima o completa) del hábito en el día lógico actual, del más antiguo al más reciente. */
+  /** Registros (mínima, completa o valor) del hábito en el día lógico actual, del más antiguo al más reciente. */
   registros: Registro[]
-  /** Hoy ya está hecho: un toque más deshace el último registro del día. */
+  /** Hoy ya está hecho: un toque más deshace el último registro del día. En un cuantitativo, el periodo ya está cumplido. */
   hecho: boolean
+  /** Votos que este hábito ha sumado hoy. */
+  votosHoy: number
   /** El periodo en curso, con lo que lleva («2 de 3»). */
   periodo: Periodo
   /** El salto que deja neutro el periodo en curso (para deshacerlo). */
@@ -23,7 +25,7 @@ export interface TarjetaHoy {
 
 export interface Hoy {
   dia: Dia
-  /** Votos sumados hoy: +1 por cada registro de versión mínima o completa. */
+  /** Votos sumados hoy: +1 por cada registro de versión mínima o completa y por cada periodo cuantitativo cumplido hoy. */
   votos: number
   habitos: TarjetaHoy[]
   /** La pausa global, si dura hoy. */
@@ -37,7 +39,7 @@ interface Contexto {
 
 const delDia = (registros: Registro[], habitoId: string, dia: Dia) =>
   registros
-    .filter((r) => r.habitoId === habitoId && r.dia === dia && esVoto(r))
+    .filter((r) => r.habitoId === habitoId && r.dia === dia && (esVoto(r) || r.tipo === 'valor'))
     .sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
 
 /** Registros que un día admite por toques: `veces` si el periodo es el día; si no, uno. */
@@ -81,7 +83,8 @@ export function componerHoy({
           habito,
           identidad,
           registros: propios,
-          hecho: hechoHoy(habito, propios),
+          hecho: habito.tipo === 'cuantitativo' ? periodo.estado.startsWith('cumplido') : hechoHoy(habito, propios),
+          votosHoy: votosDe({ habito, registros, ahora, ajustes }).votosHoy,
           periodo,
           salto,
           pausa: pausaEn(habito, ajustes, dia),
@@ -94,7 +97,7 @@ export function componerHoy({
     .sort((a, b) => Number(b.enRecuperacion) - Number(a.enRecuperacion))
   return {
     dia,
-    votos: tarjetas.reduce((n, t) => n + t.registros.length, 0),
+    votos: tarjetas.reduce((n, t) => n + t.votosHoy, 0),
     habitos: tarjetas,
     pausaGlobal: pausaGlobalEn(ajustes, dia),
   }
@@ -119,6 +122,23 @@ export function toque({
   const propios = delDia(registros, habito.id, dia)
   if (hechoHoy(habito, propios)) return { tipo: 'deshacer', registroId: propios[propios.length - 1].id }
   return { tipo: 'registrar', registro: { habitoId: habito.id, dia, tipo: version } }
+}
+
+/**
+ * Suma una cantidad a un hábito cuantitativo en el día lógico. `voto`: con ella se cumple el
+ * periodo (para celebrarlo); en «como mucho» nunca, porque se cumple al cerrar.
+ */
+export function sumarValor({
+  habito,
+  registros,
+  valor,
+  ahora,
+  ajustes,
+}: Contexto & { habito: Habito; registros: Registro[]; valor: number }): { registro: Nuevo<Registro>; voto: boolean } {
+  const registro: Nuevo<Registro> = { habitoId: habito.id, dia: diaLogico(ahora, ajustes.horaCierre), tipo: 'valor', valor }
+  const antes = evaluarHabito({ habito, registros, ahora, ajustes }).votos
+  const con = [...registros, { ...registro, id: '', creadoEn: ahora.toISOString() }]
+  return { registro, voto: evaluarHabito({ habito, registros: con, ahora, ajustes }).votos > antes }
 }
 
 /** Pone (o quita, si queda vacía) la nota opcional de cualquier registro. */

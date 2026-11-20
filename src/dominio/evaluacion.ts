@@ -1,5 +1,5 @@
 import { diaDeLaSemana, diaLogico, periodoDe, sumarDias } from './calendario'
-import type { Ajustes, Dia, Frecuencia, Habito, Pausa, Registro } from './tipos'
+import type { Ajustes, Dia, Frecuencia, Habito, Pausa, Registro, Regla } from './tipos'
 import { reglaEn } from './versiones'
 
 export type EstadoPeriodo =
@@ -14,9 +14,9 @@ export type EstadoPeriodo =
 export interface Periodo {
   desde: Dia
   hasta: Dia
-  /** Registros que pide para cumplirse (0 si no está programado). */
+  /** Registros que pide para cumplirse (0 si no está programado); en un cuantitativo, su objetivo. */
   pide: number
-  /** Registros hechos dentro del periodo. */
+  /** Registros hechos dentro del periodo; en un cuantitativo, la suma de sus valores. */
   hechos: number
   estado: EstadoPeriodo
 }
@@ -26,7 +26,7 @@ export interface EvaluacionHabito {
   periodos: Periodo[]
   /** El periodo que contiene hoy; no existe si el hábito aún no ha empezado. */
   actual?: Periodo
-  /** `si_no`: un voto por registro, también en días no programados. */
+  /** `si_no`: un voto por registro, también en días no programados. `cuantitativo`: uno por periodo cumplido. */
   votos: number
   /** En periodos. Un fallo aislado no suma ni la rompe; el segundo seguido la pone a 0. */
   racha: Racha
@@ -59,12 +59,28 @@ export const pausasDe = (habito: Habito, ajustes: Ajustes): Pausa[] => [
   ...(ajustes.pausaGlobal ? [ajustes.pausaGlobal] : []),
 ]
 
-function estado(pide: number, registros: Registro[], { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
-  if (pide === 0) return 'no_programado'
+/** Suma de los valores (cuantitativos). */
+const suma = (registros: Registro[]) => registros.reduce((n, r) => n + (r.tipo === 'valor' ? (r.valor ?? 0) : 0), 0)
+
+/** Si el periodo ya está cumplido y con qué versión, según el tipo de hábito y su regla. */
+function cumplido(pide: number, registros: Registro[], { cuantitativo: c }: Regla, cerrado: boolean): EstadoPeriodo | undefined {
+  if (c) {
+    const total = suma(registros)
+    // «Como mucho»: se registra el exceso, no el éxito; por eso solo se sabe al cerrar.
+    if (c.modo === 'como_mucho') return cerrado && total <= c.objetivo ? 'cumplido_completa' : undefined
+    if (total >= c.objetivo) return 'cumplido_completa'
+    return c.objetivoMinimo !== undefined && total >= c.objetivoMinimo ? 'cumplido_minima' : undefined
+  }
   const hechos = registros.filter(esVoto)
+  if (hechos.length < pide) return undefined
+  return hechos.every((r) => r.tipo === 'completa') ? 'cumplido_completa' : 'cumplido_minima'
+}
+
+function estado(pide: number, registros: Registro[], regla: Regla, { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
+  if (pide === 0) return 'no_programado'
   // Cumplir gana a saltar o pausar: lo hecho, hecho está.
-  if (hechos.length >= pide)
-    return hechos.every((r) => r.tipo === 'completa') ? 'cumplido_completa' : 'cumplido_minima'
+  const hecho = cumplido(pide, registros, regla, hasta < hoy)
+  if (hecho) return hecho
   if (registros.some((r) => r.tipo === 'salto')) return 'saltado'
   // Basta un día en pausa (ya llegado) para que el periodo no pueda fallar: Pepita nunca culpa.
   const llegado = hasta < hoy ? hasta : hoy
@@ -94,15 +110,31 @@ export function evaluarHabito({
     const periodo = periodoQueContiene(dia, regla.frecuencia)
     const desde = regla.desde && periodo.desde < regla.desde ? regla.desde : periodo.desde
     const hasta = regla.hasta && regla.hasta < periodo.hasta ? regla.hasta : periodo.hasta
-    const { pide } = periodo
+    const c = regla.cuantitativo
+    // Un cuantitativo pide su objetivo (las `veces` no cuentan: la frecuencia solo marca el periodo).
+    const pide = c && periodo.pide > 0 ? c.objetivo : periodo.pide
     const dentro = propios.filter((r) => r.dia >= desde && r.dia <= hasta)
-    periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(pide, dentro, { desde, hasta }, pausas, hoy) })
+    const hechos = c ? suma(dentro) : dentro.filter(esVoto).length
+    periodos.push({ desde, hasta, pide, hechos, estado: estado(pide, dentro, regla, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  return { periodos, actual: periodos.at(-1), votos: propios.filter(esVoto).length, ...racha(periodos) }
+  // `si_no`: 1 voto por registro; `cuantitativo`: 1 por periodo cumplido.
+  const votos = habito.tipo === 'cuantitativo' ? periodos.filter(estaCumplido).length : propios.filter(esVoto).length
+  return { periodos, actual: periodos.at(-1), votos, ...racha(periodos) }
 }
 
-const cumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'
+/**
+ * Votos totales y los ganados en el día lógico de hoy: los que se perderían sin los registros de hoy.
+ * Vale para todos los tipos (en `si_no`, los registros de hoy; en `cuantitativo`, el periodo cumplido hoy).
+ */
+export function votosDe(contexto: { habito: Habito; registros: Registro[]; ahora: Date; ajustes: Ajustes }) {
+  const hoy = diaLogico(contexto.ahora, contexto.ajustes.horaCierre)
+  const { votos } = evaluarHabito(contexto)
+  const sinHoy = evaluarHabito({ ...contexto, registros: contexto.registros.filter((r) => r.dia !== hoy) }).votos
+  return { votos, votosHoy: votos - sinHoy }
+}
+
+const estaCumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'
 
 /** Racha, recuperación y fallos seguidos. Solo cuentan los periodos cumplidos o fallidos. */
 function racha(periodos: Periodo[]) {
@@ -113,7 +145,7 @@ function racha(periodos: Periodo[]) {
   const rupturas: Periodo[] = []
   periodos.forEach((p, i) => {
     if (i === periodos.length - 1) fallosAntesDeHoy = fallosSeguidos
-    if (cumplido(p)) {
+    if (estaCumplido(p)) {
       fallosSeguidos = 0
       mejor = Math.max(mejor, ++actual)
     } else if (p.estado === 'fallido' && ++fallosSeguidos === 2) {
