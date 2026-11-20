@@ -21,25 +21,34 @@ export interface MesCalendario {
 }
 
 /** El mes natural que contiene `mes`, día a día. Editar un registro y volver a llamarla lo recalcula todo. */
-export function calendarioHabito({
-  habito,
-  registros,
-  mes,
-  ahora,
-  ajustes,
-}: {
+export function calendarioHabito({ mes, ...datos }: Datos & { mes: Dia }): MesCalendario {
+  return diasEntre(datos, periodoDe(mes, 'mes'))
+}
+
+/**
+ * Como mucho `semanas` semanas enteras (de lunes a domingo) que acaban en la de hoy, día a día: el mapa
+ * de calor. No empieza antes de la semana del inicio (vacío si el hábito aún no ha empezado).
+ */
+export function mapaDeCalor({ semanas, ...datos }: Datos & { semanas: number }): MesCalendario {
+  const { hasta } = periodoDe(diaLogico(datos.ahora, datos.ajustes.horaCierre), 'semana')
+  const desde = sumarDias(hasta, 1 - 7 * semanas)
+  const inicio = periodoDe(datos.habito.fechaInicio, 'semana').desde
+  return diasEntre(datos, { desde: desde > inicio ? desde : inicio, hasta })
+}
+
+interface Datos {
   habito: Habito
   registros: Registro[]
-  mes: Dia
   ahora: Date
   ajustes: Ajustes
-}): MesCalendario {
+}
+
+function diasEntre({ habito, registros, ahora, ajustes }: Datos, { desde, hasta }: { desde: Dia; hasta: Dia }): MesCalendario {
   const hoy = diaLogico(ahora, ajustes.horaCierre)
   const { periodos } = evaluarHabito({ habito, registros, ahora, ajustes })
   const propios = registros
     .filter((r) => r.habitoId === habito.id)
     .sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
-  const { desde, hasta } = periodoDe(mes, 'mes')
   const dias: DiaCalendario[] = []
   for (let dia = desde; dia <= hasta; dia = sumarDias(dia, 1)) {
     const editable = dia >= habito.fechaInicio && dia <= hoy

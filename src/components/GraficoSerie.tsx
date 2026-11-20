@@ -16,6 +16,7 @@ export function GraficoSerie({
   hasta,
   resumen,
   columnas,
+  maximo = Math.max(...puntos.map((p) => p.valor), 1),
 }: {
   /** En orden de día; cada valor rige hasta el punto siguiente. */
   puntos: { dia: Dia; valor: number }[]
@@ -25,12 +26,13 @@ export function GraficoSerie({
   resumen: string
   /** Cabeceras de la tabla de datos: [día, valor]. */
   columnas: [string, string]
+  /** Tope del eje vertical (por defecto, el mayor valor). */
+  maximo?: number
 }) {
   const { t, i18n } = useTranslation()
   const desde = puntos[0].dia
   const fin = hasta > desde ? hasta : puntos.at(-1)!.dia
   const tramo = Math.max(ms(fin) - ms(desde), 1)
-  const maximo = Math.max(...puntos.map((p) => p.valor), 1)
   const x = (dia: Dia) => ((ms(dia) - ms(desde)) / tramo) * ANCHO
   const y = (valor: number) => ALTO - (valor / maximo) * ALTO
   const linea = `M0 ${ALTO} ` + puntos.map((p) => `H${x(p.dia)} V${y(p.valor)}`).join(' ') + ` H${ANCHO}`

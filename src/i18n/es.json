@@ -256,6 +256,22 @@
     "guardarFrecuencia": "Guardar frecuencia",
     "frecuenciaGuardada": "Listo, frecuencia guardada."
   },
+  "detalleHabito": {
+    "fuerza": "Fuerza",
+    "fuerzaAyuda": "Cuánto se está asentando el hábito. Sube cada vez que lo haces, y un fallo suelto apenas la mueve.",
+    "resumenFuerza": "Fuerza hoy: {{valor}} %",
+    "columnaDia": "Día",
+    "columnaFuerza": "Fuerza (%)",
+    "sinEmpezar": "Aún no ha empezado. Aquí verás cómo se asienta.",
+    "mapa": "De un vistazo",
+    "mapaAyuda": "Las últimas semanas: cada columna es una semana, de lunes a domingo.",
+    "dias_one": "{{count}} día",
+    "dias_other": "{{count}} días",
+    "proporcion": "Mínima y completa",
+    "proporcionTexto": "Con la versión mínima: {{minima}} · con la completa: {{completa}}",
+    "proporcionAyuda": "La mínima también cuenta. Cuando la completa te salga sola, quizá sea buen momento para subir el listón.",
+    "sinProporcion": "Cuando lo cumplas, verás aquí cuántas veces fue con cada versión."
+  },
   "archivados": {
     "titulo": "Hábitos archivados",
     "intro": "Descansan aquí con su historial. Sus votos siguen contando.",

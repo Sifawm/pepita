@@ -256,6 +256,22 @@
     "guardarFrecuencia": "Save frequency",
     "frecuenciaGuardada": "Done, frequency saved."
   },
+  "detalleHabito": {
+    "fuerza": "Strength",
+    "fuerzaAyuda": "How settled the habit is. It grows every time you do it, and a single miss barely moves it.",
+    "resumenFuerza": "Strength today: {{valor}}%",
+    "columnaDia": "Day",
+    "columnaFuerza": "Strength (%)",
+    "sinEmpezar": "It hasn’t started yet. You’ll see it settle in here.",
+    "mapa": "At a glance",
+    "mapaAyuda": "The last few weeks: each column is a week, Monday to Sunday.",
+    "dias_one": "{{count}} day",
+    "dias_other": "{{count}} days",
+    "proporcion": "Minimum and full",
+    "proporcionTexto": "Minimum version: {{minima}} · full version: {{completa}}",
+    "proporcionAyuda": "The minimum counts too. When the full version comes easily, it may be a good time to raise the bar.",
+    "sinProporcion": "Once you complete it, you’ll see here how often it was each version."
+  },
   "archivados": {
     "titulo": "Archived habits",
     "intro": "They rest here with their history. Their votes still count.",

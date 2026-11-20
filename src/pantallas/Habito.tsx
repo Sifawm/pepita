@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { SumarValor } from '@/components/Cuantitativo'
+import { GraficoSerie } from '@/components/GraficoSerie'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -16,18 +17,20 @@ import {
   diaDeLaSemana,
   diaLogico,
   evaluarHabito,
+  mapaDeCalor,
   sumarDias,
   type Ajustes,
   type AnotacionDeFallo,
   type DiaCalendario,
   type Dia,
   type EstadoPeriodo,
+  type EvaluacionHabito,
   type Frecuencia,
   type Habito as THabito,
   type Ley,
   type Registro,
 } from '@/dominio'
-import { cn } from '@/lib/utils'
+import { cn, fechaDia } from '@/lib/utils'
 
 const fechaDe = (dia: Dia) => {
   const [a, m, d] = dia.split('-').map(Number)
@@ -46,7 +49,7 @@ const ESTILO: Record<EstadoPeriodo, string> = {
   pausado: 'border-transparent bg-muted text-muted-foreground',
 }
 
-/** Detalle de un hábito: calendario para editar cualquier día pasado y cambio de frecuencia. */
+/** Detalle de un hábito: fuerza, mapa de calor, mínima/completa, calendario para editar cualquier día pasado y cambio de frecuencia. */
 export default function Habito() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
@@ -65,17 +68,24 @@ export default function Habito() {
       </div>
     )
 
+  const ahora = new Date()
+  const evaluacion = evaluarHabito({ ...datos, habito: datos.habito, ahora, ajustes })
+
   return (
     <div className="space-y-8">
       <header className="space-y-1">
         <h1 className="text-3xl font-bold break-words">{datos.habito.nombre}</h1>
         {/* En segundo plano: la racha es referencia, no lo principal. */}
         <p className="text-sm text-muted-foreground">
-          {t('recuperacion.racha', { ...evaluarHabito({ ...datos, habito: datos.habito, ahora: new Date(), ajustes }).racha })}
+          {t('recuperacion.racha', { ...evaluacion.racha })}
           {' · '}
           {t('recuperacion.rachaAyuda')}
         </p>
       </header>
+      <Fuerza evaluacion={evaluacion} hoy={diaLogico(ahora, ajustes.horaCierre)} />
+      <MapaDeCalor habito={datos.habito} registros={datos.registros} ahora={ahora} ajustes={ajustes} />
+      {/* Al evitar no hay versiones: todo día limpio es completo. */}
+      {datos.habito.tipo !== 'evitar' && <Proporcion {...evaluacion.proporcion} />}
       <Calendario habito={datos.habito} registros={datos.registros} ajustes={ajustes} />
       {/* Al evitar, el periodo es siempre el día. */}
       {datos.habito.tipo !== 'evitar' && <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />}
@@ -93,6 +103,105 @@ function Volver() {
     <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
       {t('habito.volver')}
     </Link>
+  )
+}
+
+function Fuerza({ evaluacion: { fuerza }, hoy }: { evaluacion: EvaluacionHabito; hoy: Dia }) {
+  const { t } = useTranslation()
+  const puntos = fuerza.map((p) => ({ dia: p.dia, valor: Math.round(p.valor * 100) }))
+  return (
+    <section aria-labelledby="fuerza" className="space-y-3">
+      <h2 id="fuerza" className="text-xl font-bold">
+        {t('detalleHabito.fuerza')}
+      </h2>
+      <p className="text-sm text-muted-foreground">{t('detalleHabito.fuerzaAyuda')}</p>
+      {puntos.length ? (
+        <GraficoSerie
+          puntos={puntos}
+          hasta={hoy}
+          maximo={100}
+          resumen={t('detalleHabito.resumenFuerza', { valor: puntos.at(-1)!.valor })}
+          columnas={[t('detalleHabito.columnaDia'), t('detalleHabito.columnaFuerza')]}
+        />
+      ) : (
+        <p className="text-muted-foreground">{t('detalleHabito.sinEmpezar')}</p>
+      )}
+    </section>
+  )
+}
+
+const SEMANAS_MAPA = 26
+
+// Celdas pequeñas: relleno = completa, claro = mínima, borde discontinuo = sin hacer, punteado = saltado,
+// gris = en pausa. La leyenda con el recuento de días es la alternativa textual.
+const CELDA: Record<EstadoPeriodo, string> = {
+  cumplido_completa: 'bg-primary',
+  cumplido_minima: 'bg-primary/40',
+  fallido: 'border border-dashed border-muted-foreground',
+  en_curso: 'border border-input',
+  no_programado: '',
+  saltado: 'border border-dotted border-muted-foreground',
+  pausado: 'bg-muted',
+}
+
+function MapaDeCalor({ habito, registros, ahora, ajustes }: { habito: THabito; registros: Registro[]; ahora: Date; ajustes: Ajustes }) {
+  const { t, i18n } = useTranslation()
+  const mapa = mapaDeCalor({ habito, registros, semanas: SEMANAS_MAPA, ahora, ajustes })
+  if (!mapa.dias.length) return null
+  const nombreEstado = (e: EstadoPeriodo) => t(habito.tipo === 'evitar' ? `evitar.estado.${e}` : `habito.estado.${e}`)
+  const estados = (['cumplido_completa', 'cumplido_minima', 'fallido', 'saltado', 'pausado'] as const).filter(
+    (e) => habito.tipo !== 'evitar' || e !== 'cumplido_minima',
+  )
+  return (
+    <section aria-labelledby="mapa" className="space-y-3">
+      <h2 id="mapa" className="text-xl font-bold">
+        {t('detalleHabito.mapa')}
+      </h2>
+      <p className="text-sm text-muted-foreground">
+        {t('detalleHabito.mapaAyuda')} {fechaDia(mapa.desde, i18n.language)} – {fechaDia(mapa.hasta, i18n.language)}
+      </p>
+      <div
+        aria-hidden
+        className="grid grid-flow-col grid-rows-7 gap-0.5"
+        style={{ gridTemplateColumns: `repeat(${mapa.dias.length / 7}, minmax(0, 1.25rem))` }}
+      >
+        {mapa.dias.map((d) => (
+          <span key={d.dia} className={cn('aspect-square rounded-sm', d.estado && CELDA[d.estado])} />
+        ))}
+      </div>
+      <ul aria-label={t('habito.leyenda')} className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+        {estados.map((e) => (
+          <li key={e} className="flex items-center gap-2">
+            <span aria-hidden className={cn('size-4 rounded-sm', CELDA[e])} />
+            {nombreEstado(e)} · {t('detalleHabito.dias', { count: mapa.dias.filter((d) => d.estado === e).length })}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
+function Proporcion({ minima, completa }: { minima: number; completa: number }) {
+  const { t } = useTranslation()
+  const total = minima + completa
+  return (
+    <section aria-labelledby="proporcion" className="space-y-3">
+      <h2 id="proporcion" className="text-xl font-bold">
+        {t('detalleHabito.proporcion')}
+      </h2>
+      {total ? (
+        <>
+          <div aria-hidden className="flex h-3 overflow-hidden rounded-full">
+            <div className="bg-primary/40" style={{ width: `${(minima / total) * 100}%` }} />
+            <div className="flex-1 bg-primary" />
+          </div>
+          <p className="font-semibold">{t('detalleHabito.proporcionTexto', { minima, completa })}</p>
+          <p className="text-sm text-muted-foreground">{t('detalleHabito.proporcionAyuda')}</p>
+        </>
+      ) : (
+        <p className="text-muted-foreground">{t('detalleHabito.sinProporcion')}</p>
+      )}
+    </section>
   )
 }
 

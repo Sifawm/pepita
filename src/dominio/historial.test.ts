@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AJUSTES_POR_DEFECTO, calendarioHabito, evaluarHabito, type Habito, type Registro } from '.'
+import { AJUSTES_POR_DEFECTO, calendarioHabito, evaluarHabito, mapaDeCalor, type Habito, type Registro } from '.'
 
 const ajustes = AJUSTES_POR_DEFECTO
 // Empieza el miércoles 4 de marzo de 2026; «hoy» es el lunes 6 de abril a mediodía.
@@ -76,5 +76,26 @@ describe('calendario del hábito', () => {
     expect(mes.dias[8].registros).toEqual([])
     // Cada día sabe qué periodo lo contiene (para anotar el fallo de la semana entera).
     expect(mes.dias[11].periodo).toBe('2026-03-09')
+  })
+})
+
+describe('mapa de calor del hábito', () => {
+  it('da semanas enteras (de lunes a domingo) que acaban en la de hoy, con el estado de cada día', () => {
+    const mapa = mapaDeCalor({ habito, registros: [registro('a', '2026-03-05', 'completa')], semanas: 5, ahora, ajustes })
+
+    expect([mapa.desde, mapa.hasta, mapa.dias.length]).toEqual(['2026-03-09', '2026-04-12', 35])
+    const mapaLargo = mapaDeCalor({ habito, registros: [registro('a', '2026-03-05', 'completa')], semanas: 6, ahora, ajustes })
+    expect(mapaLargo.dias.slice(1, 4).map((d) => [d.dia, d.estado])).toEqual([
+      ['2026-03-03', undefined],
+      ['2026-03-04', 'fallido'],
+      ['2026-03-05', 'cumplido_completa'],
+    ])
+    // Después de hoy, sin estado.
+    expect(mapa.dias.at(-1)?.estado).toBeUndefined()
+  })
+
+  it('no empieza antes de la semana en que empezó el hábito', () => {
+    const mapa = mapaDeCalor({ habito, registros: [], semanas: 26, ahora, ajustes })
+    expect([mapa.desde, mapa.dias.length]).toEqual(['2026-03-02', 6 * 7])
   })
 })

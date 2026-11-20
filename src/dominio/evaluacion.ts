@@ -1,5 +1,6 @@
 import { diaDeLaSemana, diaLogico, periodoDe, sumarDias } from './calendario'
 import type { Ajustes, Dia, Frecuencia, Habito, Pausa, Registro, Regla } from './tipos'
+import { serieFuerza, type PuntoFuerza } from './fuerza'
 import { reglaEn } from './versiones'
 
 export type EstadoPeriodo =
@@ -41,6 +42,10 @@ export interface EvaluacionHabito {
   fallosSeguidos: number
   /** Cada periodo que rompió la racha: el segundo fallo de cada serie, uno por ruptura. */
   rupturas: Periodo[]
+  /** Un punto por día desde `fechaInicio` hasta hoy (vacía si aún no ha empezado). */
+  fuerza: PuntoFuerza[]
+  /** Periodos cumplidos con la versión mínima y con la completa (en un cuantitativo, el objetivo mínimo o el entero). */
+  proporcion: { minima: number; completa: number }
 }
 
 export interface Racha {
@@ -141,7 +146,18 @@ export function evaluarHabito({
         ? periodos.filter(estaCumplido).map((p) => p.desde)
         : propios.filter(esVoto).map((r) => r.dia)
   ).sort()
-  return { periodos, actual: periodos.at(-1), votos: diasVoto.length, diasVoto, ...racha(periodos) }
+  return {
+    periodos,
+    actual: periodos.at(-1),
+    votos: diasVoto.length,
+    diasVoto,
+    ...racha(periodos),
+    fuerza: serieFuerza(habito, propios, periodos, hoy),
+    proporcion: {
+      minima: periodos.filter((p) => p.estado === 'cumplido_minima').length,
+      completa: periodos.filter((p) => p.estado === 'cumplido_completa').length,
+    },
+  }
 }
 
 /**
