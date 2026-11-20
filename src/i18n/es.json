@@ -276,6 +276,37 @@
     "guardar": "Guardar",
     "guardada": "Apuntado. Gracias por contarlo."
   },
+  "grafico": {
+    "datos": "Ver los datos"
+  },
+  "detalleIdentidad": {
+    "curva": "Tu curva de votos",
+    "resumenCurva_one": "{{count}} voto acumulado desde el {{desde}}.",
+    "resumenCurva_other": "{{count}} votos acumulados desde el {{desde}}.",
+    "columnaDia": "Día",
+    "columnaVotos": "Votos acumulados",
+    "sinVotos": "Aún no hay votos. El primero llegará cuando cumplas un hábito de esta identidad.",
+    "habitos": "Sus hábitos",
+    "sinHabitos": "Esta identidad aún no tiene hábitos.",
+    "archivado": "(archivado)",
+    "calendario": "Calendario",
+    "editar": "Editar",
+    "noExiste": "No encuentro esta identidad. Quizá venía de una copia anterior.",
+    "volver": "Volver a identidades"
+  },
+  "hitos": {
+    "titulo": "Hitos",
+    "alcanzado_one": "{{count}} voto · {{fecha}}",
+    "alcanzado_other": "{{count}} votos · {{fecha}}",
+    "siguiente_one": "Próximo hito: {{count}} voto. Te falta {{faltan}}.",
+    "siguiente_other": "Próximo hito: {{count}} votos. Te faltan {{faltan}}.",
+    "todos": "Has llegado a todos los hitos. Cada voto sigue contando.",
+    "celebracion_one": "¡{{count}} voto!",
+    "celebracion_other": "¡{{count}} votos!",
+    "celebracionIdentidad": "Mira cuánto has votado por «{{identidad}}». Esa persona ya eres tú.",
+    "verCurva": "Ver tu curva",
+    "cerrar": "Cerrar"
+  },
   "evitar": {
     "limpio": "Hoy, día limpio por ahora",
     "recaido": "Recaída anotada. Mañana es otro día",

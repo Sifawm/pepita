@@ -33,6 +33,8 @@ describe('hábito a evitar: el periodo es el día y se cumple si cierra sin reca
     expect(antes.actual?.estado).toBe('en_curso')
     const despues = evaluarHabito({ habito: redes, registros: [], ahora: local(2026, 3, 3, 4), ajustes })
     expect(despues.votos).toBe(1)
+    // El voto es del día limpio, no del día en que se cerró.
+    expect(despues.diasVoto).toEqual(['2026-03-02'])
     expect(despues.periodos.map((p) => p.estado)).toEqual(['cumplido_completa', 'en_curso'])
   })
 
