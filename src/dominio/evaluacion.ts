@@ -26,8 +26,13 @@ export interface EvaluacionHabito {
   periodos: Periodo[]
   /** El periodo que contiene hoy; no existe si el hábito aún no ha empezado. */
   actual?: Periodo
-  /** `si_no`: un voto por registro, también en días no programados. */
+  /** `si_no`: un voto por registro, también en días no programados. Es `diasVoto.length`. */
   votos: number
+  /**
+   * El día en que se ganó cada voto, en orden: la única fuente de votos del núcleo (resumen de
+   * identidad, curva, hitos). Un tipo nuevo (cuantitativo, evitar) cambia aquí cómo se ganan.
+   */
+  diasVoto: Dia[]
   /** En periodos. Un fallo aislado no suma ni la rompe; el segundo seguido la pone a 0. */
   racha: Racha
   /** El último periodo cerrado y evaluable fue un fallo, y el actual se puede cumplir aún. */
@@ -99,7 +104,8 @@ export function evaluarHabito({
     periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(pide, dentro, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  return { periodos, actual: periodos.at(-1), votos: propios.filter(esVoto).length, ...racha(periodos) }
+  const diasVoto = propios.filter(esVoto).map((r) => r.dia).sort()
+  return { periodos, actual: periodos.at(-1), votos: diasVoto.length, diasVoto, ...racha(periodos) }
 }
 
 const cumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'

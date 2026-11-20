@@ -251,5 +251,36 @@
     "nota": "Note",
     "guardar": "Save",
     "guardada": "Noted. Thanks for sharing."
+  },
+  "grafico": {
+    "datos": "Show the data"
+  },
+  "detalleIdentidad": {
+    "curva": "Your vote curve",
+    "resumenCurva_one": "{{count}} vote in total since {{desde}}.",
+    "resumenCurva_other": "{{count}} votes in total since {{desde}}.",
+    "columnaDia": "Day",
+    "columnaVotos": "Total votes",
+    "sinVotos": "No votes yet. The first one arrives when you do a habit for this identity.",
+    "habitos": "Its habits",
+    "sinHabitos": "This identity has no habits yet.",
+    "archivado": "(archived)",
+    "calendario": "Calendar",
+    "editar": "Edit",
+    "noExiste": "I can't find this identity. Maybe it came from an older backup.",
+    "volver": "Back to identities"
+  },
+  "hitos": {
+    "titulo": "Milestones",
+    "alcanzado_one": "{{count}} vote · {{fecha}}",
+    "alcanzado_other": "{{count}} votes · {{fecha}}",
+    "siguiente_one": "Next milestone: {{count}} vote. {{faltan}} to go.",
+    "siguiente_other": "Next milestone: {{count}} votes. {{faltan}} to go.",
+    "todos": "You've reached every milestone. Every vote still counts.",
+    "celebracion_one": "{{count}} vote!",
+    "celebracion_other": "{{count}} votes!",
+    "celebracionIdentidad": "Look how many times you voted for “{{identidad}}”. That person is already you.",
+    "verCurva": "See your curve",
+    "cerrar": "Close"
   }
 }

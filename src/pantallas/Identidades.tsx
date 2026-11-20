@@ -126,7 +126,12 @@ function Nombre({ resumen: { identidad, votos, votosHoy } }: { resumen: ResumenI
   const { t } = useTranslation()
   return (
     <div className="min-w-0 flex-1">
-      <p className="text-lg font-semibold break-words">{nombreIdentidad(identidad, t)}</p>
+      <Link
+        to={`/identidades/${identidad.id}`}
+        className="inline-flex min-h-11 items-center rounded-md text-lg font-semibold break-words underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring"
+      >
+        {nombreIdentidad(identidad, t)}
+      </Link>
       <p className="text-sm text-muted-foreground">
         {t('identidades.votos', { count: votos })}
         {' · '}

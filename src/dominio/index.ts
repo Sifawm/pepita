@@ -7,5 +7,5 @@ export { anotar, componerHoy, saltar, toque, type AccionToque, type Hoy, type Ta
 export { activarPausaGlobal, pausaGlobalEn, pausarHabito, reanudarHabito, terminarPausaGlobal } from './pausa'
 export { cambiarRegla } from './versiones'
 export { calendarioHabito, type DiaCalendario, type MesCalendario } from './historial'
-export { moverIdentidad, nuevaIdentidad, resumirIdentidades, type ResumenIdentidad } from './identidad'
+export { HITOS, moverIdentidad, nuevaIdentidad, resumirIdentidades, type ResumenIdentidad } from './identidad'
 export { DIAS_AVISO_COPIA, exportar, importar, necesitaCopia, registrosCsv, VERSION_ESQUEMA, type Copia, type ErrorImportacion, type ResultadoImportacion } from './copia'

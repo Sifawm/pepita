@@ -66,6 +66,10 @@ const datos: Datos = {
     { id: 'a2', creadoEn: '2026-05-07T09:00:00.000Z', habitoId: 'correr', periodo: '2026-05-04', ley: 1 },
     { id: 'a3', creadoEn: '2026-05-08T09:00:00.000Z', habitoId: 'leer', periodo: '2026-05-06', nota: 'Ni idea' },
   ],
+  hitosCelebrados: [
+    { id: 'h1', creadoEn: '2026-05-09T20:00:00.000Z', identidadId: 'lectora', umbral: 10 },
+    { id: 'h2', creadoEn: '2026-05-10T20:00:00.000Z', identidadId: 'g', umbral: 1000 },
+  ],
 }
 
 describe('exportar', () => {
@@ -119,6 +123,9 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una ley que no es de 1 a 4', con((c) => (c.datos.anotacionesDeFallo[0].ley = 5)), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[0].ley' }],
     ['una anotación de un hábito que no existe', con((c) => (c.datos.anotacionesDeFallo[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[1].habitoId' }],
     ['dos anotaciones del mismo fallo', con((c) => (c.datos.anotacionesDeFallo[2].periodo = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[2].periodo' }],
+    ['un hito que no es un umbral de Pepita', con((c) => (c.datos.hitosCelebrados[0].umbral = 11)), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[0].umbral' }],
+    ['un hito de una identidad que no existe', con((c) => (c.datos.hitosCelebrados[1].identidadId = 'nadie')), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[1].identidadId' }],
+    ['el mismo hito celebrado dos veces', con((c) => (c.datos.hitosCelebrados[1].identidadId = 'lectora', c.datos.hitosCelebrados[1].umbral = 10)), { motivo: 'invalido', ruta: 'datos.hitosCelebrados[1].umbral' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

@@ -7,6 +7,7 @@ import Archivados from '@/pantallas/Archivados'
 import AsistenteHabito from '@/pantallas/AsistenteHabito'
 import Habito from '@/pantallas/Habito'
 import Hoy from '@/pantallas/Hoy'
+import Identidad from '@/pantallas/Identidad'
 import Identidades from '@/pantallas/Identidades'
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/habito/:id/editar" element={<AsistenteHabito />} />
             <Route path="/archivados" element={<Archivados />} />
             <Route path="/identidades" element={<Identidades />} />
+            <Route path="/identidades/:id" element={<Identidad />} />
             <Route path="/habito/:id" element={<Habito />} />
             <Route path="/ajustes" element={<Ajustes />} />
           </Routes>
