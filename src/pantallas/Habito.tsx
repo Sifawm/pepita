@@ -3,6 +3,7 @@ import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
+import { SumarValor } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -192,8 +193,10 @@ function EditarDia({
   titulo: string
   nombreEstado: (e: EstadoPeriodo) => string
 }) {
-  const { t } = useTranslation()
-  const anadir = (tipo: Registro['tipo']) => db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo }))
+  const { t, i18n } = useTranslation()
+  const anadir = (tipo: Registro['tipo'], valor?: number) =>
+    db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo, ...(valor !== undefined && { valor }) }))
+  const c = habito.cuantitativo
 
   return (
     <div className="space-y-3 rounded-lg border bg-card p-4">
@@ -209,7 +212,7 @@ function EditarDia({
             return (
               <li key={r.id} className="flex flex-wrap items-center gap-2">
                 <span className="flex-1 font-semibold">
-                  {t(`habito.tipo.${r.tipo}`)}
+                  {r.tipo === 'valor' ? `${r.valor?.toLocaleString(i18n.language)} ${c?.unidad}` : t(`habito.tipo.${r.tipo}`)}
                   {(r.motivo ?? r.disparador) && <span className="font-normal text-muted-foreground"> · {r.motivo ?? r.disparador}</span>}
                 </span>
                 {(r.tipo === 'minima' || r.tipo === 'completa') && (
@@ -225,7 +228,9 @@ function EditarDia({
           })}
         </ul>
       )}
-      {habito.tipo === 'evitar' ? (
+      {c ? (
+        <SumarValor unidad={c.unidad} nombre={habito.nombre} sumar={(valor) => anadir('valor', valor)} />
+      ) : habito.tipo === 'evitar' ? (
         <Button variant="secondary" onClick={() => anadir('recaida')}>
           {t('evitar.anadir')}
         </Button>
@@ -317,7 +322,11 @@ function CambiarFrecuencia({ habito, ajustes }: { habito: THabito; ajustes: Ajus
         {t('habito.frecuencia')}
       </h2>
       <p className="text-sm text-muted-foreground">{t('habito.frecuenciaAyuda')}</p>
-      <SelectorFrecuencia valor={frecuencia} cambiar={(f) => (setFrecuencia(f), setGuardada(false))} />
+      <SelectorFrecuencia
+        valor={frecuencia}
+        cambiar={(f) => (setFrecuencia(f), setGuardada(false))}
+        soloPeriodo={habito.tipo === 'cuantitativo'}
+      />
       <Button type="submit" disabled={igual}>
         {t('habito.guardarFrecuencia')}
       </Button>

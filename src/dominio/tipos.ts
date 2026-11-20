@@ -39,7 +39,18 @@ export interface Identidad extends Entidad {
 
 // Los tipos son estrechos a propósito: cada ticket los amplía cuando el núcleo sabe evaluarlos.
 /** `evitar`: el periodo es siempre el día; se cumple si cierra sin recaída. */
-export type TipoHabito = 'si_no' | 'evitar'
+export type TipoHabito = 'si_no' | 'cuantitativo' | 'evitar'
+
+/**
+ * Un hábito que se mide: «al menos 20 páginas» o «como mucho 2 cafés» por periodo.
+ * `objetivoMinimo` (solo en `al_menos`, menor que `objetivo`) es su versión mínima.
+ */
+export interface Cuantitativo {
+  unidad: string
+  objetivo: number
+  objetivoMinimo?: number
+  modo: 'al_menos' | 'como_mucho'
+}
 
 /** El asistente de leyes inversas de un hábito a evitar. Cada paso se puede saltar. */
 export interface LeyesInversas {
@@ -61,7 +72,10 @@ export type Frecuencia =
 export interface Habito extends Entidad {
   identidadId: string
   nombre: string
+  /** No cambia tras crear el hábito: su historia se evalúa siempre igual. */
   tipo: TipoHabito
+  /** Solo (y siempre) en `cuantitativo`. Es parte de la regla: se cambia con `cambiarRegla`. */
+  cuantitativo?: Cuantitativo
   frecuencia: Frecuencia
   /** La versión de 2 minutos. Las dos versiones son opcionales («Ahora no») y valen 1 voto. */
   versionMinima?: string
@@ -99,16 +113,17 @@ export interface Intencion {
   donde?: string
 }
 
-/** Lo que decide cómo se evalúa un periodo. El objetivo cuantitativo entrará aquí. */
-export type Regla = Pick<Habito, 'frecuencia'>
+/** Lo que decide cómo se evalúa un periodo. */
+export type Regla = Pick<Habito, 'frecuencia' | 'cuantitativo'>
 
 export type VersionRegla = Regla & { hasta: Dia }
 
 /**
  * `salto`: el periodo que lo contiene queda neutro (ni suma ni falla).
  * `recaida`: solo en `evitar`; convierte ese día en fallo.
+ * `valor`: una cantidad que se suma (cuantitativos).
  */
-export type TipoRegistro = 'minima' | 'completa' | 'salto' | 'recaida'
+export type TipoRegistro = 'minima' | 'completa' | 'salto' | 'recaida' | 'valor'
 
 export interface Registro extends Entidad {
   habitoId: string
@@ -119,6 +134,8 @@ export interface Registro extends Entidad {
   motivo?: string
   /** Solo en `recaida`, y opcional: qué la provocó. */
   disparador?: string
+  /** Solo (y siempre) en `valor`: mayor que 0. */
+  valor?: number
 }
 
 /** Las 4 leyes del cambio: 1 obvio (señal), 2 atractivo (anhelo), 3 fácil (respuesta), 4 satisfactorio (recompensa). */

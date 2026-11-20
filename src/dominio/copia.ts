@@ -1,7 +1,7 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
 import { HITOS } from './identidad'
-import type { Ajustes, AnotacionDeFallo, Cuando, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
+import type { Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -11,6 +11,7 @@ import {
   literal,
   objeto,
   opcional,
+  positivo,
   segunTipo,
   texto,
   type Validador,
@@ -75,9 +76,16 @@ const frecuencia = segunTipo<Frecuencia>({
   dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
 })
 
+/** El objetivo mínimo solo existe en «al menos» y queda por debajo del objetivo. */
+const cuantitativo: Validador<Cuantitativo> = (v, r) => {
+  const c = objeto<Cuantitativo>({ unidad: texto, objetivo: positivo, objetivoMinimo: opcional(positivo), modo: literal('al_menos', 'como_mucho') })(v, r)
+  if (c.objetivoMinimo !== undefined && (c.modo !== 'al_menos' || c.objetivoMinimo >= c.objetivo)) throw new Invalido(`${r}.objetivoMinimo`)
+  return c
+}
+
 /** Historial de reglas: cada versión acaba después que la anterior (si no, un tramo quedaría vacío). */
 const versiones: Validador<VersionRegla[]> = (v, r) => {
-  const vs = lista(objeto<VersionRegla>({ hasta: dia, frecuencia }))(v, r)
+  const vs = lista(objeto<VersionRegla>({ hasta: dia, frecuencia, cuantitativo: opcional(cuantitativo) }))(v, r)
   vs.forEach((x, i) => {
     if (i > 0 && x.hasta <= vs[i - 1].hasta) throw new Invalido(`${r}[${i}].hasta`)
   })
@@ -99,7 +107,8 @@ const habito: Validador<Habito> = (v, r) => {
     ...entidad,
     identidadId: id,
     nombre: conPatron(/\S/),
-    tipo: literal('si_no', 'evitar'),
+    tipo: literal('si_no', 'cuantitativo', 'evitar'),
+    cuantitativo: opcional(cuantitativo),
     frecuencia,
     versionMinima: opcional(texto),
     versionCompleta: opcional(texto),
@@ -113,6 +122,12 @@ const habito: Validador<Habito> = (v, r) => {
     recompensaAsociada: opcional(texto),
     leyesInversas: opcional(objeto<LeyesInversas>({ senal: opcional(texto), friccion: opcional(texto), sustituto: opcional(texto) })),
   })(v, r)
+  // Un cuantitativo lleva siempre su objetivo (también en cada regla anterior); otro tipo, nunca.
+  const esCuantitativo = h.tipo === 'cuantitativo'
+  if (esCuantitativo !== (h.cuantitativo !== undefined)) throw new Invalido(`${r}.cuantitativo`)
+  h.versiones?.forEach((x, i) => {
+    if (esCuantitativo !== (x.cuantitativo !== undefined)) throw new Invalido(`${r}.versiones[${i}].cuantitativo`)
+  })
   if (h.leyesInversas !== undefined && h.tipo !== 'evitar') throw new Invalido(`${r}.leyesInversas`)
   return h
 }
@@ -122,13 +137,15 @@ const registro: Validador<Registro> = (v, r) => {
     ...entidad,
     habitoId: id,
     dia,
-    tipo: literal('minima', 'completa', 'salto', 'recaida'),
+    tipo: literal('minima', 'completa', 'salto', 'recaida', 'valor'),
+    valor: opcional(positivo),
     nota: opcional(texto),
     motivo: opcional(texto),
     disparador: opcional(texto),
   })(v, r)
   if (reg.motivo !== undefined && reg.tipo !== 'salto') throw new Invalido(`${r}.motivo`)
   if (reg.disparador !== undefined && reg.tipo !== 'recaida') throw new Invalido(`${r}.disparador`)
+  if ((reg.valor !== undefined) !== (reg.tipo === 'valor')) throw new Invalido(`${r}.valor`)
   return reg
 }
 
@@ -231,8 +248,8 @@ export function registrosCsv({ habitos, registros }: Pick<Datos, 'habitos' | 're
   const campo = (v = '') => (/[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v)
   const filas = [...registros]
     .sort((a, b) => a.dia.localeCompare(b.dia) || a.creadoEn.localeCompare(b.creadoEn))
-    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.nota, r.motivo, r.disparador, r.creadoEn])
-  return [['dia', 'habitoId', 'habito', 'tipo', 'nota', 'motivo', 'disparador', 'creadoEn'], ...filas]
+    .map((r) => [r.dia, r.habitoId, nombres.get(r.habitoId), r.tipo, r.valor?.toString(), r.nota, r.motivo, r.disparador, r.creadoEn])
+  return [['dia', 'habitoId', 'habito', 'tipo', 'valor', 'nota', 'motivo', 'disparador', 'creadoEn'], ...filas]
     .map((fila) => fila.map(campo).join(',') + '\r\n')
     .join('')
 }

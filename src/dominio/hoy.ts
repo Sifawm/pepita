@@ -7,10 +7,12 @@ import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './
 export interface TarjetaHoy {
   habito: Habito
   identidad: Identidad
-  /** Registros (mínima o completa) del hábito en el día lógico actual, del más antiguo al más reciente. */
+  /** Registros (mínima, completa o valor) del hábito en el día lógico actual, del más antiguo al más reciente. */
   registros: Registro[]
-  /** Hoy ya está hecho: un toque más deshace el último registro del día. */
+  /** Hoy ya está hecho: un toque más deshace el último registro del día. En un cuantitativo, el periodo ya está cumplido. */
   hecho: boolean
+  /** Votos que este hábito ha sumado hoy. */
+  votosHoy: number
   /** El periodo en curso, con lo que lleva («2 de 3»). */
   periodo: Periodo
   /** El salto que deja neutro el periodo en curso (para deshacerlo). */
@@ -28,7 +30,7 @@ export interface TarjetaHoy {
 
 export interface Hoy {
   dia: Dia
-  /** Votos sumados hoy: +1 por cada registro de versión mínima o completa. */
+  /** Votos sumados hoy: +1 por cada registro de versión mínima o completa y por cada periodo cuantitativo cumplido hoy. */
   votos: number
   habitos: TarjetaHoy[]
   /** La pausa global, si dura hoy. */
@@ -42,7 +44,7 @@ interface Contexto {
 
 const delDia = (registros: Registro[], habitoId: string, dia: Dia) =>
   registros
-    .filter((r) => r.habitoId === habitoId && r.dia === dia && esVoto(r))
+    .filter((r) => r.habitoId === habitoId && r.dia === dia && (esVoto(r) || r.tipo === 'valor'))
     .sort((a, b) => a.creadoEn.localeCompare(b.creadoEn))
 
 /** Registros que un día admite por toques: `veces` si el periodo es el día; si no, uno. */
@@ -70,7 +72,7 @@ export function componerHoy({
       const identidad = identidades.find((i) => i.id === habito.identidadId)
       // Archivar una identidad retira sus hábitos de Hoy sin tocarlos.
       if (!identidad || identidad.archivada) return []
-      const { actual: periodo, enRecuperacion, racha } = evaluarHabito({ habito, registros, ahora, ajustes })
+      const { actual: periodo, enRecuperacion, racha, diasVoto } = evaluarHabito({ habito, registros, ahora, ajustes })
       // Sin periodo, aún no ha empezado; no programado, hoy no le toca.
       if (!periodo || periodo.estado === 'no_programado') return []
       const propios = delDia(registros, habito.id, dia)
@@ -85,7 +87,8 @@ export function componerHoy({
           habito,
           identidad,
           registros: propios,
-          hecho: hechoHoy(habito, propios),
+          hecho: habito.tipo === 'cuantitativo' ? periodo.estado.startsWith('cumplido') : hechoHoy(habito, propios),
+          votosHoy: diasVoto.filter((d) => d === dia).length,
           periodo,
           salto,
           pausa: pausaEn(habito, ajustes, dia),
@@ -100,7 +103,7 @@ export function componerHoy({
   const tarjetas = [true, false].flatMap((r) => ordenarPorHora(todas.filter((t) => t.enRecuperacion === r), habitos))
   return {
     dia,
-    votos: tarjetas.reduce((n, t) => n + t.registros.length, 0),
+    votos: tarjetas.reduce((n, t) => n + t.votosHoy, 0),
     habitos: tarjetas,
     pausaGlobal: pausaGlobalEn(ajustes, dia),
   }
@@ -125,6 +128,23 @@ export function toque({
   const propios = delDia(registros, habito.id, dia)
   if (hechoHoy(habito, propios)) return { tipo: 'deshacer', registroId: propios[propios.length - 1].id }
   return { tipo: 'registrar', registro: { habitoId: habito.id, dia, tipo: version } }
+}
+
+/**
+ * Suma una cantidad a un hábito cuantitativo en el día lógico. `voto`: con ella se cumple el
+ * periodo (para celebrarlo); en «como mucho» nunca, porque se cumple al cerrar.
+ */
+export function sumarValor({
+  habito,
+  registros,
+  valor,
+  ahora,
+  ajustes,
+}: Contexto & { habito: Habito; registros: Registro[]; valor: number }): { registro: Nuevo<Registro>; voto: boolean } {
+  const registro: Nuevo<Registro> = { habitoId: habito.id, dia: diaLogico(ahora, ajustes.horaCierre), tipo: 'valor', valor }
+  const antes = evaluarHabito({ habito, registros, ahora, ajustes }).votos
+  const con = [...registros, { ...registro, id: '', creadoEn: ahora.toISOString() }]
+  return { registro, voto: evaluarHabito({ habito, registros: con, ahora, ajustes }).votos > antes }
 }
 
 /** Pone (o quita, si queda vacía) la nota opcional de cualquier registro. */

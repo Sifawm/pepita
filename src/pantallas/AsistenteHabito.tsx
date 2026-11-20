@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { BorrarHabito } from '@/components/BorrarHabito'
+import { CamposCuantitativo } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -41,6 +42,9 @@ interface PropsPaso {
   titulo: string
 }
 
+/** Los tipos que se pueden elegir al crear. Uno nuevo = una entrada aquí + `asistente.tipo.<tipo>` y `<tipo>Ayuda`. */
+const TIPOS: TipoHabito[] = ['si_no', 'cuantitativo', 'evitar']
+
 /**
  * Los pasos del método, en orden. Para añadir uno (tipo, intención, entorno, recompensa…):
  * una entrada aquí con los campos que rellena, y sus textos en `asistente.<clave>.*` (titulo, ayuda).
@@ -61,10 +65,23 @@ const PASOS: {
     visible: ({ identidades }) => identidades.length > 1,
     Campo: PasoIdentidad,
   },
-  // Ticket 10 añade aquí «cuantitativo».
-  { clave: 'tipo', campos: ['tipo'], opcional: true, visible: ({ editando }) => !editando, Campo: PasoTipo },
+  {
+    clave: 'tipo',
+    campos: ['tipo', 'cuantitativo'],
+    opcional: true,
+    // Al editar, el tipo no cambia: el paso solo sale para ajustar el objetivo de un cuantitativo.
+    visible: ({ editando, borrador }) => !editando || borrador.tipo === 'cuantitativo',
+    Campo: PasoTipo,
+  },
   { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, visible: noEvitar, Campo: PasoFrecuencia },
-  { clave: 'versiones', campos: ['versionMinima', 'versionCompleta'], opcional: true, visible: noEvitar, Campo: PasoVersiones },
+  // En un cuantitativo, la versión mínima es su objetivo mínimo.
+  {
+    clave: 'versiones',
+    campos: ['versionMinima', 'versionCompleta'],
+    opcional: true,
+    visible: ({ borrador }) => borrador.tipo === 'si_no',
+    Campo: PasoVersiones,
+  },
   // Las leyes para construir; al evitar, sus inversas (sin intención: no hay nada que recordar).
   { clave: 'intencion', campos: ['intencion'], opcional: true, visible: noEvitar, Campo: PasoIntencion },
   { clave: 'entorno', campos: ['entorno'], opcional: true, visible: noEvitar, Campo: PasoEntorno },
@@ -156,8 +173,11 @@ function Asistente({
     anterior.current = n
   }, [n])
 
+  const formulario = useRef<HTMLFormElement>(null)
   const terminar = async () => {
     if (!borrador.nombre.trim()) return setN(0)
+    // «Guardar» desde un paso a medias: que el navegador avise del campo que falta.
+    if (!formulario.current?.reportValidity()) return
     await guardar(borrador)
     navigate('/')
   }
@@ -173,7 +193,7 @@ function Asistente({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={siguiente} className="space-y-6">
+      <form ref={formulario} onSubmit={siguiente} className="space-y-6">
         <header className="space-y-1">
           <h1 className="text-3xl font-bold">{t(habito ? 'asistente.editar' : 'nuevo.titulo')}</h1>
           <p className="text-muted-foreground">{t('asistente.paso', { n: n + 1, total: pasos.length })}</p>
@@ -268,31 +288,43 @@ function PasoIdentidad({ borrador, cambiar, identidades, titulo }: PropsPaso) {
   )
 }
 
-function PasoTipo({ borrador, cambiar }: PropsPaso) {
+function PasoTipo({ borrador, cambiar, editando }: PropsPaso) {
   const { t } = useTranslation()
   return (
-    <fieldset className="space-y-3">
-      {/* El título del paso ya hace la pregunta. */}
-      <legend className="sr-only">{t('asistente.tipo.titulo')}</legend>
-      {(['si_no', 'evitar'] as const).map((tipo) => (
-        <label
-          key={tipo}
-          className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring"
-        >
-          <input
-            type="radio"
-            name="tipo"
-            className="mt-0.5 size-5 shrink-0 accent-primary"
-            checked={borrador.tipo === tipo}
-            onChange={() => cambiar({ tipo })}
-          />
-          <span>
-            <span className="block font-bold">{t(`asistente.tipo.${tipo}`)}</span>
-            <span className="block text-sm text-muted-foreground">{t(`asistente.tipo.${tipo}Ayuda`)}</span>
-          </span>
-        </label>
-      ))}
-    </fieldset>
+    <>
+      {!editando && (
+        <fieldset className="space-y-3">
+          {/* El título del paso ya hace la pregunta. */}
+          <legend className="sr-only">{t('asistente.tipo.titulo')}</legend>
+          {TIPOS.map((tipo) => (
+            <label
+              key={tipo}
+              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring"
+            >
+              <input
+                type="radio"
+                name="tipo"
+                className="mt-0.5 size-5 shrink-0 accent-primary"
+                checked={borrador.tipo === tipo}
+                onChange={() =>
+                  cambiar({
+                    tipo,
+                    cuantitativo: tipo === 'cuantitativo' ? (borrador.cuantitativo ?? { unidad: '', objetivo: 0, modo: 'al_menos' }) : undefined,
+                  })
+                }
+              />
+              <span>
+                <span className="block font-bold">{t(`asistente.tipo.${tipo}`)}</span>
+                <span className="block text-sm text-muted-foreground">{t(`asistente.tipo.${tipo}Ayuda`)}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+      {borrador.tipo === 'cuantitativo' && borrador.cuantitativo && (
+        <CamposCuantitativo valor={borrador.cuantitativo} cambiar={(cuantitativo) => cambiar({ cuantitativo })} />
+      )}
+    </>
   )
 }
 
@@ -310,7 +342,13 @@ function PasoLey({ borrador, cambiar, titulo, campo }: PropsPaso & { campo: keyo
 }
 
 function PasoFrecuencia({ borrador, cambiar }: PropsPaso) {
-  return <SelectorFrecuencia valor={borrador.frecuencia} cambiar={(frecuencia) => cambiar({ frecuencia })} />
+  return (
+    <SelectorFrecuencia
+      valor={borrador.frecuencia}
+      cambiar={(frecuencia) => cambiar({ frecuencia })}
+      soloPeriodo={borrador.tipo === 'cuantitativo'}
+    />
+  )
 }
 
 function PasoVersiones({ borrador, cambiar }: PropsPaso) {
