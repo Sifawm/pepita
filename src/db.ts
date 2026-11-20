@@ -1,7 +1,7 @@
 // Persistencia: tablas Dexie y escrituras. Sin lógica de negocio (vive en @/dominio).
 import Dexie, { type EntityTable } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { AJUSTES_POR_DEFECTO, type Ajustes, type AnotacionDeFallo, type Entidad, type Habito, type Identidad, type Nuevo, type Registro } from '@/dominio'
+import { AJUSTES_POR_DEFECTO, type Ajustes, type AnotacionDeFallo, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro } from '@/dominio'
 import type { Datos } from '@/dominio'
 
 export const db = new Dexie('pepita') as Dexie & {
@@ -9,6 +9,7 @@ export const db = new Dexie('pepita') as Dexie & {
   habitos: EntityTable<Habito, 'id'>
   registros: EntityTable<Registro, 'id'>
   anotacionesDeFallo: EntityTable<AnotacionDeFallo, 'id'>
+  hitosCelebrados: EntityTable<HitoCelebrado, 'id'>
   /** Una sola fila, con `id: 'ajustes'`. */
   ajustes: EntityTable<Partial<Ajustes> & { id: string }, 'id'>
 }
@@ -23,6 +24,8 @@ db.version(1).stores({
 db.version(2).stores({ ajustes: 'id' })
 
 db.version(3).stores({ anotacionesDeFallo: 'id, habitoId, [habitoId+periodo]' })
+
+db.version(4).stores({ hitosCelebrados: 'id, identidadId' })
 
 /** Añade `id` y `creadoEn` a lo que crea el núcleo. */
 export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
@@ -49,6 +52,14 @@ export const borrarHabito = (id: string) =>
     await db.habitos.delete(id)
   })
 
+/** Guarda hitos como celebrados. Idempotente: un hito ya guardado no se duplica. */
+export const celebrarHitos = (identidadId: string, umbrales: number[]) =>
+  db.transaction('rw', db.hitosCelebrados, async () => {
+    const ya = new Set((await db.hitosCelebrados.where('identidadId').equals(identidadId).toArray()).map((h) => h.umbral))
+    const nuevos = umbrales.filter((umbral) => !ya.has(umbral))
+    await db.hitosCelebrados.bulkAdd(nuevos.map((umbral) => conId<HitoCelebrado>({ identidadId, umbral })))
+  })
+
 /** Todos los datos, de una vez y coherentes entre sí: lo que va en una copia. */
 export const leerDatos = (): Promise<Datos> =>
   db.transaction('r', db.tables, async () => {
@@ -60,6 +71,7 @@ export const leerDatos = (): Promise<Datos> =>
       habitos: await db.habitos.toArray(),
       registros: await db.registros.toArray(),
       anotacionesDeFallo: await db.anotacionesDeFallo.toArray(),
+      hitosCelebrados: await db.hitosCelebrados.toArray(),
     }
   })
 
