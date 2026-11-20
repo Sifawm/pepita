@@ -147,6 +147,29 @@
       "versionMinimaEjemplo": "For example: open the book",
       "versionCompleta": "Full version",
       "versionCompletaEjemplo": "For example: read for 30 minutes"
+    },
+    "tipo": {
+      "titulo": "Do you want to build a habit or break one?",
+      "ayuda": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
+      "si_no": "Do something",
+      "si_noAyuda": "You check it off when you do it.",
+      "evitar": "Avoid something",
+      "evitarAyuda": "You only log a slip. Every clean day adds a vote once it closes."
+    },
+    "senal": {
+      "titulo": "Which cue will you remove from sight?",
+      "ayuda": "Make it invisible: what you don’t see barely tempts you.",
+      "ejemplo": "For example: leave the phone outside the bedroom"
+    },
+    "friccion": {
+      "titulo": "What friction will you add?",
+      "ayuda": "Make it difficult: the more steps, the less you’ll want to.",
+      "ejemplo": "For example: log out of the app"
+    },
+    "sustituto": {
+      "titulo": "What will you do instead?",
+      "ayuda": "A habit doesn’t just vanish: it helps to have something else at hand.",
+      "ejemplo": "For example: read one page"
     }
   },
   "habito": {
@@ -182,7 +205,8 @@
     "tipo": {
       "minima": "Minimum version",
       "completa": "Full version",
-      "salto": "Skip"
+      "salto": "Skip",
+      "recaida": "Slip"
     },
     "pasarA": {
       "minima": "It was the minimum",
@@ -251,5 +275,30 @@
     "nota": "Note",
     "guardar": "Save",
     "guardada": "Noted. Thanks for sharing."
+  },
+  "evitar": {
+    "limpio": "Clean day so far",
+    "recaido": "Slip logged. Tomorrow is another day",
+    "heRecaido": "I slipped",
+    "ayuda": "It happens to everyone. Logging it helps you see what sets it off.",
+    "disparador": "What set it off? (optional)",
+    "disparadorEjemplo": "For example: boredom after dinner",
+    "anotar": "Log slip",
+    "anotada": "Logged. One slip doesn’t erase how far you’ve come.",
+    "deshacer": "Undo today’s slip",
+    "deshecha": "Slip undone.",
+    "anadir": "Log a slip",
+    "sustituto": "Instead: {{texto}}",
+    "senal": "Cue removed: {{texto}}",
+    "friccion": "Friction: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Clean day",
+      "cumplido_minima": "Clean day",
+      "fallido": "Slip",
+      "en_curso": "In progress",
+      "no_programado": "Not scheduled",
+      "saltado": "Skipped",
+      "pausado": "Paused"
+    }
   }
 }

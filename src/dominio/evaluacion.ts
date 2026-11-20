@@ -26,7 +26,7 @@ export interface EvaluacionHabito {
   periodos: Periodo[]
   /** El periodo que contiene hoy; no existe si el hábito aún no ha empezado. */
   actual?: Periodo
-  /** `si_no`: un voto por registro, también en días no programados. */
+  /** `si_no`: un voto por registro, también en días no programados. `evitar`: uno por día limpio ya cerrado. */
   votos: number
   /** En periodos. Un fallo aislado no suma ni la rompe; el segundo seguido la pone a 0. */
   racha: Racha
@@ -43,8 +43,9 @@ export interface Racha {
   mejor: number
 }
 
-/** El periodo que contiene `dia` y lo que pide según la frecuencia. */
-function periodoQueContiene(dia: Dia, frecuencia: Frecuencia) {
+/** El periodo que contiene `dia` y lo que pide según la frecuencia. Al evitar, siempre el día. */
+function periodoQueContiene(dia: Dia, frecuencia: Frecuencia, habito: Habito) {
+  if (habito.tipo === 'evitar') return { desde: dia, hasta: dia, pide: 1 }
   if (frecuencia.tipo === 'dias_semana')
     return { desde: dia, hasta: dia, pide: frecuencia.dias.includes(diaDeLaSemana(dia)) ? 1 : 0 }
   return { ...periodoDe(dia, frecuencia.periodo), pide: frecuencia.veces }
@@ -59,8 +60,16 @@ export const pausasDe = (habito: Habito, ajustes: Ajustes): Pausa[] => [
   ...(ajustes.pausaGlobal ? [ajustes.pausaGlobal] : []),
 ]
 
-function estado(pide: number, registros: Registro[], { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
+function estado(habito: Habito, pide: number, registros: Registro[], { desde, hasta }: Pausa, pausas: Pausa[], hoy: Dia): EstadoPeriodo {
   if (pide === 0) return 'no_programado'
+  if (habito.tipo === 'evitar') {
+    // Un día saltado o en pausa no se evalúa: ni suma por limpio ni falla por recaída.
+    if (registros.some((r) => r.tipo === 'salto')) return 'saltado'
+    if (pausas.some((p) => p.desde <= desde && p.hasta >= desde)) return 'pausado'
+    // La recaída es fallo en el acto; limpio solo se cumple al cerrar el día.
+    if (registros.some((r) => r.tipo === 'recaida')) return 'fallido'
+    return hasta < hoy ? 'cumplido_completa' : 'en_curso'
+  }
   const hechos = registros.filter(esVoto)
   // Cumplir gana a saltar o pausar: lo hecho, hecho está.
   if (hechos.length >= pide)
@@ -91,15 +100,16 @@ export function evaluarHabito({
   for (let dia = habito.fechaInicio; dia <= hoy; ) {
     // Cada periodo se evalúa con la regla que regía entonces, recortado a su tramo de vigencia.
     const regla = reglaEn(habito, dia)
-    const periodo = periodoQueContiene(dia, regla.frecuencia)
+    const periodo = periodoQueContiene(dia, regla.frecuencia, habito)
     const desde = regla.desde && periodo.desde < regla.desde ? regla.desde : periodo.desde
     const hasta = regla.hasta && regla.hasta < periodo.hasta ? regla.hasta : periodo.hasta
     const { pide } = periodo
     const dentro = propios.filter((r) => r.dia >= desde && r.dia <= hasta)
-    periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(pide, dentro, { desde, hasta }, pausas, hoy) })
+    periodos.push({ desde, hasta, pide, hechos: dentro.filter(esVoto).length, estado: estado(habito, pide, dentro, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  return { periodos, actual: periodos.at(-1), votos: propios.filter(esVoto).length, ...racha(periodos) }
+  const votos = habito.tipo === 'evitar' ? periodos.filter(cumplido).length : propios.filter(esVoto).length
+  return { periodos, actual: periodos.at(-1), votos, ...racha(periodos) }
 }
 
 const cumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'

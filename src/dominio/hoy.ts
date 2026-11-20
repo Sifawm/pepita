@@ -16,6 +16,8 @@ export interface TarjetaHoy {
   salto?: Registro
   /** La pausa (del hábito o global) en la que está hoy. */
   pausa?: Pausa
+  /** Hábito a evitar: las recaídas del día lógico actual (la última, para deshacerla). */
+  recaidas: Registro[]
   /** El periodo anterior fue un fallo: va arriba del todo y sugiere la versión mínima. */
   enRecuperacion: boolean
   racha: Racha
@@ -85,6 +87,7 @@ export function componerHoy({
           periodo,
           salto,
           pausa: pausaEn(habito, ajustes, dia),
+          recaidas: registros.filter((r) => r.habitoId === habito.id && r.dia === dia && r.tipo === 'recaida'),
           enRecuperacion,
           racha,
         },
@@ -136,5 +139,16 @@ export function saltar({ habito, motivo, ahora, ajustes }: Contexto & { habito: 
     dia: diaLogico(ahora, ajustes.horaCierre),
     tipo: 'salto',
     ...(texto ? { motivo: texto } : {}),
+  }
+}
+
+/** «He recaído» (hábito a evitar): un registro en el día lógico, con su disparador si lo hay. */
+export function recaer({ habito, disparador, ahora, ajustes }: Contexto & { habito: Habito; disparador?: string }): Nuevo<Registro> {
+  const texto = disparador?.trim()
+  return {
+    habitoId: habito.id,
+    dia: diaLogico(ahora, ajustes.horaCierre),
+    tipo: 'recaida',
+    ...(texto ? { disparador: texto } : {}),
   }
 }

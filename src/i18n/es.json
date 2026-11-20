@@ -147,6 +147,29 @@
       "versionMinimaEjemplo": "Por ejemplo: abrir el libro",
       "versionCompleta": "Versión completa",
       "versionCompletaEjemplo": "Por ejemplo: leer 30 minutos"
+    },
+    "tipo": {
+      "titulo": "¿Quieres construir un hábito o romper uno?",
+      "ayuda": "Para romper un hábito, el método se da la vuelta: hazlo invisible, poco atractivo, difícil e insatisfactorio.",
+      "si_no": "Hacer algo",
+      "si_noAyuda": "Lo marcas cuando lo haces.",
+      "evitar": "Evitar algo",
+      "evitarAyuda": "Solo apuntas si recaes. Cada día limpio suma un voto al cerrarse."
+    },
+    "senal": {
+      "titulo": "¿Qué señal vas a quitar de tu vista?",
+      "ayuda": "Hazlo invisible: lo que no ves, apenas te tienta.",
+      "ejemplo": "Por ejemplo: dejar el móvil fuera del dormitorio"
+    },
+    "friccion": {
+      "titulo": "¿Qué fricción vas a añadir?",
+      "ayuda": "Hazlo difícil: cuantos más pasos, menos ganas.",
+      "ejemplo": "Por ejemplo: cerrar sesión en la app"
+    },
+    "sustituto": {
+      "titulo": "¿Qué harás en su lugar?",
+      "ayuda": "Un hábito no se borra sin más: ayuda tener otra cosa a mano.",
+      "ejemplo": "Por ejemplo: leer una página"
     }
   },
   "habito": {
@@ -182,7 +205,8 @@
     "tipo": {
       "minima": "Versión mínima",
       "completa": "Versión completa",
-      "salto": "Salto"
+      "salto": "Salto",
+      "recaida": "Recaída"
     },
     "pasarA": {
       "minima": "Era la mínima",
@@ -251,5 +275,30 @@
     "nota": "Nota",
     "guardar": "Guardar",
     "guardada": "Apuntado. Gracias por contarlo."
+  },
+  "evitar": {
+    "limpio": "Hoy, día limpio por ahora",
+    "recaido": "Recaída anotada. Mañana es otro día",
+    "heRecaido": "He recaído",
+    "ayuda": "Le pasa a cualquiera. Anotarlo te ayuda a ver qué lo provoca.",
+    "disparador": "¿Qué lo provocó? (opcional)",
+    "disparadorEjemplo": "Por ejemplo: aburrimiento después de cenar",
+    "anotar": "Anotar recaída",
+    "anotada": "Anotado. Un tropiezo no borra lo que llevas.",
+    "deshacer": "Deshacer la recaída de hoy",
+    "deshecha": "Recaída deshecha.",
+    "anadir": "Apuntar una recaída",
+    "sustituto": "En su lugar: {{texto}}",
+    "senal": "Señal fuera: {{texto}}",
+    "friccion": "Fricción: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Día limpio",
+      "cumplido_minima": "Día limpio",
+      "fallido": "Recaída",
+      "en_curso": "En curso",
+      "no_programado": "No tocaba",
+      "saltado": "Saltado",
+      "pausado": "En pausa"
+    }
   }
 }

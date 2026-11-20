@@ -76,7 +76,8 @@ export default function Habito() {
         </p>
       </header>
       <Calendario habito={datos.habito} registros={datos.registros} ajustes={ajustes} />
-      <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />
+      {/* Al evitar, el periodo es siempre el día. */}
+      {datos.habito.tipo !== 'evitar' && <CambiarFrecuencia key={datos.habito.id} habito={datos.habito} ajustes={ajustes} />}
       <Link to={`/habito/${id}/editar`} className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
         {t('asistente.editar')}
       </Link>
@@ -103,8 +104,9 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
   const calendario = calendarioHabito({ habito, registros, mes, ahora, ajustes })
   const dia = calendario.dias.find((d) => d.dia === elegido && d.editable)
   const largo = (d: Dia) => fechaDe(d).toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })
+  const nombreEstado = (e: EstadoPeriodo) => t(habito.tipo === 'evitar' ? `evitar.estado.${e}` : `habito.estado.${e}`)
   const etiqueta = (d: DiaCalendario) =>
-    [largo(d.dia), d.estado && t(`habito.estado.${d.estado}`), t('habito.registros', { count: d.registros.length })]
+    [largo(d.dia), d.estado && nombreEstado(d.estado), t('habito.registros', { count: d.registros.length })]
       .filter(Boolean)
       .join(' · ')
 
@@ -156,28 +158,40 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
               )}
             >
               <span aria-hidden>{numero}</span>
-              {d.registros.some((r) => r.tipo !== 'salto') && <Check aria-hidden className="size-3" />}
+              {d.registros.some((r) => r.tipo === 'minima' || r.tipo === 'completa') && <Check aria-hidden className="size-3" />}
             </button>
           )
         })}
       </div>
 
       <ul aria-label={t('habito.leyenda')} className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        {(['cumplido_completa', 'cumplido_minima', 'fallido', 'en_curso', 'saltado', 'pausado'] as const).map((e) => (
-          <li key={e} className="flex items-center gap-2">
-            <span aria-hidden className={cn('size-5 rounded border-2', ESTILO[e])} />
-            {t(`habito.estado.${e}`)}
-          </li>
-        ))}
+        {(['cumplido_completa', 'cumplido_minima', 'fallido', 'en_curso', 'saltado', 'pausado'] as const)
+          .filter((e) => habito.tipo !== 'evitar' || e !== 'cumplido_minima')
+          .map((e) => (
+            <li key={e} className="flex items-center gap-2">
+              <span aria-hidden className={cn('size-5 rounded border-2', ESTILO[e])} />
+              {nombreEstado(e)}
+            </li>
+          ))}
       </ul>
 
-      {dia && <EditarDia habito={habito} dia={dia} titulo={largo(dia.dia)} />}
+      {dia && <EditarDia habito={habito} dia={dia} titulo={largo(dia.dia)} nombreEstado={nombreEstado} />}
     </section>
   )
 }
 
 /** Registrar, corregir o deshacer un día. La evaluación se recalcula sola al cambiar los registros. */
-function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendario; titulo: string }) {
+function EditarDia({
+  habito,
+  dia,
+  titulo,
+  nombreEstado,
+}: {
+  habito: THabito
+  dia: DiaCalendario
+  titulo: string
+  nombreEstado: (e: EstadoPeriodo) => string
+}) {
   const { t } = useTranslation()
   const anadir = (tipo: Registro['tipo']) => db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo }))
 
@@ -185,7 +199,7 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
     <div className="space-y-3 rounded-lg border bg-card p-4">
       <h3 className="text-lg font-semibold first-letter:uppercase">{titulo}</h3>
       <p aria-live="polite" className="text-muted-foreground">
-        {dia.estado && `${t(`habito.estado.${dia.estado}`)} · `}
+        {dia.estado && `${nombreEstado(dia.estado)} · `}
         {dia.registros.length ? t('habito.registros', { count: dia.registros.length }) : t('habito.sinRegistros')}
       </p>
       {dia.registros.length > 0 && (
@@ -196,9 +210,9 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
               <li key={r.id} className="flex flex-wrap items-center gap-2">
                 <span className="flex-1 font-semibold">
                   {t(`habito.tipo.${r.tipo}`)}
-                  {r.motivo && <span className="font-normal text-muted-foreground"> · {r.motivo}</span>}
+                  {(r.motivo ?? r.disparador) && <span className="font-normal text-muted-foreground"> · {r.motivo ?? r.disparador}</span>}
                 </span>
-                {r.tipo !== 'salto' && (
+                {(r.tipo === 'minima' || r.tipo === 'completa') && (
                   <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
                     {t(`habito.pasarA.${otro}`)}
                   </Button>
@@ -211,12 +225,18 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
           })}
         </ul>
       )}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button onClick={() => anadir('minima')}>{t('habito.anadir.minima')}</Button>
-        <Button variant="secondary" onClick={() => anadir('completa')}>
-          {t('habito.anadir.completa')}
+      {habito.tipo === 'evitar' ? (
+        <Button variant="secondary" onClick={() => anadir('recaida')}>
+          {t('evitar.anadir')}
         </Button>
-      </div>
+      ) : (
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => anadir('minima')}>{t('habito.anadir.minima')}</Button>
+          <Button variant="secondary" onClick={() => anadir('completa')}>
+            {t('habito.anadir.completa')}
+          </Button>
+        </div>
+      )}
       {dia.estado === 'fallido' && dia.periodo && <AnotarFallo habitoId={habito.id} periodo={dia.periodo} />}
     </div>
   )

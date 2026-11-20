@@ -36,7 +36,18 @@ export interface Identidad extends Entidad {
 }
 
 // Los tipos son estrechos a propósito: cada ticket los amplía cuando el núcleo sabe evaluarlos.
-export type TipoHabito = 'si_no'
+/** `evitar`: el periodo es siempre el día; se cumple si cierra sin recaída. */
+export type TipoHabito = 'si_no' | 'evitar'
+
+/** El asistente de leyes inversas de un hábito a evitar. Cada paso se puede saltar. */
+export interface LeyesInversas {
+  /** Qué señal voy a eliminar (invisible). */
+  senal?: string
+  /** Qué fricción voy a añadir (difícil). */
+  friccion?: string
+  /** Qué haré en su lugar. */
+  sustituto?: string
+}
 
 /** 1 = lunes … 7 = domingo. */
 export type DiaSemana = 1 | 2 | 3 | 4 | 5 | 6 | 7
@@ -53,6 +64,8 @@ export interface Habito extends Entidad {
   /** La versión de 2 minutos. Las dos versiones son opcionales («Ahora no») y valen 1 voto. */
   versionMinima?: string
   versionCompleta?: string
+  /** Solo en `evitar`, y solo si se rellenó algún paso. */
+  leyesInversas?: LeyesInversas
   fechaInicio: Dia
   archivado: boolean
   orden: number
@@ -71,8 +84,11 @@ export type Regla = Pick<Habito, 'frecuencia'>
 
 export type VersionRegla = Regla & { hasta: Dia }
 
-/** `salto`: el periodo que lo contiene queda neutro (ni suma ni falla). */
-export type TipoRegistro = 'minima' | 'completa' | 'salto'
+/**
+ * `salto`: el periodo que lo contiene queda neutro (ni suma ni falla).
+ * `recaida`: solo en `evitar`; convierte ese día en fallo.
+ */
+export type TipoRegistro = 'minima' | 'completa' | 'salto' | 'recaida'
 
 export interface Registro extends Entidad {
   habitoId: string
@@ -81,6 +97,8 @@ export interface Registro extends Entidad {
   nota?: string
   /** Solo en `salto`, y opcional. */
   motivo?: string
+  /** Solo en `recaida`, y opcional: qué la provocó. */
+  disparador?: string
 }
 
 /** Las 4 leyes del cambio: 1 obvio (señal), 2 atractivo (anhelo), 3 fácil (respuesta), 4 satisfactorio (recompensa). */

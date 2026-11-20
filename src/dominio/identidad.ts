@@ -1,5 +1,5 @@
 import { diaLogico } from './calendario'
-import { esVoto } from './evaluacion'
+import { esVoto, evaluarHabito } from './evaluacion'
 import type { Ajustes, Habito, Identidad, Nuevo, Registro } from './tipos'
 
 /** Una identidad nueva («Soy una persona que…»), al final de la lista. */
@@ -47,16 +47,14 @@ export function resumirIdentidades({
   ajustes: Ajustes
 }): ResumenIdentidad[] {
   const dia = diaLogico(ahora, ajustes.horaCierre)
-  const identidadDe = new Map(habitos.map((h) => [h.id, h.identidadId]))
   const votos = new Map<string, { votos: number; votosHoy: number }>()
-  // ponytail: +1 por registro (regla de `si_no`); los votos por periodo de otros tipos llegan con la evaluación.
-  for (const r of registros) {
-    const id = identidadDe.get(r.habitoId)
-    if (!id || !esVoto(r)) continue
-    const v = votos.get(id) ?? { votos: 0, votosHoy: 0 }
-    v.votos++
-    if (r.dia === dia) v.votosHoy++
-    votos.set(id, v)
+  for (const habito of habitos) {
+    const v = votos.get(habito.identidadId) ?? { votos: 0, votosHoy: 0 }
+    // Las reglas de voto de cada tipo viven en `evaluarHabito`. Hoy solo suman los registros
+    // de hoy: el voto de un día limpio (evitar) pertenece al día que cierra, no a hoy.
+    v.votos += evaluarHabito({ habito, registros, ahora, ajustes }).votos
+    v.votosHoy += registros.filter((r) => r.habitoId === habito.id && r.dia === dia && esVoto(r)).length
+    votos.set(habito.identidadId, v)
   }
   return [...identidades]
     .sort((a, b) => a.orden - b.orden)

@@ -55,11 +55,25 @@ const datos: Datos = {
       archivado: true,
       orden: 2,
     },
+    {
+      id: 'redes',
+      creadoEn: '2026-05-01T08:05:00.000Z',
+      identidadId: 'g',
+      nombre: 'Redes sociales',
+      tipo: 'evitar',
+      frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      leyesInversas: { senal: 'Móvil fuera del cuarto', friccion: 'Cerrar sesión', sustituto: 'Leer' },
+      fechaInicio: '2026-05-01',
+      archivado: false,
+      orden: 3,
+    },
   ],
   registros: [
     { id: 'r1', creadoEn: '2026-05-02T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-02', tipo: 'minima' },
     { id: 'r2', creadoEn: '2026-05-03T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-03', tipo: 'completa', nota: 'un capítulo' },
     { id: 'r3', creadoEn: '2026-05-04T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-04', tipo: 'salto', motivo: 'Viaje' },
+    { id: 'r4', creadoEn: '2026-05-05T22:00:00.000Z', habitoId: 'redes', dia: '2026-05-05', tipo: 'recaida', disparador: 'Aburrimiento' },
+    { id: 'r5', creadoEn: '2026-05-06T22:00:00.000Z', habitoId: 'redes', dia: '2026-05-06', tipo: 'recaida' },
   ],
   anotacionesDeFallo: [
     { id: 'a1', creadoEn: '2026-05-06T09:00:00.000Z', habitoId: 'leer', periodo: '2026-05-05', ley: 3, nota: 'Estaba agotada' },
@@ -119,6 +133,10 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una ley que no es de 1 a 4', con((c) => (c.datos.anotacionesDeFallo[0].ley = 5)), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[0].ley' }],
     ['una anotación de un hábito que no existe', con((c) => (c.datos.anotacionesDeFallo[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[1].habitoId' }],
     ['dos anotaciones del mismo fallo', con((c) => (c.datos.anotacionesDeFallo[2].periodo = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[2].periodo' }],
+    ['un disparador en un registro que no es una recaída', con((c) => (c.datos.registros[0].disparador = 'el sofá')), { motivo: 'invalido', ruta: 'datos.registros[0].disparador' }],
+    ['leyes inversas en un hábito que no es a evitar', con((c) => (c.datos.habitos[0].leyesInversas = { senal: 'x' })), { motivo: 'invalido', ruta: 'datos.habitos[0].leyesInversas' }],
+    ['una ley inversa desconocida', con((c) => (c.datos.habitos[3].leyesInversas.premio = 'x')), { motivo: 'invalido', ruta: 'datos.habitos[3].leyesInversas.premio' }],
+    ['un tipo de hábito desconocido', con((c) => (c.datos.habitos[0].tipo = 'quizas')), { motivo: 'invalido', ruta: 'datos.habitos[0].tipo' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })
@@ -153,11 +171,13 @@ describe('registrosCsv', () => {
     ]
     expect(registrosCsv({ habitos: datos.habitos, registros })).toBe(
       [
-        'dia,habitoId,habito,tipo,nota,motivo,creadoEn',
-        '2026-05-01,leer,"Leer una página, «con calma»",minima,"dijo ""basta""\nvale",,2026-05-01T21:00:00.000Z',
-        '2026-05-02,leer,"Leer una página, «con calma»",minima,,,2026-05-02T20:00:00.000Z',
-        '2026-05-03,leer,"Leer una página, «con calma»",completa,un capítulo,,2026-05-03T20:00:00.000Z',
-        '2026-05-04,leer,"Leer una página, «con calma»",salto,,Viaje,2026-05-04T20:00:00.000Z',
+        'dia,habitoId,habito,tipo,nota,motivo,disparador,creadoEn',
+        '2026-05-01,leer,"Leer una página, «con calma»",minima,"dijo ""basta""\nvale",,,2026-05-01T21:00:00.000Z',
+        '2026-05-02,leer,"Leer una página, «con calma»",minima,,,,2026-05-02T20:00:00.000Z',
+        '2026-05-03,leer,"Leer una página, «con calma»",completa,un capítulo,,,2026-05-03T20:00:00.000Z',
+        '2026-05-04,leer,"Leer una página, «con calma»",salto,,Viaje,,2026-05-04T20:00:00.000Z',
+        '2026-05-05,redes,Redes sociales,recaida,,,Aburrimiento,2026-05-05T22:00:00.000Z',
+        '2026-05-06,redes,Redes sociales,recaida,,,,2026-05-06T22:00:00.000Z',
         '',
       ].join('\r\n'),
     )
