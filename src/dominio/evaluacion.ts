@@ -26,8 +26,13 @@ export interface EvaluacionHabito {
   periodos: Periodo[]
   /** El periodo que contiene hoy; no existe si el hábito aún no ha empezado. */
   actual?: Periodo
-  /** `si_no`: un voto por registro, también en días no programados. `cuantitativo`: uno por periodo cumplido. */
+  /** `si_no`: un voto por registro, también en días no programados; `cuantitativo`: uno por periodo cumplido. Es `diasVoto.length`. */
   votos: number
+  /**
+   * El día en que se ganó cada voto, en orden: la única fuente de votos del núcleo (resumen de
+   * identidad, curva, hitos). Un tipo nuevo (cuantitativo, evitar) cambia aquí cómo se ganan.
+   */
+  diasVoto: Dia[]
   /** En periodos. Un fallo aislado no suma ni la rompe; el segundo seguido la pone a 0. */
   racha: Racha
   /** El último periodo cerrado y evaluable fue un fallo, y el actual se puede cumplir aún. */
@@ -118,20 +123,24 @@ export function evaluarHabito({
     periodos.push({ desde, hasta, pide, hechos, estado: estado(pide, dentro, regla, { desde, hasta }, pausas, hoy) })
     dia = sumarDias(hasta, 1)
   }
-  // `si_no`: 1 voto por registro; `cuantitativo`: 1 por periodo cumplido.
-  const votos = habito.tipo === 'cuantitativo' ? periodos.filter(estaCumplido).length : propios.filter(esVoto).length
-  return { periodos, actual: periodos.at(-1), votos, ...racha(periodos) }
+  // `si_no`: 1 voto por registro; `cuantitativo`: 1 por periodo cumplido, el día en que se ganó.
+  const diasVoto = (habito.tipo === 'cuantitativo' ? diasVotoCuantitativo(periodos, propios, habito) : propios.filter(esVoto).map((r) => r.dia)).sort()
+  return { periodos, actual: periodos.at(-1), votos: diasVoto.length, diasVoto, ...racha(periodos) }
 }
 
 /**
- * Votos totales y los ganados en el día lógico de hoy: los que se perderían sin los registros de hoy.
- * Vale para todos los tipos (en `si_no`, los registros de hoy; en `cuantitativo`, el periodo cumplido hoy).
+ * El día en que cada periodo cuantitativo cumplido ganó su voto: en «al menos», el del registro con el
+ * que la suma llegó al primer umbral (mínimo u objetivo); en «como mucho», su último día (se gana al cerrar).
  */
-export function votosDe(contexto: { habito: Habito; registros: Registro[]; ahora: Date; ajustes: Ajustes }) {
-  const hoy = diaLogico(contexto.ahora, contexto.ajustes.horaCierre)
-  const { votos } = evaluarHabito(contexto)
-  const sinHoy = evaluarHabito({ ...contexto, registros: contexto.registros.filter((r) => r.dia !== hoy) }).votos
-  return { votos, votosHoy: votos - sinHoy }
+function diasVotoCuantitativo(periodos: Periodo[], registros: Registro[], habito: Habito): Dia[] {
+  return periodos.filter(estaCumplido).map(({ desde, hasta }) => {
+    const c = reglaEn(habito, desde).cuantitativo
+    if (!c || c.modo === 'como_mucho') return hasta
+    const umbral = c.objetivoMinimo ?? c.objetivo
+    let total = 0
+    const valores = registros.filter((r) => r.tipo === 'valor' && r.dia >= desde && r.dia <= hasta).sort((a, b) => a.dia.localeCompare(b.dia))
+    return valores.find((r) => (total += r.valor ?? 0) >= umbral)?.dia ?? hasta
+  })
 }
 
 const estaCumplido = (p: Periodo) => p.estado === 'cumplido_minima' || p.estado === 'cumplido_completa'

@@ -132,6 +132,15 @@ describe('cuantitativo «como mucho»', () => {
   })
 })
 
+describe('el día de cada voto (curva e hitos de la identidad)', () => {
+  it('«al menos»: el día en que la suma llegó al umbral; «como mucho»: el último día del periodo', () => {
+    const semanal = habito({ unidad: 'km', objetivo: 10, objetivoMinimo: 4, modo: 'al_menos' }, { tipo: 'veces_por_periodo', veces: 1, periodo: 'semana' })
+    const registros = [valor('2026-03-03', 2), valor('2026-03-05', 3), valor('2026-03-07', 9)]
+    expect(evaluarHabito({ habito: semanal, registros, ahora: local(2026, 3, 10, 12), ajustes }).diasVoto).toEqual(['2026-03-05'])
+    expect(evaluarHabito({ habito: cafes, registros: [valor('2026-03-03', 9)], ahora: local(2026, 3, 4, 12), ajustes }).diasVoto).toEqual(['2026-03-02'])
+  })
+})
+
 describe('cambiar el objetivo', () => {
   it('cuenta desde el periodo en curso: los días cerrados se siguen evaluando con el objetivo de entonces', () => {
     const registros = [valor('2026-03-02', 10), valor('2026-03-03', 10), valor('2026-03-04', 10)]

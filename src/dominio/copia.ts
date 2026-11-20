@@ -1,6 +1,7 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
-import type { AnotacionDeFallo, Ajustes, Cuantitativo, Datos, Frecuencia, Habito, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
+import { HITOS } from './identidad'
+import type { AnotacionDeFallo, Ajustes, Cuantitativo, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -139,6 +140,8 @@ const anotacionDeFallo = objeto<AnotacionDeFallo>({
   nota: opcional(texto),
 })
 
+const hitoCelebrado = objeto<HitoCelebrado>({ ...entidad, identidadId: id, umbral: literal(...HITOS) })
+
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
   ajustes,
@@ -146,6 +149,7 @@ const datos = objeto<Datos>({
   habitos: lista(habito),
   registros: lista(registro),
   anotacionesDeFallo: lista(anotacionDeFallo),
+  hitosCelebrados: lista(hitoCelebrado),
 })
 
 const copia = objeto<Copia>({
@@ -170,6 +174,7 @@ function comprobarReferencias(d: Datos) {
   const habitos = ids('habitos', d.habitos)
   ids('registros', d.registros)
   ids('anotacionesDeFallo', d.anotacionesDeFallo)
+  ids('hitosCelebrados', d.hitosCelebrados)
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
@@ -183,6 +188,12 @@ function comprobarReferencias(d: Datos) {
     if (!habitos.has(a.habitoId)) throw new Invalido(`datos.anotacionesDeFallo[${i}].habitoId`)
     if (fallos.has(`${a.habitoId} ${a.periodo}`)) throw new Invalido(`datos.anotacionesDeFallo[${i}].periodo`)
     fallos.add(`${a.habitoId} ${a.periodo}`)
+  })
+  const hitos = new Set<string>()
+  d.hitosCelebrados.forEach((h, i) => {
+    if (!identidades.has(h.identidadId)) throw new Invalido(`datos.hitosCelebrados[${i}].identidadId`)
+    if (hitos.has(`${h.identidadId} ${h.umbral}`)) throw new Invalido(`datos.hitosCelebrados[${i}].umbral`)
+    hitos.add(`${h.identidadId} ${h.umbral}`)
   })
 }
 

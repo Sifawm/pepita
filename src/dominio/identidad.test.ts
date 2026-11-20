@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   AJUSTES_POR_DEFECTO,
+  HITOS,
   moverIdentidad,
   nuevaIdentidad,
   nuevoHabito,
   resumirIdentidades,
   type Habito,
+  type HitoCelebrado,
   type Identidad,
   type Registro,
 } from '.'
@@ -72,6 +74,15 @@ describe('votos por identidad', () => {
     ])
   })
 
+  it('la curva acumula los votos de la identidad día a día, también los de hábitos archivados', () => {
+    const [, lectora] = resumirIdentidades({ identidades: [general, identidad('lectora', 1)], habitos, registros, ahora: local(2026, 3, 16, 9), ajustes })
+    expect(lectora.serie).toEqual([
+      { dia: '2026-03-10', votos: 1 },
+      { dia: '2026-03-14', votos: 2 },
+      { dia: '2026-03-15', votos: 4 },
+    ])
+  })
+
   it('una identidad sin hábitos empieza con cero votos', () => {
     const [r] = resumirIdentidades({
       identidades: [identidad('nueva', 3)],
@@ -120,5 +131,53 @@ describe('nueva identidad', () => {
       archivada: false,
       orden: 8,
     })
+  })
+})
+
+describe('hitos', () => {
+  const lectora = identidad('lectora', 1)
+  const leer = habito('leer', 'lectora')
+  /** Un voto al día desde el 1 de marzo, `n` días. */
+  const dias = (n: number) =>
+    Array.from({ length: n }, (_, i) => registro('leer', `2026-03-${String(i + 1).padStart(2, '0')}`))
+  const resumir = (registros: Registro[], hitosCelebrados: HitoCelebrado[] = []) =>
+    resumirIdentidades({ identidades: [lectora], habitos: [leer], registros, hitosCelebrados, ahora: local(2026, 3, 31, 9), ajustes })[0]
+  const celebrado = (umbral: number): HitoCelebrado => ({
+    id: `h${umbral}`,
+    creadoEn: '2026-03-10T20:00:00.000Z',
+    identidadId: 'lectora',
+    umbral,
+  })
+
+  it('son 10, 25, 50, 100, 250, 500 y 1000 votos', () => {
+    expect(HITOS).toEqual([10, 25, 50, 100, 250, 500, 1000])
+  })
+
+  it('cada hito alcanzado guarda el día en que se llegó', () => {
+    expect(resumir(dias(26)).hitos).toEqual([
+      { umbral: 10, dia: '2026-03-10' },
+      { umbral: 25, dia: '2026-03-25' },
+    ])
+  })
+
+  it('al llegar a un hito queda pendiente de celebrar', () => {
+    expect(resumir(dias(9)).porCelebrar).toEqual([])
+    expect(resumir(dias(10)).porCelebrar).toEqual([10])
+  })
+
+  it('un hito celebrado no se vuelve a celebrar; el siguiente sí', () => {
+    expect(resumir(dias(12), [celebrado(10)]).porCelebrar).toEqual([])
+    expect(resumir(dias(25), [celebrado(10)]).porCelebrar).toEqual([25])
+  })
+
+  it('editar registros (bajar del hito y volver a subir) no lo relanza', () => {
+    const celebrados = [celebrado(10), celebrado(25)]
+    const editados = dias(25).filter((r) => r.dia !== '2026-03-03')
+    expect(resumir(editados, celebrados).porCelebrar).toEqual([])
+    expect(resumir([...editados, registro('leer', '2026-03-03', 1)], celebrados).porCelebrar).toEqual([])
+  })
+
+  it('los celebrados de otra identidad no cuentan', () => {
+    expect(resumir(dias(10), [{ ...celebrado(10), identidadId: 'otra' }]).porCelebrar).toEqual([10])
   })
 })

@@ -1,5 +1,5 @@
 import { diaLogico } from './calendario'
-import { esVoto, evaluarHabito, votosDe, type Periodo, type Racha } from './evaluacion'
+import { esVoto, evaluarHabito, type Periodo, type Racha } from './evaluacion'
 import { pausaEn, pausaGlobalEn } from './pausa'
 import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './tipos'
 
@@ -68,7 +68,7 @@ export function componerHoy({
       const identidad = identidades.find((i) => i.id === habito.identidadId)
       // Archivar una identidad retira sus hábitos de Hoy sin tocarlos.
       if (!identidad || identidad.archivada) return []
-      const { actual: periodo, enRecuperacion, racha } = evaluarHabito({ habito, registros, ahora, ajustes })
+      const { actual: periodo, enRecuperacion, racha, diasVoto } = evaluarHabito({ habito, registros, ahora, ajustes })
       // Sin periodo, aún no ha empezado; no programado, hoy no le toca.
       if (!periodo || periodo.estado === 'no_programado') return []
       const propios = delDia(registros, habito.id, dia)
@@ -84,7 +84,7 @@ export function componerHoy({
           identidad,
           registros: propios,
           hecho: habito.tipo === 'cuantitativo' ? periodo.estado.startsWith('cumplido') : hechoHoy(habito, propios),
-          votosHoy: votosDe({ habito, registros, ahora, ajustes }).votosHoy,
+          votosHoy: diasVoto.filter((d) => d === dia).length,
           periodo,
           salto,
           pausa: pausaEn(habito, ajustes, dia),

@@ -111,6 +111,12 @@ export interface AnotacionDeFallo extends Entidad {
   nota?: string
 }
 
+/** Un hito (`HITOS`) de una identidad ya celebrado: no se vuelve a celebrar nunca. */
+export interface HitoCelebrado extends Entidad {
+  identidadId: string
+  umbral: number
+}
+
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */
 export type Nuevo<T extends Entidad> = Omit<T, keyof Entidad>
 
@@ -124,4 +130,5 @@ export interface Datos {
   habitos: Habito[]
   registros: Registro[]
   anotacionesDeFallo: AnotacionDeFallo[]
+  hitosCelebrados: HitoCelebrado[]
 }
