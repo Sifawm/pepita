@@ -233,5 +233,23 @@
       "terminada": "¡Hola de nuevo! Tus hábitos cuentan otra vez desde hoy.",
       "aviso": "De vacaciones hasta el {{fecha}}. Nada de esto cuenta como fallo."
     }
+  },
+  "recuperacion": {
+    "sugerencia": "Toca volver. Con la versión mínima basta.",
+    "racha": "Racha {{actual}} · mejor {{mejor}}",
+    "rachaAyuda": "Cuenta los periodos cumplidos. Un fallo suelto no la rompe.",
+    "anotar": "¿Qué pasó? (si quieres contarlo)",
+    "anotarAyuda": "Sin culpas: solo para entender qué necesita el hábito.",
+    "ley": "Lo que más pesó",
+    "sinLey": "Sin elegir",
+    "leyes": {
+      "1": "No lo vi (1ª ley: que sea obvio)",
+      "2": "No me apetecía (2ª ley: que sea atractivo)",
+      "3": "Era difícil (3ª ley: que sea fácil)",
+      "4": "No compensaba (4ª ley: que sea satisfactorio)"
+    },
+    "nota": "Nota",
+    "guardar": "Guardar",
+    "guardada": "Apuntado. Gracias por contarlo."
   }
 }

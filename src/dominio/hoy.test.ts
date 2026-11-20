@@ -143,6 +143,21 @@ describe('Hoy', () => {
       periodo: { desde: '2026-03-09', hasta: '2026-03-15', pide: 3, hechos: 2, estado: 'en_curso' },
     })
   })
+
+  it('muestra primero los hábitos en recuperación, con su racha', () => {
+    // Los dos empiezan el 10. El 11, leer se cumple y meditar no: el 12, meditar está en recuperación.
+    const hoy = componerHoy({
+      habitos: [leer, meditar],
+      identidades: [general],
+      registros: [registro('leer', '2026-03-10'), registro('meditar', '2026-03-10'), registro('leer', '2026-03-11')],
+      ahora: local(2026, 3, 12, 9),
+      ajustes,
+    })
+    expect(hoy.habitos.map((t) => [t.habito.id, t.enRecuperacion, t.racha])).toEqual([
+      ['meditar', true, { actual: 1, mejor: 1 }],
+      ['leer', false, { actual: 2, mejor: 2 }],
+    ])
+  })
 })
 
 describe('Hoy por identidad', () => {
@@ -209,9 +224,10 @@ describe('Hoy con saltos y pausas', () => {
     const pausa = { desde: '2026-03-14', hasta: '2026-03-20' }
     const hoy = componerHoy({ ...base, habitos: [{ ...leer, pausas: [pausa] }, meditar], ahora: local(2026, 3, 15, 9) })
     expect(hoy.pausaGlobal).toBeUndefined()
-    expect(hoy.habitos.map((t) => [t.habito.id, t.pausa])).toEqual([
-      ['leer', pausa],
-      ['meditar', undefined],
+    // Meditar lleva días sin hacerse: va primero, en recuperación. Leer, en pausa, no lo está.
+    expect(hoy.habitos.map((t) => [t.habito.id, t.pausa, t.enRecuperacion])).toEqual([
+      ['meditar', undefined, true],
+      ['leer', pausa, false],
     ])
   })
 

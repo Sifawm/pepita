@@ -1,5 +1,5 @@
 import { diaLogico } from './calendario'
-import { esVoto, evaluarHabito, type Periodo } from './evaluacion'
+import { esVoto, evaluarHabito, type Periodo, type Racha } from './evaluacion'
 import { pausaEn, pausaGlobalEn } from './pausa'
 import type { Ajustes, Dia, Habito, Identidad, Nuevo, Pausa, Registro } from './tipos'
 
@@ -16,6 +16,9 @@ export interface TarjetaHoy {
   salto?: Registro
   /** La pausa (del hábito o global) en la que está hoy. */
   pausa?: Pausa
+  /** El periodo anterior fue un fallo: va arriba del todo y sugiere la versión mínima. */
+  enRecuperacion: boolean
+  racha: Racha
 }
 
 export interface Hoy {
@@ -63,7 +66,7 @@ export function componerHoy({
       const identidad = identidades.find((i) => i.id === habito.identidadId)
       // Archivar una identidad retira sus hábitos de Hoy sin tocarlos.
       if (!identidad || identidad.archivada) return []
-      const periodo = evaluarHabito({ habito, registros, ahora, ajustes }).actual
+      const { actual: periodo, enRecuperacion, racha } = evaluarHabito({ habito, registros, ahora, ajustes })
       // Sin periodo, aún no ha empezado; no programado, hoy no le toca.
       if (!periodo || periodo.estado === 'no_programado') return []
       const propios = delDia(registros, habito.id, dia)
@@ -74,9 +77,21 @@ export function componerHoy({
             )
           : undefined
       return [
-        { habito, identidad, registros: propios, hecho: hechoHoy(habito, propios), periodo, salto, pausa: pausaEn(habito, ajustes, dia) },
+        {
+          habito,
+          identidad,
+          registros: propios,
+          hecho: hechoHoy(habito, propios),
+          periodo,
+          salto,
+          pausa: pausaEn(habito, ajustes, dia),
+          enRecuperacion,
+          racha,
+        },
       ]
     })
+    // Primero los que están en recuperación (orden estable: dentro de cada grupo, por `orden`).
+    .sort((a, b) => Number(b.enRecuperacion) - Number(a.enRecuperacion))
   return {
     dia,
     votos: tarjetas.reduce((n, t) => n + t.registros.length, 0),

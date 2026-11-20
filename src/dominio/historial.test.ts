@@ -74,5 +74,7 @@ describe('calendario del hábito', () => {
     // Semana del 9 al 15: cumplida aunque cada día por separado tenga 0 o 1 registros.
     expect(mes.dias.slice(8, 15).map((d) => d.estado)).toEqual(Array(7).fill('cumplido_minima'))
     expect(mes.dias[8].registros).toEqual([])
+    // Cada día sabe qué periodo lo contiene (para anotar el fallo de la semana entera).
+    expect(mes.dias[11].periodo).toBe('2026-03-09')
   })
 })

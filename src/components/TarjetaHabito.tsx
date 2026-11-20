@@ -30,7 +30,7 @@ export function TarjetaHabito({
   celebrar: () => void
 }) {
   const { t, i18n } = useTranslation()
-  const { habito, identidad, hecho, periodo, pausa } = tarjeta
+  const { habito, identidad, hecho, periodo, pausa, enRecuperacion, racha } = tarjeta
   const ultimo = tarjeta.registros.at(-1)
   const f = habito.frecuencia
   // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
@@ -99,6 +99,8 @@ export function TarjetaHabito({
             'flex min-h-16 min-w-0 flex-1 touch-manipulation select-none items-center gap-4 rounded-lg border bg-card p-4 text-left transition-colors outline-none [-webkit-touch-callout:none]',
             'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
             hecho ? 'border-primary bg-accent' : 'hover:bg-muted',
+            // Recuperación: borde grueso además del texto de sugerencia (no solo color).
+            enRecuperacion && !hecho && 'border-2 border-primary',
           )}
         >
           <span
@@ -112,6 +114,7 @@ export function TarjetaHabito({
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
+            {enRecuperacion && !hecho && <span className="block text-sm font-semibold text-primary">{t('recuperacion.sugerencia')}</span>}
             {habito.versionMinima && !hecho && (
               <span className="block break-words">{t('hoy.minima', { texto: habito.versionMinima })}</span>
             )}
@@ -121,6 +124,7 @@ export function TarjetaHabito({
               {' · '}
               {estado}
             </span>
+            {racha.mejor > 0 && <span className="block text-xs text-muted-foreground">{t('recuperacion.racha', { ...racha })}</span>}
           </span>
         </button>
         <Link

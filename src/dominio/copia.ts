@@ -1,6 +1,6 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
-import type { Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
+import type { AnotacionDeFallo, Ajustes, Datos, Frecuencia, Habito, Identidad, Instante, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -111,12 +111,21 @@ const registro: Validador<Registro> = (v, r) => {
   return reg
 }
 
+const anotacionDeFallo = objeto<AnotacionDeFallo>({
+  ...entidad,
+  habitoId: id,
+  periodo: dia,
+  ley: opcional(literal(1, 2, 3, 4)),
+  nota: opcional(texto),
+})
+
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
   ajustes,
   identidades: lista(identidad),
   habitos: lista(habito),
   registros: lista(registro),
+  anotacionesDeFallo: lista(anotacionDeFallo),
 })
 
 const copia = objeto<Copia>({
@@ -140,6 +149,7 @@ function comprobarReferencias(d: Datos) {
   const identidades = ids('identidades', d.identidades)
   const habitos = ids('habitos', d.habitos)
   ids('registros', d.registros)
+  ids('anotacionesDeFallo', d.anotacionesDeFallo)
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
@@ -147,6 +157,12 @@ function comprobarReferencias(d: Datos) {
   })
   d.registros.forEach((r, i) => {
     if (!habitos.has(r.habitoId)) throw new Invalido(`datos.registros[${i}].habitoId`)
+  })
+  const fallos = new Set<string>()
+  d.anotacionesDeFallo.forEach((a, i) => {
+    if (!habitos.has(a.habitoId)) throw new Invalido(`datos.anotacionesDeFallo[${i}].habitoId`)
+    if (fallos.has(`${a.habitoId} ${a.periodo}`)) throw new Invalido(`datos.anotacionesDeFallo[${i}].periodo`)
+    fallos.add(`${a.habitoId} ${a.periodo}`)
   })
 }
 
