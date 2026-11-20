@@ -59,7 +59,7 @@
     "editarNota": "Editar nota",
     "deshacer": "Deshacer el último registro",
     "nota": "Nota (opcional)",
-    "notaEjemplo": "¿Algo que quieras recordar de hoy?",
+    "notaEjemplo": "¿Algo que quieras recordar?",
     "guardarNota": "Guardar nota"
   },
   "nuevo": {
@@ -282,6 +282,7 @@
       "completa": "Era la completa"
     },
     "deshacer": "Deshacer",
+    "saltar": "Saltar este periodo",
     "anadir": {
       "minima": "Apuntar la mínima",
       "completa": "Apuntar la completa"
@@ -557,6 +558,10 @@
       "titulo": "Preguntas pendientes",
       "item": "¿Qué ha pasado con «{{nombre}}»?",
       "vacia": "No hay preguntas pendientes."
+    },
+    "fallos": {
+      "titulo": "Motivos de los fallos",
+      "vacia": "No anotaste ningún motivo esta vez."
     },
     "sugerencias": {
       "titulo": "Ideas de Pepita",

@@ -418,7 +418,8 @@ function FormRecaida({ habitoId, anotar, cerrar }: { habitoId: string; anotar: (
   )
 }
 
-function EditorNota({ registro, cerrar }: { registro: Registro; cerrar: () => void }) {
+/** La nota opcional de un registro (de hoy en la tarjeta; de cualquier día en el calendario). */
+export function EditorNota({ registro, cerrar }: { registro: Registro; cerrar: () => void }) {
   const { t } = useTranslation()
   const [texto, setTexto] = useState(registro.nota ?? '')
   const id = `nota-${registro.id}`

@@ -11,7 +11,7 @@ import { db, guardarNotaSemanal, useAjustes } from '@/db'
 import { diaLogico, revision, sumarDias, type CampoMetodo, type Habito, type Revision as DatosRevision } from '@/dominio'
 import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
 
-const SECCIONES = ['votos', 'recuperacion', 'diagnosticos', 'sugerencias', 'campos', 'nota'] as const
+const SECCIONES = ['votos', 'recuperacion', 'diagnosticos', 'fallos', 'sugerencias', 'campos', 'nota'] as const
 type Seccion = (typeof SECCIONES)[number]
 
 /** El paso del asistente donde se rellena cada campo del método. */
@@ -32,15 +32,16 @@ export default function Revision() {
   const ajustes = useAjustes()
   const [params, setParams] = useSearchParams()
   const datos = useLiveQuery(async () => {
-    const [identidades, habitos, registros, diagnosticos, sugerenciasDescartadas, revisionesSemanales] = await Promise.all([
+    const [identidades, habitos, registros, diagnosticos, sugerenciasDescartadas, revisionesSemanales, anotacionesDeFallo] = await Promise.all([
       db.identidades.toArray(),
       db.habitos.toArray(),
       db.registros.toArray(),
       db.diagnosticos.toArray(),
       db.sugerenciasDescartadas.toArray(),
       db.revisionesSemanales.toArray(),
+      db.anotacionesDeFallo.toArray(),
     ])
-    return { identidades, habitos, registros, diagnosticos, sugerenciasDescartadas, revisionesSemanales }
+    return { identidades, habitos, registros, diagnosticos, sugerenciasDescartadas, revisionesSemanales, anotacionesDeFallo }
   })
   const [impresion, setImpresion] = useState<{ desde?: string; hasta?: string; secciones: Seccion[] }>({ secciones: [...SECCIONES] })
 
@@ -171,6 +172,18 @@ function Contenido({ r, secciones, papel = false }: { r: DatosRevision; seccione
       <Lista vacia={r.diagnosticos.length === 0 && t('revision.diagnosticos.vacia')}>
         {r.diagnosticos.map(({ diagnostico, habito: h }) => (
           <li key={diagnostico.id}>{habito(h, t('revision.diagnosticos.item', { nombre: h.nombre }))}</li>
+        ))}
+      </Lista>
+    ),
+    fallos: (
+      <Lista vacia={r.fallos.length === 0 && t('revision.fallos.vacia')}>
+        {r.fallos.map(({ habito: h, anotacion: a }) => (
+          <li key={a.id} className="space-y-1">
+            <p className="break-words">
+              <span className="font-semibold">{habito(h)}</span> · {fechaDia(a.periodo, i18n.language)}
+            </p>
+            <p className="break-words">{[a.ley && t(`recuperacion.leyes.${a.ley}`), a.nota].filter(Boolean).join(' · ')}</p>
+          </li>
         ))}
       </Lista>
     ),

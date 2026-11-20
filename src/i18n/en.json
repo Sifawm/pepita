@@ -59,7 +59,7 @@
     "editarNota": "Edit note",
     "deshacer": "Undo the last check-in",
     "nota": "Note (optional)",
-    "notaEjemplo": "Anything you want to remember about today?",
+    "notaEjemplo": "Anything you want to remember?",
     "guardarNota": "Save note"
   },
   "nuevo": {
@@ -282,6 +282,7 @@
       "completa": "It was the full one"
     },
     "deshacer": "Undo",
+    "saltar": "Skip this period",
     "anadir": {
       "minima": "Log the minimum",
       "completa": "Log the full one"
@@ -557,6 +558,10 @@
       "titulo": "Open questions",
       "item": "What happened with “{{nombre}}”?",
       "vacia": "No open questions."
+    },
+    "fallos": {
+      "titulo": "Why it slipped",
+      "vacia": "You didn’t note any reasons this time."
     },
     "sugerencias": {
       "titulo": "Ideas from Pepita",

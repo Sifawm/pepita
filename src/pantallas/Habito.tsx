@@ -8,18 +8,24 @@ import { Diagnosticos } from '@/components/Diagnostico'
 import { SugerenciaEscalado } from '@/components/Escalado'
 import { GraficoSerie } from '@/components/GraficoSerie'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
+import { EditorNota } from '@/components/TarjetaHabito'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { conId, db, useAjustes } from '@/db'
 import {
+  anotacionDeFallo,
   calendarioHabito,
   cambiarRegla,
   diaDeLaSemana,
+  diagnosticoAbierto,
   diaLogico,
+  esVoto,
   evaluarHabito,
   mapaDeCalor,
+  recaer,
+  saltar,
   sugerenciaEscalado,
   sumarDias,
   type Ajustes,
@@ -31,6 +37,7 @@ import {
   type Frecuencia,
   type Habito as THabito,
   type Ley,
+  type Nuevo,
   type Registro,
 } from '@/dominio'
 import { cn, enfocar, fechaDia } from '@/lib/utils'
@@ -75,8 +82,8 @@ export default function Habito() {
 
   const ahora = new Date()
   const evaluacion = evaluarHabito({ ...datos, habito: datos.habito, ahora, ajustes })
-  // El sin responder (pendiente o pospuesto): como mucho uno por hábito.
-  const diagnostico = datos.diagnosticos.find((d) => d.estado === 'pendiente' || d.estado === 'pospuesto')
+  // Los sin responder (pendiente o pospuesto): el núcleo deja como mucho uno por hábito.
+  const abiertos = datos.diagnosticos.filter(diagnosticoAbierto).map((diagnostico) => ({ diagnostico, habito: datos.habito! }))
 
   return (
     <div className="space-y-8">
@@ -89,7 +96,7 @@ export default function Habito() {
           {t('recuperacion.rachaAyuda')}
         </p>
       </header>
-      <Diagnosticos items={diagnostico ? [{ diagnostico, habito: datos.habito }] : []} />
+      <Diagnosticos items={abiertos} />
       {!datos.habito.archivado && (
         <SugerenciaEscalado habito={datos.habito} sugerencia={sugerenciaEscalado({ ...datos, habito: datos.habito, ahora, ajustes })} ajustes={ajustes} />
       )}
@@ -279,7 +286,7 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
               )}
             >
               <span aria-hidden>{numero}</span>
-              {d.registros.some((r) => r.tipo === 'minima' || r.tipo === 'completa') && <Check aria-hidden className="size-3" />}
+              {d.registros.some(esVoto) && <Check aria-hidden className="size-3" />}
             </button>
           )
         })}
@@ -296,27 +303,37 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
           ))}
       </ul>
 
-      {dia && <EditarDia habito={habito} dia={dia} titulo={largo(dia.dia)} nombreEstado={nombreEstado} />}
+      {dia && <EditarDia key={dia.dia} habito={habito} dia={dia} titulo={largo(dia.dia)} nombreEstado={nombreEstado} ajustes={ajustes} />}
     </section>
   )
 }
 
-/** Registrar, corregir o deshacer un día. La evaluación se recalcula sola al cambiar los registros. */
+/**
+ * Registrar, corregir, anotar, saltar o deshacer un día. La evaluación (y los diagnósticos) se
+ * recalcula sola al cambiar los registros.
+ */
 function EditarDia({
   habito,
   dia,
   titulo,
   nombreEstado,
+  ajustes,
 }: {
   habito: THabito
   dia: DiaCalendario
   titulo: string
   nombreEstado: (e: EstadoPeriodo) => string
+  ajustes: Ajustes
 }) {
   const { t, i18n } = useTranslation()
-  const anadir = (tipo: Registro['tipo'], valor?: number) =>
-    db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo, ...(valor !== undefined && { valor }) }))
+  const [notaDe, setNotaDe] = useState<string>()
+  const guardar = (registro: Nuevo<Registro>) => db.registros.add(conId<Registro>(registro))
+  // Mínima, completa y valor no tienen regla que aplicar: se escriben tal cual.
+  const anadir = (tipo: Registro['tipo'], valor?: number) => guardar({ habitoId: habito.id, dia: dia.dia, tipo, ...(valor !== undefined && { valor }) })
+  const contexto = { habito, dia: dia.dia, ahora: new Date(), ajustes }
   const c = habito.cuantitativo
+  // Un periodo sin cumplir (pasado o en curso) se puede saltar también desde aquí.
+  const saltable = dia.estado === 'fallido' || dia.estado === 'en_curso'
 
   return (
     <div className="space-y-3 rounded-lg border bg-card p-4">
@@ -332,19 +349,40 @@ function EditarDia({
           {dia.registros.map((r) => {
             const otro = r.tipo === 'minima' ? 'completa' : 'minima'
             return (
-              <li key={r.id} className="flex flex-wrap items-center gap-2">
-                <span className="flex-1 font-semibold">
-                  {r.tipo === 'valor' ? `${r.valor?.toLocaleString(i18n.language)} ${c?.unidad}` : t(`habito.tipo.${r.tipo}`)}
-                  {(r.motivo ?? r.disparador) && <span className="font-normal text-muted-foreground"> · {r.motivo ?? r.disparador}</span>}
-                </span>
-                {(r.tipo === 'minima' || r.tipo === 'completa') && (
-                  <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
-                    {t(`habito.pasarA.${otro}`)}
+              <li key={r.id} className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span id={`registro-${r.id}`} className="flex-1 font-semibold">
+                    {r.tipo === 'valor' ? `${r.valor?.toLocaleString(i18n.language)} ${c?.unidad}` : t(`habito.tipo.${r.tipo}`)}
+                    {(r.motivo ?? r.disparador) && <span className="font-normal text-muted-foreground"> · {r.motivo ?? r.disparador}</span>}
+                    {r.nota && <span className="block font-normal break-words text-muted-foreground">{r.nota}</span>}
+                  </span>
+                  {esVoto(r) && (
+                    <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
+                      {t(`habito.pasarA.${otro}`)}
+                    </Button>
+                  )}
+                  <Button
+                    id={`nota-boton-${r.id}`}
+                    variant="ghost"
+                    aria-describedby={`registro-${r.id}`}
+                    aria-expanded={notaDe === r.id}
+                    onClick={() => setNotaDe(notaDe === r.id ? undefined : r.id)}
+                  >
+                    {t(r.nota ? 'hoy.editarNota' : 'hoy.anadirNota')}
                   </Button>
+                  <Button variant="ghost" aria-describedby={`registro-${r.id}`} onClick={() => db.registros.delete(r.id).then(() => enfocar('dia-titulo'))}>
+                    {t('habito.deshacer')}
+                  </Button>
+                </div>
+                {notaDe === r.id && (
+                  <EditorNota
+                    registro={r}
+                    cerrar={() => {
+                      setNotaDe(undefined)
+                      enfocar(`nota-boton-${r.id}`)
+                    }}
+                  />
                 )}
-                <Button variant="ghost" onClick={() => db.registros.delete(r.id).then(() => enfocar('dia-titulo'))}>
-                  {t('habito.deshacer')}
-                </Button>
               </li>
             )
           })}
@@ -353,7 +391,7 @@ function EditarDia({
       {c ? (
         <SumarValor unidad={c.unidad} nombre={habito.nombre} sumar={(valor) => anadir('valor', valor)} />
       ) : habito.tipo === 'evitar' ? (
-        <Button variant="secondary" onClick={() => anadir('recaida')}>
+        <Button variant="secondary" onClick={() => guardar(recaer(contexto))}>
           {t('evitar.anadir')}
         </Button>
       ) : (
@@ -363,6 +401,11 @@ function EditarDia({
             {t('habito.anadir.completa')}
           </Button>
         </div>
+      )}
+      {saltable && (
+        <Button variant="ghost" className="w-full" onClick={() => guardar(saltar(contexto))}>
+          {t('habito.saltar')}
+        </Button>
       )}
       {dia.estado === 'fallido' && dia.periodo && <AnotarFallo habitoId={habito.id} periodo={dia.periodo} />}
     </div>
@@ -384,14 +427,10 @@ function FormFallo({ habitoId, periodo, anotacion }: { habitoId: string; periodo
 
   const guardar = async (e: FormEvent) => {
     e.preventDefault()
-    const texto = nota.trim()
-    const datos = { habitoId, periodo, ...(ley ? { ley: Number(ley) as Ley } : {}), ...(texto ? { nota: texto } : {}) }
-    if (!ley && !texto) {
-      if (anotacion) await db.anotacionesDeFallo.delete(anotacion.id)
-    } else
-      await db.anotacionesDeFallo.put(
-        anotacion ? { id: anotacion.id, creadoEn: anotacion.creadoEn, ...datos } : conId<AnotacionDeFallo>(datos),
-      )
+    const nueva = anotacionDeFallo({ habitoId, periodo, ley: ley ? (Number(ley) as Ley) : undefined, nota })
+    // Sin ley ni nota no queda nada que guardar: se borra la que hubiera.
+    if (!nueva) await (anotacion && db.anotacionesDeFallo.delete(anotacion.id))
+    else await db.anotacionesDeFallo.put(anotacion ? { id: anotacion.id, creadoEn: anotacion.creadoEn, ...nueva } : conId<AnotacionDeFallo>(nueva))
     setGuardada(true)
   }
 
