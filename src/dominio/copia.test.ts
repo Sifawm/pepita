@@ -4,7 +4,7 @@ import { AJUSTES_POR_DEFECTO, exportar, importar, necesitaCopia, registrosCsv, t
 const ahora = new Date('2026-05-10T18:30:00.000Z')
 
 const datos: Datos = {
-  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
+  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', notificaciones: true, pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
   identidades: [
     { id: 'g', creadoEn: '2026-05-01T08:00:00.000Z', nombre: '', esGeneral: true, archivada: false, orden: 0 },
     { id: 'lectora', creadoEn: '2026-05-01T08:01:00.000Z', nombre: 'Soy lectora', esGeneral: false, archivada: true, orden: 1 },
@@ -61,11 +61,42 @@ const datos: Datos = {
       archivado: true,
       orden: 2,
     },
+    {
+      id: 'redes',
+      creadoEn: '2026-05-01T08:05:00.000Z',
+      identidadId: 'g',
+      nombre: 'Redes sociales',
+      tipo: 'evitar',
+      frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      leyesInversas: { senal: 'Móvil fuera del cuarto', friccion: 'Cerrar sesión', sustituto: 'Leer' },
+      fechaInicio: '2026-05-01',
+      archivado: false,
+      orden: 3,
+    },
+    // Cuantitativo: ahora «al menos», con objetivo mínimo y decimales; antes, «como mucho».
+    {
+      id: 'agua',
+      creadoEn: '2026-05-01T08:05:00.000Z',
+      identidadId: 'g',
+      nombre: 'Beber agua',
+      tipo: 'cuantitativo',
+      cuantitativo: { unidad: 'litros', objetivo: 1.5, objetivoMinimo: 0.5, modo: 'al_menos' },
+      frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      fechaInicio: '2026-05-01',
+      archivado: false,
+      orden: 4,
+      versiones: [
+        { hasta: '2026-05-03', frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'semana' }, cuantitativo: { unidad: 'litros', objetivo: 20, modo: 'como_mucho' } },
+      ],
+    },
   ],
   registros: [
     { id: 'r1', creadoEn: '2026-05-02T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-02', tipo: 'minima' },
     { id: 'r2', creadoEn: '2026-05-03T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-03', tipo: 'completa', nota: 'un capítulo' },
     { id: 'r3', creadoEn: '2026-05-04T20:00:00.000Z', habitoId: 'leer', dia: '2026-05-04', tipo: 'salto', motivo: 'Viaje' },
+    { id: 'r4', creadoEn: '2026-05-05T22:00:00.000Z', habitoId: 'redes', dia: '2026-05-05', tipo: 'recaida', disparador: 'Aburrimiento' },
+    { id: 'r5', creadoEn: '2026-05-06T22:00:00.000Z', habitoId: 'redes', dia: '2026-05-06', tipo: 'recaida' },
+    { id: 'r6', creadoEn: '2026-05-04T21:00:00.000Z', habitoId: 'agua', dia: '2026-05-04', tipo: 'valor', valor: 0.75 },
   ],
   anotacionesDeFallo: [
     { id: 'a1', creadoEn: '2026-05-06T09:00:00.000Z', habitoId: 'leer', periodo: '2026-05-05', ley: 3, nota: 'Estaba agotada' },
@@ -137,6 +168,18 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una ley que no es de 1 a 4', con((c) => (c.datos.anotacionesDeFallo[0].ley = 5)), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[0].ley' }],
     ['una anotación de un hábito que no existe', con((c) => (c.datos.anotacionesDeFallo[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[1].habitoId' }],
     ['dos anotaciones del mismo fallo', con((c) => (c.datos.anotacionesDeFallo[2].periodo = '2026-05-05')), { motivo: 'invalido', ruta: 'datos.anotacionesDeFallo[2].periodo' }],
+    ['un valor en un registro que no es un valor', con((c) => (c.datos.registros[0].valor = 3)), { motivo: 'invalido', ruta: 'datos.registros[0].valor' }],
+    ['un registro de valor sin valor', con((c) => delete c.datos.registros[5].valor), { motivo: 'invalido', ruta: 'datos.registros[5].valor' }],
+    ['un valor que no es positivo', con((c) => (c.datos.registros[5].valor = 0)), { motivo: 'invalido', ruta: 'datos.registros[5].valor' }],
+    ['un cuantitativo sin objetivo', con((c) => delete c.datos.habitos[4].cuantitativo), { motivo: 'invalido', ruta: 'datos.habitos[4].cuantitativo' }],
+    ['un sí/no con objetivo', con((c) => (c.datos.habitos[0].cuantitativo = c.datos.habitos[4].cuantitativo)), { motivo: 'invalido', ruta: 'datos.habitos[0].cuantitativo' }],
+    ['un modo desconocido', con((c) => (c.datos.habitos[4].cuantitativo.modo = 'mas_o_menos')), { motivo: 'invalido', ruta: 'datos.habitos[4].cuantitativo.modo' }],
+    ['un objetivo mínimo que no queda por debajo del objetivo', con((c) => (c.datos.habitos[4].cuantitativo.objetivoMinimo = 2)), { motivo: 'invalido', ruta: 'datos.habitos[4].cuantitativo.objetivoMinimo' }],
+    ['un objetivo mínimo en «como mucho»', con((c) => (c.datos.habitos[4].versiones[0].cuantitativo.objetivoMinimo = 1)), { motivo: 'invalido', ruta: 'datos.habitos[4].versiones[0].cuantitativo.objetivoMinimo' }],
+    ['un disparador en un registro que no es una recaída', con((c) => (c.datos.registros[0].disparador = 'el sofá')), { motivo: 'invalido', ruta: 'datos.registros[0].disparador' }],
+    ['leyes inversas en un hábito que no es a evitar', con((c) => (c.datos.habitos[0].leyesInversas = { senal: 'x' })), { motivo: 'invalido', ruta: 'datos.habitos[0].leyesInversas' }],
+    ['una ley inversa desconocida', con((c) => (c.datos.habitos[3].leyesInversas.premio = 'x')), { motivo: 'invalido', ruta: 'datos.habitos[3].leyesInversas.premio' }],
+    ['un tipo de hábito desconocido', con((c) => (c.datos.habitos[0].tipo = 'quizas')), { motivo: 'invalido', ruta: 'datos.habitos[0].tipo' }],
     ['un cuándo con dos disparadores', con((c) => (c.datos.habitos[1].intencion.cuando.despuesDeAccion = 'cenar')), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.despuesDeAccion' }],
     ['un cuándo desconocido', con((c) => (c.datos.habitos[1].intencion.cuando = { alAmanecer: true })), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.alAmanecer' }],
     ['una hora de intención imposible', con((c) => (c.datos.habitos[1].intencion.cuando.hora = '7:30')), { motivo: 'invalido', ruta: 'datos.habitos[1].intencion.cuando.hora' }],
@@ -185,11 +228,14 @@ describe('registrosCsv', () => {
     ]
     expect(registrosCsv({ habitos: datos.habitos, registros })).toBe(
       [
-        'dia,habitoId,habito,tipo,nota,motivo,creadoEn',
-        '2026-05-01,leer,"Leer una página, «con calma»",minima,"dijo ""basta""\nvale",,2026-05-01T21:00:00.000Z',
-        '2026-05-02,leer,"Leer una página, «con calma»",minima,,,2026-05-02T20:00:00.000Z',
-        '2026-05-03,leer,"Leer una página, «con calma»",completa,un capítulo,,2026-05-03T20:00:00.000Z',
-        '2026-05-04,leer,"Leer una página, «con calma»",salto,,Viaje,2026-05-04T20:00:00.000Z',
+        'dia,habitoId,habito,tipo,valor,nota,motivo,disparador,creadoEn',
+        '2026-05-01,leer,"Leer una página, «con calma»",minima,,"dijo ""basta""\nvale",,,2026-05-01T21:00:00.000Z',
+        '2026-05-02,leer,"Leer una página, «con calma»",minima,,,,,2026-05-02T20:00:00.000Z',
+        '2026-05-03,leer,"Leer una página, «con calma»",completa,,un capítulo,,,2026-05-03T20:00:00.000Z',
+        '2026-05-04,leer,"Leer una página, «con calma»",salto,,,Viaje,,2026-05-04T20:00:00.000Z',
+        '2026-05-04,agua,Beber agua,valor,0.75,,,,2026-05-04T21:00:00.000Z',
+        '2026-05-05,redes,Redes sociales,recaida,,,,Aburrimiento,2026-05-05T22:00:00.000Z',
+        '2026-05-06,redes,Redes sociales,recaida,,,,,2026-05-06T22:00:00.000Z',
         '',
       ].join('\r\n'),
     )

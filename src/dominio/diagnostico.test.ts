@@ -131,7 +131,7 @@ describe('diagnóstico: estados', () => {
   })
 
   it('cada causa ofrece sus acciones', () => {
-    expect(ACCIONES_DIAGNOSTICO[1]).toContain('editar_intencion')
+    expect(ACCIONES_DIAGNOSTICO[1]).toEqual(['editar_intencion', 'exportar_ics'])
     expect(ACCIONES_DIAGNOSTICO[2]).toEqual(['editar_recompensa', 'editar_identidad'])
     expect(ACCIONES_DIAGNOSTICO[3]).toEqual(['solo_minima', 'editar_entorno'])
     expect(ACCIONES_DIAGNOSTICO[4]).toEqual(['ver_votos', 'pausar', 'archivar'])

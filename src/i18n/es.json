@@ -79,7 +79,11 @@
     "que_dias": "Qué días",
     "lleva_dia": "{{hechos}} de {{pide}} hoy",
     "lleva_semana": "{{hechos}} de {{pide}} esta semana",
-    "lleva_mes": "{{hechos}} de {{pide}} este mes"
+    "lleva_mes": "{{hechos}} de {{pide}} este mes",
+    "cada_periodo": "Cada día, cada semana o cada mes",
+    "cada_dia": "cada día",
+    "cada_semana": "cada semana",
+    "cada_mes": "cada mes"
   },
   "ajustes": {
     "titulo": "Ajustes",
@@ -136,6 +140,16 @@
       "titulo": "¿Por quién votas con este hábito?",
       "ayuda": "Cada vez que lo hagas, sumarás un voto a la persona que quieres ser."
     },
+    "tipo": {
+      "titulo": "¿Qué tipo de hábito es?",
+      "ayuda": "Para romper un hábito, el método se da la vuelta: hazlo invisible, poco atractivo, difícil e insatisfactorio.",
+      "si_no": "Hacer algo",
+      "si_noAyuda": "Lo marcas cuando lo haces.",
+      "cuantitativo": "Contar una cantidad",
+      "cuantitativoAyuda": "Al menos 20 páginas, o como mucho 2 cafés. Vas sumando lo que hagas.",
+      "evitar": "Evitar algo",
+      "evitarAyuda": "Solo apuntas si recaes. Cada día limpio suma un voto al cerrarse."
+    },
     "frecuencia": {
       "titulo": "¿Cada cuánto?",
       "ayuda": "No hace falta que sea a diario. Elige un ritmo que puedas sostener."
@@ -175,6 +189,21 @@
       "titulo": "Recompensa asociada",
       "ayuda": "Junta el hábito con algo que te guste y te apetecerá más.",
       "ejemplo": "Por ejemplo: solo escucho mi podcast mientras camino"
+    },
+    "senal": {
+      "titulo": "¿Qué señal vas a quitar de tu vista?",
+      "ayuda": "Hazlo invisible: lo que no ves, apenas te tienta.",
+      "ejemplo": "Por ejemplo: dejar el móvil fuera del dormitorio"
+    },
+    "friccion": {
+      "titulo": "¿Qué fricción vas a añadir?",
+      "ayuda": "Hazlo difícil: cuantos más pasos, menos ganas.",
+      "ejemplo": "Por ejemplo: cerrar sesión en la app"
+    },
+    "sustituto": {
+      "titulo": "¿Qué harás en su lugar?",
+      "ayuda": "Un hábito no se borra sin más: ayuda tener otra cosa a mano.",
+      "ejemplo": "Por ejemplo: leer una página"
     }
   },
   "habito": {
@@ -210,7 +239,8 @@
     "tipo": {
       "minima": "Versión mínima",
       "completa": "Versión completa",
-      "salto": "Salto"
+      "salto": "Salto",
+      "recaida": "Recaída"
     },
     "pasarA": {
       "minima": "Era la mínima",
@@ -319,6 +349,75 @@
     "verCurva": "Ver tu curva",
     "cerrar": "Cerrar"
   },
+  "cuantitativo": {
+    "modo": "¿Qué buscas?",
+    "modos": {
+      "al_menos": "Llegar al menos a un objetivo",
+      "como_mucho": "No pasar de un límite"
+    },
+    "objetivo": "Cantidad",
+    "unidad": "Unidad",
+    "unidadEjemplo": "Por ejemplo: páginas",
+    "objetivoMinimo": "Objetivo mínimo (opcional)",
+    "objetivoMinimoAyuda": "Tu versión mínima: una cantidad pequeña que también vale un voto en los días malos.",
+    "periodo": {
+      "dia": "hoy",
+      "semana": "esta semana",
+      "mes": "este mes"
+    },
+    "lleva": {
+      "al_menos": "{{hechos}} de {{objetivo}} {{unidad}} {{periodo}}",
+      "como_mucho": "{{hechos}} {{unidad}} {{periodo}} (máximo {{objetivo}})"
+    },
+    "estado": {
+      "completa": "Objetivo alcanzado · +1 voto",
+      "minima": "Mínimo alcanzado · +1 voto",
+      "pendiente": "Suma lo que hagas, aunque sea poco",
+      "dentro": "Vas bien: el voto llega al cerrar el periodo",
+      "pasado": "Esta vez te has pasado. El próximo periodo empieza de cero"
+    },
+    "sumar": "Añadir {{unidad}}",
+    "sumarCorto": "Sumar",
+    "sumarBoton": "Sumar a «{{nombre}}»"
+  },
+  "evitar": {
+    "limpio": "Hoy, día limpio por ahora",
+    "recaido": "Recaída anotada. Mañana es otro día",
+    "heRecaido": "He recaído",
+    "ayuda": "Le pasa a cualquiera. Anotarlo te ayuda a ver qué lo provoca.",
+    "disparador": "¿Qué lo provocó? (opcional)",
+    "disparadorEjemplo": "Por ejemplo: aburrimiento después de cenar",
+    "anotar": "Anotar recaída",
+    "anotada": "Anotado. Un tropiezo no borra lo que llevas.",
+    "deshacer": "Deshacer la recaída de hoy",
+    "deshecha": "Recaída deshecha.",
+    "anadir": "Apuntar una recaída",
+    "sustituto": "En su lugar: {{texto}}",
+    "senal": "Señal fuera: {{texto}}",
+    "friccion": "Fricción: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Día limpio",
+      "cumplido_minima": "Día limpio",
+      "fallido": "Recaída",
+      "en_curso": "En curso",
+      "no_programado": "No tocaba",
+      "saltado": "Saltado",
+      "pausado": "En pausa"
+    }
+  },
+  "recordatorios": {
+    "titulo": "Recordatorios",
+    "intro": "Lleva tus hábitos con hora al calendario del móvil: te avisará aunque Pepita esté cerrada.",
+    "exportar": "Exportar recordatorios (.ics)",
+    "exportarAyuda": "Salen los hábitos con hora, cada uno con su alarma. Los que van después de otro aparecen en su descripción.",
+    "exportados": "Listo. Abre el fichero para añadirlo a tu calendario.",
+    "ninguno": "Aún no tienes hábitos con hora. Cuando le pongas una a alguno en «Cuándo», saldrá aquí.",
+    "notificaciones": "Avisarme mientras Pepita está abierta",
+    "notificacionesAyuda": "Te avisamos a la hora de cada hábito que te quede hoy. Solo funciona con la app abierta.",
+    "bloqueadas": "Tu navegador no deja a Pepita avisarte. Si te apetece, puedes permitirlo en sus ajustes.",
+    "noDisponibles": "Este navegador no admite avisos. El calendario (.ics) sí te servirá.",
+    "despues": "Y después: {{lista}}"
+  },
   "diagnostico": {
     "avisos": "Preguntas de Pepita",
     "aviso": "¿Qué ha pasado con «{{nombre}}»? Echémosle un vistazo",
@@ -349,6 +448,7 @@
       "archivar": "Archivarlo, sin culpa"
     },
     "soloApuntar": "Solo apuntarlo",
+    "listo": "Listo",
     "otraCausa": "Elegir otra causa",
     "posponer": "Ahora no, más tarde",
     "descartar": "Descartar",

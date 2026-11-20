@@ -3,7 +3,7 @@ import type { AccionDiagnostico, Ajustes, Diagnostico, Habito, Ley, Nuevo, Regis
 
 /** Lo que ofrece cada causa. El orden es el de los botones. */
 export const ACCIONES_DIAGNOSTICO: Record<Ley, AccionDiagnostico[]> = {
-  1: ['editar_intencion'], // Ticket 16: + 'exportar_ics'
+  1: ['editar_intencion', 'exportar_ics'],
   2: ['editar_recompensa', 'editar_identidad'],
   3: ['solo_minima', 'editar_entorno'],
   4: ['ver_votos', 'pausar', 'archivar'],

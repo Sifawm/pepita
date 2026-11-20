@@ -27,6 +27,9 @@ export const entero =
   (v, r) =>
     Number.isInteger(v) && (v as number) >= min && (v as number) <= max ? (v as number) : falla(r)
 
+/** Número finito mayor que 0 (admite decimales: 1,5 litros). */
+export const positivo: Validador<number> = (v, r) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? v : falla(r))
+
 export const literal =
   <const L extends readonly (string | number)[]>(...valores: L): Validador<L[number]> =>
   (v, r) =>

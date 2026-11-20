@@ -8,7 +8,7 @@ export function reglaEn(habito: Habito, dia: Dia): Regla & { desde?: Dia; hasta?
   const i = versiones.findIndex((v) => dia <= v.hasta)
   const anterior = versiones[i === -1 ? versiones.length - 1 : i - 1]
   const desde = anterior && sumarDias(anterior.hasta, 1)
-  if (i === -1) return { frecuencia: habito.frecuencia, desde }
+  if (i === -1) return { frecuencia: habito.frecuencia, cuantitativo: habito.cuantitativo, desde }
   return { ...versiones[i], desde }
 }
 
@@ -22,5 +22,6 @@ export function cambiarRegla({ habito, regla, ahora, ajustes }: { habito: Habito
   const inicio = ultima ? sumarDias(ultima.hasta, 1) : habito.fechaInicio
   const cambiado = { ...habito, ...regla }
   if (!actual || actual.desde <= inicio) return cambiado
-  return { ...cambiado, versiones: [...(habito.versiones ?? []), { frecuencia: habito.frecuencia, hasta: sumarDias(actual.desde, -1) }] }
+  const anterior = { frecuencia: habito.frecuencia, ...(habito.cuantitativo && { cuantitativo: habito.cuantitativo }) }
+  return { ...cambiado, versiones: [...(habito.versiones ?? []), { ...anterior, hasta: sumarDias(actual.desde, -1) }] }
 }

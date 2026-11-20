@@ -2,6 +2,7 @@ import { Sparkles } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
+import { BotonExportarIcs } from '@/components/Recordatorios'
 import { Button } from '@/components/ui/button'
 import { db, useAjustes } from '@/db'
 import {
@@ -79,6 +80,8 @@ function VentanaDiagnostico({
   const ref = useRef<HTMLDialogElement>(null)
   const id = useId()
   const [ley, setLey] = useState<Ley>()
+  // El .ics se descarga sin cerrar la ventana (su botón anuncia el resultado); se guarda al cerrar con «Listo».
+  const [exportado, setExportado] = useState(false)
 
   // Modal nativo: atrapa el foco y cierra con Escape (sin cambiar nada). Al desmontarse sale
   // solo de la capa superior; no se cierra a mano para no disparar `onClose` y borrar el aviso.
@@ -115,7 +118,6 @@ function VentanaDiagnostico({
       case 'archivar':
         await db.habitos.update(habito.id, { archivado: true })
         return cerrar(t('diagnostico.archivado'))
-      // Ticket 16: case 'exportar_ics'.
       default:
         return cerrar(t('diagnostico.gracias'))
     }
@@ -166,17 +168,23 @@ function VentanaDiagnostico({
             <ul aria-label={t('diagnostico.acciones.titulo')} className="space-y-2">
               {ACCIONES_DIAGNOSTICO[ley].map((accion, i) => (
                 <li key={accion}>
-                  <Button className={LARGO} variant={i === 0 ? 'default' : 'secondary'} autoFocus={i === 0} onClick={() => aplicar(accion)}>
-                    {t(`diagnostico.acciones.${accion}`, { dias: DIAS_PAUSA })}
-                  </Button>
+                  {accion === 'exportar_ics' ? (
+                    <div onClickCapture={() => setExportado(true)}>
+                      <BotonExportarIcs />
+                    </div>
+                  ) : (
+                    <Button className={LARGO} variant={i === 0 ? 'default' : 'secondary'} autoFocus={i === 0} onClick={() => aplicar(accion)}>
+                      {t(`diagnostico.acciones.${accion}`, { dias: DIAS_PAUSA })}
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
             <div className="flex flex-col gap-2 border-t pt-4">
-              <Button variant="ghost" onClick={() => aplicar()}>
-                {t('diagnostico.soloApuntar')}
+              <Button variant="ghost" onClick={() => aplicar(exportado ? 'exportar_ics' : undefined)}>
+                {t(exportado ? 'diagnostico.listo' : 'diagnostico.soloApuntar')}
               </Button>
-              <Button variant="ghost" onClick={() => setLey(undefined)}>
+              <Button variant="ghost" onClick={() => (setLey(undefined), setExportado(false))}>
                 {t('diagnostico.otraCausa')}
               </Button>
             </div>
