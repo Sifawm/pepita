@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { conId, db } from '@/db'
 import { anotar, recaer, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
-import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
+import { cn, fechaDia, nombreIdentidad, textoFrase } from '@/lib/utils'
 
 /** Calibración: lo que hay que mantener pulsado para la versión completa. Afínalo con el uso real. */
 const PULSACION_LARGA_MS = 500
@@ -118,6 +118,7 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
             {habito.versionMinima && !hecho && (
               <span className="block break-words">{t('hoy.minima', { texto: habito.versionMinima })}</span>
             )}
+            {tarjeta.frase && <span className="block break-words first-letter:uppercase">{textoFrase(tarjeta.frase, t)}</span>}
             <span className="block text-sm text-muted-foreground">
               {nombreIdentidad(identidad, t)}
               {contador && ` · ${contador}`}
@@ -149,6 +150,21 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
           <Ellipsis aria-hidden />
         </button>
       </div>
+
+      {!hecho && (habito.entorno || habito.recompensaAsociada) && (
+        <div className="space-y-1 px-1 text-sm text-muted-foreground">
+          {habito.entorno && (
+            <p className="break-words">
+              <span className="font-semibold">{t('intencion.entorno')}</span> {habito.entorno.join(' · ')}
+            </p>
+          )}
+          {habito.recompensaAsociada && (
+            <p className="break-words">
+              <span className="font-semibold">{t('intencion.recompensa')}</span> {habito.recompensaAsociada}
+            </p>
+          )}
+        </div>
+      )}
 
       {panel === 'menu' && (
         // Alternativa accesible a la pulsación larga: todas las acciones como botones.

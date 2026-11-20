@@ -5,6 +5,7 @@ export { evaluarHabito, type EstadoPeriodo, type EvaluacionHabito, type Periodo,
 export { editarHabito, nuevoHabito, type CamposHabito, type DatosHabito } from './habito'
 export { anotar, componerHoy, recaer, saltar, toque, type AccionToque, type Hoy, type TarjetaHoy } from './hoy'
 export { activarPausaGlobal, pausaGlobalEn, pausarHabito, reanudarHabito, terminarPausaGlobal } from './pausa'
+export { anclasPosibles, fraseIntencion, type FraseIntencion } from './intencion'
 export { cambiarRegla } from './versiones'
 export { calendarioHabito, type DiaCalendario, type MesCalendario } from './historial'
 export { HITOS, moverIdentidad, nuevaIdentidad, resumirIdentidades, type ResumenIdentidad } from './identidad'

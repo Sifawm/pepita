@@ -1,7 +1,7 @@
 // Exportación e importación de copias JSON. La importación es una frontera de confianza:
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
 import { HITOS } from './identidad'
-import type { AnotacionDeFallo, Ajustes, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
+import type { Ajustes, AnotacionDeFallo, Cuando, Datos, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -84,6 +84,16 @@ const versiones: Validador<VersionRegla[]> = (v, r) => {
   return vs
 }
 
+/** Uno solo de los tres disparadores. Un ancla que ya no existe vale: el hábito queda «sin hora». */
+const cuando: Validador<Cuando> = (v, r) => {
+  const c = typeof v === 'object' && v !== null ? v : {}
+  if ('hora' in c) return objeto<{ hora: string }>({ hora })(v, r)
+  if ('despuesDeHabitoId' in c) return objeto<{ despuesDeHabitoId: string }>({ despuesDeHabitoId: id })(v, r)
+  return objeto<{ despuesDeAccion: string }>({ despuesDeAccion: conPatron(/\S/) })(v, r)
+}
+
+const intencion = objeto<Intencion>({ cuando: opcional(cuando), donde: opcional(conPatron(/\S/)) })
+
 const habito: Validador<Habito> = (v, r) => {
   const h = objeto<Habito>({
     ...entidad,
@@ -93,12 +103,15 @@ const habito: Validador<Habito> = (v, r) => {
     frecuencia,
     versionMinima: opcional(texto),
     versionCompleta: opcional(texto),
-    leyesInversas: opcional(objeto<LeyesInversas>({ senal: opcional(texto), friccion: opcional(texto), sustituto: opcional(texto) })),
     fechaInicio: dia,
     archivado: booleano,
     orden: entero(0),
     pausas: opcional(lista(pausa)),
     versiones: opcional(versiones),
+    intencion: opcional(intencion),
+    entorno: opcional(lista(texto)),
+    recompensaAsociada: opcional(texto),
+    leyesInversas: opcional(objeto<LeyesInversas>({ senal: opcional(texto), friccion: opcional(texto), sustituto: opcional(texto) })),
   })(v, r)
   if (h.leyesInversas !== undefined && h.tipo !== 'evitar') throw new Invalido(`${r}.leyesInversas`)
   return h

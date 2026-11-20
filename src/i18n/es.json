@@ -148,6 +148,34 @@
       "versionCompleta": "Versión completa",
       "versionCompletaEjemplo": "Por ejemplo: leer 30 minutos"
     },
+    "intencion": {
+      "titulo": "¿Cuándo y dónde?",
+      "ayuda": "Decidir cuándo y dónde lo harás hace que empezar no dependa de las ganas.",
+      "cuando": "Cuándo",
+      "sinDecidir": "Sin decidir",
+      "cuandoHora": "A una hora",
+      "cuandoHabito": "Después de otro hábito",
+      "cuandoAccion": "Después de algo que ya haces",
+      "hora": "Hora",
+      "habito": "Hábito",
+      "elige": "Elige un hábito",
+      "accion": "Qué haces justo antes",
+      "accionEjemplo": "Por ejemplo: servirme el café",
+      "donde": "Dónde",
+      "dondeEjemplo": "Por ejemplo: en la cocina",
+      "vistaPrevia": "Tu intención"
+    },
+    "entorno": {
+      "titulo": "Prepara tu entorno",
+      "ayuda": "Deja a la vista lo que necesitas. Cuanto menos cueste empezar, mejor.",
+      "lista": "Una cosa por línea",
+      "ejemplo": "Por ejemplo: dejar el libro en la almohada"
+    },
+    "recompensa": {
+      "titulo": "Recompensa asociada",
+      "ayuda": "Junta el hábito con algo que te guste y te apetecerá más.",
+      "ejemplo": "Por ejemplo: solo escucho mi podcast mientras camino"
+    },
     "tipo": {
       "titulo": "¿Quieres construir un hábito o romper uno?",
       "ayuda": "Para romper un hábito, el método se da la vuelta: hazlo invisible, poco atractivo, difícil e insatisfactorio.",
@@ -275,6 +303,14 @@
     "nota": "Nota",
     "guardar": "Guardar",
     "guardada": "Apuntado. Gracias por contarlo."
+  },
+  "intencion": {
+    "hora": "a las {{hora}}",
+    "despuesDe": "después de «{{nombre}}»",
+    "despuesDeAccion": "después de {{texto}}",
+    "frase": "{{contexto}}: {{que}}",
+    "entorno": "Prepara tu entorno:",
+    "recompensa": "Recompensa:"
   },
   "grafico": {
     "datos": "Ver los datos"

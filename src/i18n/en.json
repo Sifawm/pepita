@@ -148,6 +148,34 @@
       "versionCompleta": "Full version",
       "versionCompletaEjemplo": "For example: read for 30 minutes"
     },
+    "intencion": {
+      "titulo": "When and where?",
+      "ayuda": "Deciding when and where you will do it means starting doesn’t depend on feeling like it.",
+      "cuando": "When",
+      "sinDecidir": "Not decided",
+      "cuandoHora": "At a set time",
+      "cuandoHabito": "After another habit",
+      "cuandoAccion": "After something you already do",
+      "hora": "Time",
+      "habito": "Habit",
+      "elige": "Choose a habit",
+      "accion": "What you do right before",
+      "accionEjemplo": "For example: pouring my coffee",
+      "donde": "Where",
+      "dondeEjemplo": "For example: in the kitchen",
+      "vistaPrevia": "Your intention"
+    },
+    "entorno": {
+      "titulo": "Set up your space",
+      "ayuda": "Keep what you need in sight. The easier it is to start, the better.",
+      "lista": "One thing per line",
+      "ejemplo": "For example: leave the book on the pillow"
+    },
+    "recompensa": {
+      "titulo": "Paired reward",
+      "ayuda": "Pair the habit with something you enjoy and you’ll look forward to it.",
+      "ejemplo": "For example: I only listen to my podcast while walking"
+    },
     "tipo": {
       "titulo": "Do you want to build a habit or break one?",
       "ayuda": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
@@ -275,6 +303,14 @@
     "nota": "Note",
     "guardar": "Save",
     "guardada": "Noted. Thanks for sharing."
+  },
+  "intencion": {
+    "hora": "at {{hora}}",
+    "despuesDe": "after “{{nombre}}”",
+    "despuesDeAccion": "after {{texto}}",
+    "frase": "{{contexto}}: {{que}}",
+    "entorno": "Set up your space:",
+    "recompensa": "Reward:"
   },
   "grafico": {
     "datos": "Show the data"
