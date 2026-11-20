@@ -31,3 +31,20 @@ export function textoFrase({ cuando, donde, que }: FraseIntencion, t: TFunction)
         : t('intencion.despuesDeAccion', { texto: cuando.despuesDeAccion }))
   return t('intencion.frase', { contexto: [inicio, donde].filter(Boolean).join(', '), que })
 }
+
+/** Descarga un fichero generado en el navegador. */
+export function descargar(nombre: string, partes: BlobPart[], tipo: string) {
+  const url = URL.createObjectURL(new Blob(partes, { type: tipo }))
+  const a = document.createElement('a')
+  a.href = url
+  a.download = nombre
+  a.click()
+  // Safari necesita la URL viva un rato después del clic.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000)
+}
+
+/** La frase como título suelto (notificación, calendario): con mayúscula inicial. */
+export const tituloFrase = (frase: FraseIntencion, t: TFunction) => {
+  const texto = textoFrase(frase, t)
+  return texto.charAt(0).toLocaleUpperCase() + texto.slice(1)
+}

@@ -4,7 +4,7 @@ import { AJUSTES_POR_DEFECTO, exportar, importar, necesitaCopia, registrosCsv, t
 const ahora = new Date('2026-05-10T18:30:00.000Z')
 
 const datos: Datos = {
-  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
+  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', notificaciones: true, pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
   identidades: [
     { id: 'g', creadoEn: '2026-05-01T08:00:00.000Z', nombre: '', esGeneral: true, archivada: false, orden: 0 },
     { id: 'lectora', creadoEn: '2026-05-01T08:01:00.000Z', nombre: 'Soy lectora', esGeneral: false, archivada: true, orden: 1 },

@@ -17,6 +17,8 @@ export interface Ajustes {
   pausaGlobal?: Pausa
   /** Instante de la última copia JSON exportada (o la de la copia importada). */
   ultimaCopia?: Instante
+  /** Avisos del navegador mientras la app está abierta. Falta = desactivados. */
+  notificaciones?: boolean
 }
 
 export const AJUSTES_POR_DEFECTO: Ajustes = { horaCierre: '04:00' }

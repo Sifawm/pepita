@@ -60,7 +60,7 @@ const pausa: Validador<Pausa> = (v, r) => {
   return p
 }
 
-const ajustes = objeto<Ajustes>({ horaCierre: hora, ultimaCopia: opcional(instante), pausaGlobal: opcional(pausa) })
+const ajustes = objeto<Ajustes>({ horaCierre: hora, ultimaCopia: opcional(instante), pausaGlobal: opcional(pausa), notificaciones: opcional(booleano) })
 
 const identidad = objeto<Identidad>({
   ...entidad,

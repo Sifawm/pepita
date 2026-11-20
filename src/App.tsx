@@ -1,6 +1,7 @@
 import { Settings } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes } from 'react-router'
+import { Avisos } from '@/components/Recordatorios'
 import { buttonVariants } from '@/components/ui/button'
 import Ajustes from '@/pantallas/Ajustes'
 import Archivados from '@/pantallas/Archivados'
@@ -14,6 +15,7 @@ export default function App() {
   const { t } = useTranslation()
   return (
     <HashRouter>
+      <Avisos />
       <a
         href="#principal"
         onClick={(e) => {

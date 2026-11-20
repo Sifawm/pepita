@@ -367,5 +367,18 @@
       "saltado": "Saltado",
       "pausado": "En pausa"
     }
+  },
+  "recordatorios": {
+    "titulo": "Recordatorios",
+    "intro": "Lleva tus hábitos con hora al calendario del móvil: te avisará aunque Pepita esté cerrada.",
+    "exportar": "Exportar recordatorios (.ics)",
+    "exportarAyuda": "Salen los hábitos con hora, cada uno con su alarma. Los que van después de otro aparecen en su descripción.",
+    "exportados": "Listo. Abre el fichero para añadirlo a tu calendario.",
+    "ninguno": "Aún no tienes hábitos con hora. Cuando le pongas una a alguno en «Cuándo», saldrá aquí.",
+    "notificaciones": "Avisarme mientras Pepita está abierta",
+    "notificacionesAyuda": "Te avisamos a la hora de cada hábito que te quede hoy. Solo funciona con la app abierta.",
+    "bloqueadas": "Tu navegador no deja a Pepita avisarte. Si te apetece, puedes permitirlo en sus ajustes.",
+    "noDisponibles": "Este navegador no admite avisos. El calendario (.ics) sí te servirá.",
+    "despues": "Y después: {{lista}}"
   }
 }

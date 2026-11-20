@@ -367,5 +367,18 @@
       "saltado": "Skipped",
       "pausado": "Paused"
     }
+  },
+  "recordatorios": {
+    "titulo": "Reminders",
+    "intro": "Bring your timed habits to your phone's calendar: it will remind you even when Pepita is closed.",
+    "exportar": "Export reminders (.ics)",
+    "exportarAyuda": "Habits with a time are included, each with its alarm. Habits that come after another one appear in its description.",
+    "exportados": "Done. Open the file to add it to your calendar.",
+    "ninguno": "You don't have habits with a time yet. Once you give one a time under “When”, it will show up here.",
+    "notificaciones": "Remind me while Pepita is open",
+    "notificacionesAyuda": "We'll nudge you at the time of each habit still left for today. Only works while the app is open.",
+    "bloqueadas": "Your browser doesn't let Pepita notify you. If you like, you can allow it in its settings.",
+    "noDisponibles": "This browser doesn't support notifications. The calendar file (.ics) will still work.",
+    "despues": "And then: {{lista}}"
   }
 }

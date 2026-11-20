@@ -4,16 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { guardarAjustes, leerDatos, sustituirDatos, useAjustes } from '@/db'
 import { diaLogico, exportar, importar, registrosCsv, type Datos, type ErrorImportacion } from '@/dominio'
-
-function descargar(nombre: string, partes: BlobPart[], tipo: string) {
-  const url = URL.createObjectURL(new Blob(partes, { type: tipo }))
-  const a = document.createElement('a')
-  a.href = url
-  a.download = nombre
-  a.click()
-  // Safari necesita la URL viva un rato después del clic.
-  setTimeout(() => URL.revokeObjectURL(url), 60_000)
-}
+import { descargar } from '@/lib/utils'
 
 /** `AAAA-MM-DD` local para el nombre del fichero. */
 const hoyLocal = (ahora: Date) => diaLogico(ahora, '00:00')
