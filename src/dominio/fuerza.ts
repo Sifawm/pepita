@@ -11,6 +11,9 @@ export interface PuntoFuerza {
 
 const DIAS_PERIODO = { dia: 1, semana: 7, mes: 30 }
 
+/** Calibración (la de Loop Habit Tracker): cuanto mayor, más despacio sube y baja la fuerza. */
+const SUAVIZADO_FUERZA = 13
+
 /** La ventana que mira cada día (sus días) y cuántas veces pide en ella; `f = veces / dias`. */
 function ventana(habito: Habito, { frecuencia: f, cuantitativo: c }: Regla) {
   if (habito.tipo === 'evitar') return { dias: 1, veces: 1 }
@@ -30,7 +33,7 @@ function cumplimiento(habito: Habito, { cuantitativo: c }: Regla, veces: number,
 }
 
 /**
- * Fuerza día a día desde `fechaInicio` hasta hoy (fórmula de Loop): `m = 0,5^(√f/13)` y cada día
+ * Fuerza día a día desde `fechaInicio` hasta hoy (fórmula de Loop): `m = 0,5^(√f/SUAVIZADO_FUERZA)` y cada día
  * `fuerza = fuerza·m + v·(1 − m)`, con `v` el cumplimiento en la ventana del periodo que acaba ese día.
  * Perdona los fallos aislados.
  */
@@ -49,7 +52,7 @@ export function serieFuerza(habito: Habito, registros: Registro[], periodos: Per
     if (estado !== 'saltado' && estado !== 'pausado' && !(alCerrar && estado === 'en_curso')) {
       const { dias, veces } = ventana(habito, regla)
       const dentro = Array.from({ length: dias }, (_, d) => porDia.get(sumarDias(dia, -d)) ?? []).flat()
-      const m = 0.5 ** (Math.sqrt(veces / dias) / 13)
+      const m = 0.5 ** (Math.sqrt(veces / dias) / SUAVIZADO_FUERZA)
       const nuevo = valor * m + cumplimiento(habito, regla, veces, dentro) * (1 - m)
       // Un periodo aún abierto puede subirla, pero no bajarla: falta tiempo para cumplir.
       if (estado !== 'en_curso' || nuevo > valor) valor = nuevo

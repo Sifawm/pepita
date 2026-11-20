@@ -64,6 +64,12 @@ describe('escalado: qué propone subir', () => {
     expect(sugerencia(cadaDia('2026-01-01', '2026-03-01', 'minima'), ahora)).toEqual({ tipo: 'subir', predomina: 'minima' })
   })
 
+  it('lo que predomina se mira en las últimas 3 semanas, no en toda la historia', () => {
+    // 37 días de mínima y luego 23 de completa: en total gana la mínima, pero lo reciente es completa.
+    const registros = [...cadaDia('2026-01-01', '2026-02-06', 'minima'), ...cadaDia('2026-02-07', '2026-03-01', 'completa')]
+    expect(sugerencia(registros, ahora)).toEqual({ tipo: 'subir', predomina: 'completa' })
+  })
+
   it('si predomina la completa en un sí/no, propone subir el objetivo o la frecuencia (se elige en el asistente)', () => {
     expect(sugerencia(cadaDia('2026-01-01', '2026-03-01', 'completa'), ahora)).toEqual({ tipo: 'subir', predomina: 'completa' })
   })
@@ -165,15 +171,26 @@ describe('escalado: una sugerencia descartada no vuelve hasta pasados 21 días',
     expect(sugerencias(registros, local(2026, 3, 22), sugerenciasDescartadas)).toMatchObject({ tipo: 'subir' })
   })
 
-  it('bajar se atiende una vez por diagnóstico: descartada, no vuelve hasta que otro diagnóstico la pida', () => {
-    const d = (id: string, periodoQueLoDisparo: string): Diagnostico => ({ id, creadoEn: '2026-03-04T09:00:00.000Z', habitoId: 'h', periodoQueLoDisparo, estado: 'respondido', ley: 3 })
+  it('bajar, descartada el 4 de marzo, no sale hasta el 25 (sigue valiendo el mismo diagnóstico)', () => {
+    const d: Diagnostico = { id: 'a', creadoEn: '2026-03-04T09:00:00.000Z', habitoId: 'h', periodoQueLoDisparo: '2026-03-03', estado: 'respondido', ley: 3 }
     const sugerenciasDescartadas = [descartada('bajar', local(2026, 3, 4))]
-    const con = (diagnosticos: Diagnostico[], ahora: Date) => sugerencia([], ahora, { diagnosticos, sugerenciasDescartadas })
-    expect(con([d('a', '2026-03-03')], local(2026, 3, 4))).toBeUndefined()
-    expect(con([d('a', '2026-03-03')], local(2026, 4, 30))).toBeUndefined()
-    // Otra ruptura con la misma causa: se respetan los 21 días y luego vuelve a sugerirse.
-    expect(con([d('a', '2026-03-03'), d('b', '2026-03-20')], local(2026, 3, 24))).toBeUndefined()
-    expect(con([d('a', '2026-03-03'), d('b', '2026-03-20')], local(2026, 3, 25))).toEqual({ tipo: 'bajar' })
+    const con = (ahora: Date) => sugerencia([], ahora, { diagnosticos: [d], sugerenciasDescartadas })
+    expect(con(local(2026, 3, 4))).toBeUndefined()
+    expect(con(local(2026, 3, 24))).toBeUndefined()
+    expect(con(local(2026, 3, 25))).toEqual({ tipo: 'bajar' })
+  })
+
+  it('bajar aplicada (la regla cambió tras el diagnóstico) no vuelve a proponer otro recorte', () => {
+    const d: Diagnostico = { id: 'a', creadoEn: '2026-03-04T09:00:00.000Z', habitoId: 'h', periodoQueLoDisparo: '2026-03-03', estado: 'respondido', ley: 3 }
+    const paginas: Habito = {
+      ...leer,
+      tipo: 'cuantitativo',
+      cuantitativo: { unidad: 'páginas', objetivo: 5, modo: 'al_menos' },
+      // Objetivo 20 (mínimo 5) hasta el 3 de marzo; desde el 4, el mínimo pasó a ser el objetivo.
+      versiones: [{ hasta: '2026-03-03', frecuencia: leer.frecuencia, cuantitativo: { unidad: 'páginas', objetivo: 20, objetivoMinimo: 5, modo: 'al_menos' } }],
+    }
+    const sugerenciasDescartadas = [descartada('bajar', local(2026, 3, 4))]
+    expect(sugerencia([], local(2026, 4, 30), { habito: paginas, diagnosticos: [d], sugerenciasDescartadas })).toBeUndefined()
   })
 
   function sugerencias(registros: Registro[], ahora: Date, sugerenciasDescartadas: SugerenciaDescartada[]) {

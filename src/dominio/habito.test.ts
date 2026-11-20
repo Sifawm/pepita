@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AJUSTES_POR_DEFECTO, editarHabito, nuevoHabito, type Habito } from '.'
+import { AJUSTES_POR_DEFECTO, editarHabito, nuevoHabito, siguienteOrden, type Habito } from '.'
 
 const ajustes = AJUSTES_POR_DEFECTO
 const ahora = new Date(2026, 2, 15, 9)
@@ -66,5 +66,13 @@ describe('asistente: editar un hábito', () => {
   it('editar otros campos días después no crea una versión de la regla', () => {
     const viernes = new Date(2026, 2, 20, 9)
     expect(editarHabito(leer, { ...leer, nombre: 'Leer más' }, viernes, ajustes)).not.toHaveProperty('versiones')
+  })
+})
+
+describe('orden de un hábito nuevo', () => {
+  it('va detrás del último, aunque se hayan borrado otros antes (contar repetiría un orden)', () => {
+    expect(siguienteOrden([])).toBe(0)
+    // Había 0, 1 y 2; se borró el 1.
+    expect(siguienteOrden([{ orden: 0 }, { orden: 2 }])).toBe(3)
   })
 })

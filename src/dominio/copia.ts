@@ -3,7 +3,7 @@
 import { diaDeLaSemana } from './calendario'
 import { ACCIONES_DIAGNOSTICO } from './diagnostico'
 import { HITOS } from './identidad'
-import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, RevisionSemanal, SugerenciaDescartada, VersionRegla } from './tipos'
+import { IDIOMAS, type AccionDiagnostico, type Ajustes, type AnotacionDeFallo, type Cuando, type Cuantitativo, type Datos, type DiaSemana, type Diagnostico, type Frecuencia, type Habito, type HitoCelebrado, type Identidad, type Instante, type Intencion, type LeyesInversas, type Pausa, type Registro, type RevisionSemanal, type SugerenciaDescartada, type TipoHabito, type TipoRegistro, type VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -63,7 +63,7 @@ const pausa: Validador<Pausa> = (v, r) => {
   return p
 }
 
-const ajustes = objeto<Ajustes>({ horaCierre: hora, ultimaCopia: opcional(instante), pausaGlobal: opcional(pausa), notificaciones: opcional(booleano) })
+const ajustes = objeto<Ajustes>({ idioma: opcional(literal(...IDIOMAS)), horaCierre: hora, ultimaCopia: opcional(instante), pausaGlobal: opcional(pausa), notificaciones: opcional(booleano) })
 
 const identidad = objeto<Identidad>({
   ...entidad,
@@ -73,9 +73,16 @@ const identidad = objeto<Identidad>({
   orden: entero(0),
 })
 
+/** Al menos un día, sin repetir (un día repetido pediría dos veces lo mismo). */
+const diasSemana: Validador<DiaSemana[]> = (v, r) => {
+  const dias = lista(literal(1, 2, 3, 4, 5, 6, 7))(v, r)
+  if (!dias.length || new Set(dias).size !== dias.length) throw new Invalido(r)
+  return dias
+}
+
 const frecuencia = segunTipo<Frecuencia>({
   veces_por_periodo: objeto({ tipo: literal('veces_por_periodo'), veces: entero(1), periodo: literal('dia', 'semana', 'mes') }),
-  dias_semana: objeto({ tipo: literal('dias_semana'), dias: lista(literal(1, 2, 3, 4, 5, 6, 7)) }),
+  dias_semana: objeto({ tipo: literal('dias_semana'), dias: diasSemana }),
 })
 
 /** El objetivo mínimo solo existe en «al menos» y queda por debajo del objetivo. */
@@ -207,67 +214,69 @@ const copia = objeto<Copia>({
 
 // --- Integridad entre tablas: ids únicos, referencias que existen y una sola «General» ---
 
+/** Qué registros admite cada tipo de hábito (saltar vale en todos). */
+const REGISTROS_DE: Record<TipoHabito, TipoRegistro[]> = {
+  si_no: ['minima', 'completa', 'salto'],
+  cuantitativo: ['valor', 'salto'],
+  evitar: ['recaida', 'salto'],
+}
+
+/** Rechaza la primera fila cuya `clave` ya salió antes (`campo` es lo que señala la ruta). Devuelve las claves. */
+function unicas<T>(tabla: string, filas: T[], campo: string, clave: (f: T) => string) {
+  const vistas = new Set<string>()
+  filas.forEach((f, i) => {
+    if (vistas.has(clave(f))) throw new Invalido(`datos.${tabla}[${i}].${campo}`)
+    vistas.add(clave(f))
+  })
+  return vistas
+}
+
 function comprobarReferencias(d: Datos) {
-  const ids = (tabla: string, filas: { id: string }[]) => {
-    const vistos = new Set<string>()
-    filas.forEach((f, i) => {
-      if (vistos.has(f.id)) throw new Invalido(`datos.${tabla}[${i}].id`)
-      vistos.add(f.id)
-    })
-    return vistos
-  }
+  const ids = (tabla: string, filas: { id: string }[]) => unicas(tabla, filas, 'id', (f) => f.id)
   const identidades = ids('identidades', d.identidades)
-  const habitos = ids('habitos', d.habitos)
+  ids('habitos', d.habitos)
   ids('registros', d.registros)
   ids('anotacionesDeFallo', d.anotacionesDeFallo)
   ids('hitosCelebrados', d.hitosCelebrados)
   ids('diagnosticos', d.diagnosticos)
   ids('sugerenciasDescartadas', d.sugerenciasDescartadas)
   ids('revisionesSemanales', d.revisionesSemanales)
+  const habitos = new Map(d.habitos.map((h) => [h.id, h]))
+  const existe = (tabla: string, filas: { habitoId: string }[]) =>
+    filas.forEach((f, i) => {
+      if (!habitos.has(f.habitoId)) throw new Invalido(`datos.${tabla}[${i}].habitoId`)
+    })
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
     if (!identidades.has(h.identidadId)) throw new Invalido(`datos.habitos[${i}].identidadId`)
   })
+  existe('registros', d.registros)
   d.registros.forEach((r, i) => {
-    if (!habitos.has(r.habitoId)) throw new Invalido(`datos.registros[${i}].habitoId`)
+    if (!REGISTROS_DE[habitos.get(r.habitoId)!.tipo].includes(r.tipo)) throw new Invalido(`datos.registros[${i}].tipo`)
   })
-  const fallos = new Set<string>()
-  d.anotacionesDeFallo.forEach((a, i) => {
-    if (!habitos.has(a.habitoId)) throw new Invalido(`datos.anotacionesDeFallo[${i}].habitoId`)
-    if (fallos.has(`${a.habitoId} ${a.periodo}`)) throw new Invalido(`datos.anotacionesDeFallo[${i}].periodo`)
-    fallos.add(`${a.habitoId} ${a.periodo}`)
-  })
-  const hitos = new Set<string>()
+  existe('anotacionesDeFallo', d.anotacionesDeFallo)
+  unicas('anotacionesDeFallo', d.anotacionesDeFallo, 'periodo', (a) => `${a.habitoId} ${a.periodo}`)
   d.hitosCelebrados.forEach((h, i) => {
     if (!identidades.has(h.identidadId)) throw new Invalido(`datos.hitosCelebrados[${i}].identidadId`)
-    if (hitos.has(`${h.identidadId} ${h.umbral}`)) throw new Invalido(`datos.hitosCelebrados[${i}].umbral`)
-    hitos.add(`${h.identidadId} ${h.umbral}`)
   })
-  const rupturas = new Set<string>()
-  d.diagnosticos.forEach((x, i) => {
-    if (!habitos.has(x.habitoId)) throw new Invalido(`datos.diagnosticos[${i}].habitoId`)
-    if (rupturas.has(`${x.habitoId} ${x.periodoQueLoDisparo}`)) throw new Invalido(`datos.diagnosticos[${i}].periodoQueLoDisparo`)
-    rupturas.add(`${x.habitoId} ${x.periodoQueLoDisparo}`)
-  })
-  d.sugerenciasDescartadas.forEach((s, i) => {
-    if (!habitos.has(s.habitoId)) throw new Invalido(`datos.sugerenciasDescartadas[${i}].habitoId`)
-  })
-  const semanas = new Set<string>()
-  d.revisionesSemanales.forEach((x, i) => {
-    if (semanas.has(x.semana)) throw new Invalido(`datos.revisionesSemanales[${i}].semana`)
-    semanas.add(x.semana)
-  })
+  unicas('hitosCelebrados', d.hitosCelebrados, 'umbral', (h) => `${h.identidadId} ${h.umbral}`)
+  existe('diagnosticos', d.diagnosticos)
+  unicas('diagnosticos', d.diagnosticos, 'periodoQueLoDisparo', (x) => `${x.habitoId} ${x.periodoQueLoDisparo}`)
+  existe('sugerenciasDescartadas', d.sugerenciasDescartadas)
+  unicas('revisionesSemanales', d.revisionesSemanales, 'semana', (x) => x.semana)
 }
 
-/** Serializa todos los datos. La copia se anota a sí misma como `ultimaCopia`. */
+/** Lo que queda en los ajustes al exportar una copia en `ahora` (y lo que la copia lleva dentro). */
+export const marcaDeCopia = (ahora: Date): Pick<Ajustes, 'ultimaCopia'> => ({ ultimaCopia: ahora.toISOString() })
+
+/** Serializa todos los datos. La copia se anota a sí misma como `ultimaCopia` (`marcaDeCopia`). */
 export function exportar(d: Datos, ahora: Date): string {
-  const exportadoEn = ahora.toISOString()
   const resultado: Copia = {
     app: 'pepita',
     versionEsquema: VERSION_ESQUEMA,
-    exportadoEn,
-    datos: { ...d, ajustes: { ...d.ajustes, ultimaCopia: exportadoEn } },
+    exportadoEn: ahora.toISOString(),
+    datos: { ...d, ajustes: { ...d.ajustes, ...marcaDeCopia(ahora) } },
   }
   return JSON.stringify(resultado, null, 2)
 }

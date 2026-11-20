@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   ACCIONES_DIAGNOSTICO,
   AJUSTES_POR_DEFECTO,
+  anotacionDeFallo,
+  DIAS_PAUSA_DIAGNOSTICO,
+  pausaDeDiagnostico,
   diagnosticosPendientes,
   reconciliarDiagnosticos,
   responderDiagnostico,
@@ -62,9 +65,27 @@ describe('diagnóstico: se abre tras dos fallos seguidos', () => {
     expect(reconciliar(ds, hechos(2), local(2026, 3, 7, 12))).toEqual(ds)
   })
 
-  it('una ruptura antigua, ya superada, no abre uno nuevo (p. ej. tras corregir el pasado)', () => {
-    // Días 3 y 4 sin hacer, pero del 5 al 9 hecho: hoy (día 10) no hay nada que preguntar.
-    expect(reconciliar([], hechos(2, 5, 6, 7, 8, 9), local(2026, 3, 10, 12))).toEqual([])
+  it('existe aunque se registre antes de recalcular: abrir la app y hacer el hábito no lo esquiva', () => {
+    // Días 3 y 4 sin hacer; el 5 abre la app y lo hace antes de que nada recalcule.
+    expect(reconciliar([], hechos(2, 5), local(2026, 3, 5, 12))).toMatchObject([
+      { periodoQueLoDisparo: '2026-03-04', estado: 'pendiente' },
+    ])
+  })
+
+  it('una ruptura que aparece al corregir el pasado también abre uno, aunque ya esté superada', () => {
+    // Todo hecho del 2 al 9; luego resulta que el 3 y el 4 no los hizo.
+    const ds = reconciliar([], hechos(2, 3, 4, 5, 6, 7, 8, 9), local(2026, 3, 10, 12))
+    expect(ds).toEqual([])
+    expect(reconciliar(ds, hechos(2, 5, 6, 7, 8, 9), local(2026, 3, 10, 12))).toMatchObject([
+      { periodoQueLoDisparo: '2026-03-04', estado: 'pendiente' },
+    ])
+  })
+
+  it('una ruptura más antigua que la última no se pregunta: solo la última tiene diagnóstico abierto', () => {
+    // Rupturas el 4 y el 7 (la del 7 ya respondida); corregir el pasado no reabre la del 4.
+    const respondido = reconciliar([], hechos(2, 5), local(2026, 3, 8, 12)).map((d) => responderDiagnostico(d, { estado: 'respondido', ley: 1 }))
+    expect(respondido).toMatchObject([{ periodoQueLoDisparo: '2026-03-07' }])
+    expect(reconciliar(respondido, hechos(2, 5), local(2026, 3, 8, 12))).toEqual(respondido)
   })
 
   it('una nueva ruptura, tras recuperarse, abre otro', () => {
@@ -130,10 +151,36 @@ describe('diagnóstico: estados', () => {
     expect(diagnosticosPendientes({ habitos: [leer, otro], diagnosticos: ds })).toEqual([{ diagnostico: pendiente, habito: leer }])
   })
 
+  it('«pausar» (4ª ley) pausa el hábito una semana desde hoy, sin tocar sus otras pausas', () => {
+    expect(DIAS_PAUSA_DIAGNOSTICO).toBe(7)
+    const conPausa: Habito = { ...leer, pausas: [{ desde: '2026-03-02', hasta: '2026-03-02' }] }
+    // Las 02:00 del día 6 aún son el día lógico 5.
+    expect(pausaDeDiagnostico({ habito: conPausa, ahora: local(2026, 3, 6, 2), ajustes }).pausas).toEqual([
+      { desde: '2026-03-02', hasta: '2026-03-02' },
+      { desde: '2026-03-05', hasta: '2026-03-11' },
+    ])
+  })
+
   it('cada causa ofrece sus acciones', () => {
     expect(ACCIONES_DIAGNOSTICO[1]).toEqual(['editar_intencion', 'exportar_ics'])
     expect(ACCIONES_DIAGNOSTICO[2]).toEqual(['editar_recompensa', 'editar_identidad'])
     expect(ACCIONES_DIAGNOSTICO[3]).toEqual(['solo_minima', 'editar_entorno'])
     expect(ACCIONES_DIAGNOSTICO[4]).toEqual(['ver_votos', 'pausar', 'archivar'])
+  })
+})
+
+describe('motivo de un fallo', () => {
+  it('guarda la ley y la nota recortada', () => {
+    expect(anotacionDeFallo({ habitoId: 'h', periodo: '2026-03-03', ley: 3, nota: '  Agotada ' })).toEqual({
+      habitoId: 'h',
+      periodo: '2026-03-03',
+      ley: 3,
+      nota: 'Agotada',
+    })
+    expect(anotacionDeFallo({ habitoId: 'h', periodo: '2026-03-03', nota: 'Ni idea' })).toEqual({ habitoId: 'h', periodo: '2026-03-03', nota: 'Ni idea' })
+  })
+
+  it('sin ley ni nota no hay nada que guardar (la persistencia borra la que hubiera)', () => {
+    expect(anotacionDeFallo({ habitoId: 'h', periodo: '2026-03-03', nota: '   ' })).toBeUndefined()
   })
 })

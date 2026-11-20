@@ -1,7 +1,8 @@
 import { periodoDe } from './calendario'
+import { diagnosticoAbierto } from './diagnostico'
 import { evaluarHabito } from './evaluacion'
 import { sugerenciasEscalado, type Sugerencia } from './escalado'
-import type { Ajustes, Diagnostico, Dia, Habito, Identidad, Registro, RevisionSemanal, SugerenciaDescartada } from './tipos'
+import type { Ajustes, AnotacionDeFallo, Diagnostico, Dia, Habito, Identidad, Nuevo, Registro, RevisionSemanal, SugerenciaDescartada } from './tipos'
 
 /** Los pasos del método que Pepita recuerda con suavidad si quedaron sin rellenar. */
 export type CampoMetodo = 'identidad' | 'versionMinima' | 'intencion' | 'entorno' | 'recompensa'
@@ -29,6 +30,8 @@ export interface Revision {
   votos: { identidad: Identidad; votos: number }[]
   /** Las notas libres de las semanas del periodo, en orden. */
   notas: RevisionSemanal[]
+  /** Los motivos anotados de los fallos cuyo periodo empieza dentro, en orden (también de hábitos archivados). */
+  fallos: { habito: Habito; anotacion: AnotacionDeFallo }[]
   // Lo que sigue es el estado de hoy (no del periodo): lo que pide atención ahora.
   /** Hábitos activos en recuperación, en su orden. */
   enRecuperacion: Habito[]
@@ -52,6 +55,7 @@ export function revision({
   diagnosticos,
   sugerenciasDescartadas,
   revisionesSemanales,
+  anotacionesDeFallo,
   ahora,
   ajustes,
 }: {
@@ -63,6 +67,7 @@ export function revision({
   diagnosticos: Diagnostico[]
   sugerenciasDescartadas: SugerenciaDescartada[]
   revisionesSemanales: RevisionSemanal[]
+  anotacionesDeFallo: AnotacionDeFallo[]
   ahora: Date
   ajustes: Ajustes
 }): Revision {
@@ -84,10 +89,17 @@ export function revision({
     ...periodo,
     votos,
     notas: revisionesSemanales.filter((r) => dentro(r.semana)).sort((a, b) => a.semana.localeCompare(b.semana)),
+    fallos: anotacionesDeFallo
+      .filter((a) => dentro(a.periodo))
+      .sort((a, b) => a.periodo.localeCompare(b.periodo))
+      .flatMap((anotacion) => {
+        const habito = habitos.find((h) => h.id === anotacion.habitoId)
+        return habito ? [{ habito, anotacion }] : []
+      }),
     enRecuperacion: activos.filter((habito) => evaluarHabito({ habito, registros, ahora, ajustes }).enRecuperacion),
     diagnosticos: activos.flatMap((habito) =>
       diagnosticos
-        .filter((d) => d.habitoId === habito.id && (d.estado === 'pendiente' || d.estado === 'pospuesto'))
+        .filter((d) => d.habitoId === habito.id && diagnosticoAbierto(d))
         .map((diagnostico) => ({ diagnostico, habito })),
     ),
     sugerencias: sugerenciasEscalado({ habitos: activos, registros, diagnosticos, sugerenciasDescartadas, ahora, ajustes }),
@@ -96,4 +108,10 @@ export function revision({
       return campos.length ? [{ habito, campos }] : []
     }),
   }
+}
+
+/** La nota libre de una semana, recortada y en su lunes; sin texto no hay nota (se borra). */
+export function notaSemanal(semana: Dia, nota: string): Nuevo<RevisionSemanal> | undefined {
+  const texto = nota.trim()
+  return texto ? { semana: periodoDe(semana, 'semana').desde, nota: texto } : undefined
 }

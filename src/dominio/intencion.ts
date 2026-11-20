@@ -20,13 +20,16 @@ const horaDe = (habito: Habito, habitos: Habito[]): Hora | undefined =>
     .map((h) => h.intencion?.cuando)
     .find((c): c is { hora: Hora } => !!c && 'hora' in c)?.hora
 
+const SIN_HORA = '99:99'
+
 /**
  * Orden por hora: cada anclado justo debajo de su ancla (si está en la lista; si no, ocupa su
  * hora) y al final los que no tienen hora. Empate: por `orden`. Ordena un grupo cualquiera
  * (Hoy lo aplica dentro de «en recuperación» y del resto).
  */
 export function ordenarPorHora<T extends { habito: Habito }>(tarjetas: T[], habitos: Habito[]): T[] {
-  const clave = (t: T) => horaDe(t.habito, habitos) ?? '99:99'
+  // Sin hora va detrás de cualquier hora (`HH:MM` nunca llega a 99).
+  const clave = (t: T) => horaDe(t.habito, habitos) ?? SIN_HORA
   const porHora = [...tarjetas].sort((a, b) => clave(a).localeCompare(clave(b)) || a.habito.orden - b.habito.orden)
   const hijos = new Map<string, T[]>()
   const raices: T[] = []

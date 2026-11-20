@@ -62,9 +62,10 @@ const utc = (d: Date) => d.toISOString().replace(/[-:]/g, '').slice(0, 15) + 'Z'
 /**
  * Un VEVENT por cada hábito con hora propia, que se repite según su frecuencia y avisa a esa hora.
  * El título es la frase de intención (`texto` la pone en el idioma de la persona).
+ * `eventos`: cuántos lleva (0 = ningún hábito con hora).
  */
 export function recordatoriosIcs({ habitos, ahora, ajustes, texto }: { habitos: Habito[]; ahora: Date; ajustes: Ajustes; texto: TextoFrase }) {
-  const eventos = habitos.flatMap((h) => {
+  const eventos = habitos.map((h) => {
     const hora = horaDe(h)
     if (!hora || !avisa(h)) return []
     const titulo = texto(fraseIntencion(h, habitos)!)
@@ -86,8 +87,8 @@ export function recordatoriosIcs({ habitos, ahora, ajustes, texto }: { habitos: 
       'END:VEVENT',
     ]
   })
-  const lineas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pepita//Pepita//ES', 'CALSCALE:GREGORIAN', ...eventos, 'END:VCALENDAR']
-  return lineas.map(plegar).join('\r\n') + '\r\n'
+  const lineas = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Pepita//Pepita//ES', 'CALSCALE:GREGORIAN', ...eventos.flat(), 'END:VCALENDAR']
+  return { ics: lineas.map(plegar).join('\r\n') + '\r\n', eventos: eventos.filter((e) => e.length).length }
 }
 
 export interface Aviso {

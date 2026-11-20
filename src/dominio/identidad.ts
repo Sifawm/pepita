@@ -2,10 +2,12 @@ import { diaLogico } from './calendario'
 import { evaluarHabito } from './evaluacion'
 import type { Ajustes, Dia, Habito, HitoCelebrado, Identidad, Nuevo, Registro } from './tipos'
 
+/** El `orden` de algo nuevo (identidad o hábito): detrás del último, archivados incluidos. */
+export const siguienteOrden = (filas: { orden: number }[]) => Math.max(-1, ...filas.map((f) => f.orden)) + 1
+
 /** Una identidad nueva («Soy una persona que…»), al final de la lista. */
 export function nuevaIdentidad(nombre: string, identidades: Identidad[]): Nuevo<Identidad> {
-  const orden = Math.max(-1, ...identidades.map((i) => i.orden)) + 1
-  return { nombre: nombre.trim(), esGeneral: false, archivada: false, orden }
+  return { nombre: nombre.trim(), esGeneral: false, archivada: false, orden: siguienteOrden(identidades) }
 }
 
 /**

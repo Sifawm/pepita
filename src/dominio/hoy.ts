@@ -154,23 +154,26 @@ export function anotar(registro: Registro, texto: string): Registro {
   return anotado
 }
 
-/** Saltar el periodo en curso: un registro neutro en el día lógico, con motivo si lo hay. */
-export function saltar({ habito, motivo, ahora, ajustes }: Contexto & { habito: Habito; motivo?: string }): Nuevo<Registro> {
+/**
+ * Saltar un periodo: un registro neutro, con motivo si lo hay. En el día lógico (el periodo en
+ * curso) o en `dia` (corregir el pasado desde el calendario).
+ */
+export function saltar({ habito, motivo, dia, ahora, ajustes }: Contexto & { habito: Habito; motivo?: string; dia?: Dia }): Nuevo<Registro> {
   const texto = motivo?.trim()
   return {
     habitoId: habito.id,
-    dia: diaLogico(ahora, ajustes.horaCierre),
+    dia: dia ?? diaLogico(ahora, ajustes.horaCierre),
     tipo: 'salto',
     ...(texto ? { motivo: texto } : {}),
   }
 }
 
-/** «He recaído» (hábito a evitar): un registro en el día lógico, con su disparador si lo hay. */
-export function recaer({ habito, disparador, ahora, ajustes }: Contexto & { habito: Habito; disparador?: string }): Nuevo<Registro> {
+/** «He recaído» (hábito a evitar): un registro en el día lógico (o en `dia`, desde el calendario), con su disparador si lo hay. */
+export function recaer({ habito, disparador, dia, ahora, ajustes }: Contexto & { habito: Habito; disparador?: string; dia?: Dia }): Nuevo<Registro> {
   const texto = disparador?.trim()
   return {
     habitoId: habito.id,
-    dia: diaLogico(ahora, ajustes.horaCierre),
+    dia: dia ?? diaLogico(ahora, ajustes.horaCierre),
     tipo: 'recaida',
     ...(texto ? { disparador: texto } : {}),
   }

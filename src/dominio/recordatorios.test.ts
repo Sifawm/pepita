@@ -18,7 +18,7 @@ const texto = ({ cuando, donde, que }: FraseIntencion) =>
     .filter(Boolean)
     .join(', ')
 
-const ics = (habitos: Habito[], a = ajustes) => recordatoriosIcs({ habitos, ahora, ajustes: a, texto })
+const ics = (habitos: Habito[], a = ajustes) => recordatoriosIcs({ habitos, ahora, ajustes: a, texto }).ics
 
 /** Lector mínimo de iCalendar (RFC 5545) para comprobar el fichero desde fuera. */
 function leer(fichero: string) {
@@ -135,6 +135,12 @@ describe('recordatorios en .ics', () => {
 
   it('sin hábitos con hora: un calendario válido y vacío', () => {
     expect(leer(ics([habito('libre')])).eventos).toEqual([])
+  })
+
+  it('dice cuántos avisos lleva (la interfaz avisa si no hay ninguno)', () => {
+    const contar = (habitos: Habito[]) => recordatoriosIcs({ habitos, ahora, ajustes, texto }).eventos
+    expect(contar([habito('libre')])).toBe(0)
+    expect(contar([habito('meditar', { cuando: { hora: '07:30' } }), habito('cena', { cuando: { hora: '21:00' } })])).toBe(2)
   })
 
   it('textos largos, con tildes, emojis y signos reservados: se pliegan a 75 octetos y se escapan sin perder nada', () => {

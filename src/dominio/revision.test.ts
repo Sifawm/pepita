@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AJUSTES_POR_DEFECTO, revision, sumarDias, type Diagnostico, type Habito, type Identidad, type Registro } from '.'
+import { AJUSTES_POR_DEFECTO, notaSemanal, revision, sumarDias, type AnotacionDeFallo, type Diagnostico, type Habito, type Identidad, type Registro } from '.'
 
 const ajustes = AJUSTES_POR_DEFECTO
 // Lunes 16 a domingo 22 de noviembre de 2026; «ahora» es el jueves 19.
@@ -41,7 +41,7 @@ const registro = (habitoId: string, dia: string, extra: Partial<Registro> = {}):
   ...extra,
 })
 
-const sinMas = { diagnosticos: [], sugerenciasDescartadas: [], revisionesSemanales: [], ahora, ajustes }
+const sinMas = { diagnosticos: [], sugerenciasDescartadas: [], revisionesSemanales: [], anotacionesDeFallo: [], ahora, ajustes }
 
 describe('votos de la semana', () => {
   it('suma por identidad solo los votos de lunes a domingo de la semana pedida', () => {
@@ -172,5 +172,46 @@ describe('campos del método vacíos', () => {
       ['paginas', ['versionMinima']],
       ['tele', ['identidad']],
     ])
+  })
+})
+
+describe('motivos de los fallos anotados', () => {
+  const anotacion = (id: string, habitoId: string, periodo: string, extra: Partial<AnotacionDeFallo> = {}): AnotacionDeFallo => ({
+    id,
+    creadoEn: `${periodo}T22:00:00.000Z`,
+    habitoId,
+    periodo,
+    ...extra,
+  })
+
+  it('reúne los de los periodos de la semana, en orden, con su hábito (también si está archivado)', () => {
+    const leer = habito('leer', 'general')
+    const viejo = habito('viejo', 'general', { archivado: true, orden: 1 })
+    const r = revision({
+      ...sinMas,
+      desde: '2026-11-19',
+      identidades: [general],
+      habitos: [leer, viejo],
+      registros: [],
+      anotacionesDeFallo: [
+        anotacion('a', 'leer', '2026-11-18', { nota: 'Muy cansada' }),
+        anotacion('b', 'viejo', '2026-11-16', { ley: 3 }),
+        anotacion('c', 'leer', '2026-11-15', { ley: 1 }), // domingo anterior: fuera
+      ],
+    })
+    expect(r.fallos.map((f) => [f.habito.id, f.anotacion.id])).toEqual([
+      ['viejo', 'b'],
+      ['leer', 'a'],
+    ])
+  })
+})
+
+describe('nota libre de la semana', () => {
+  it('se guarda recortada y en el lunes de su semana', () => {
+    expect(notaSemanal('2026-11-19', '  Buena semana \n')).toEqual({ semana: '2026-11-16', nota: 'Buena semana' })
+  })
+
+  it('sin texto no hay nota (la persistencia la borra)', () => {
+    expect(notaSemanal('2026-11-16', '   ')).toBeUndefined()
   })
 })

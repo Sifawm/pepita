@@ -3,6 +3,7 @@ import {
   activarPausaGlobal,
   AJUSTES_POR_DEFECTO,
   componerHoy,
+  evaluarHabito,
   nuevoHabito,
   anotar,
   pausarHabito,
@@ -209,6 +210,13 @@ describe('Hoy con saltos y pausas', () => {
       dia: '2026-03-15',
       tipo: 'salto',
     })
+  })
+
+  it('saltar un periodo pasado (desde el calendario): ese fallo pasa a ser neutro', () => {
+    const salto = saltar({ habito: leer, dia: '2026-03-12', ahora: local(2026, 3, 15, 9), ajustes })
+    expect(salto).toEqual({ habitoId: 'leer', dia: '2026-03-12', tipo: 'salto' })
+    const { periodos } = evaluarHabito({ habito: leer, registros: [{ ...salto, id: 's', creadoEn: '2026-03-15T09:00:00.000Z' }], ahora: local(2026, 3, 15, 9), ajustes })
+    expect(periodos.find((p) => p.desde === '2026-03-12')?.estado).toBe('saltado')
   })
 
   it('un hábito saltado sigue en Hoy, con su salto para poder deshacerlo, y no suma votos', () => {

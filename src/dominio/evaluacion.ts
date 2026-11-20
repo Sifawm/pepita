@@ -61,6 +61,12 @@ function periodoQueContiene(dia: Dia, frecuencia: Frecuencia, habito: Habito) {
   return { ...periodoDe(dia, frecuencia.periodo), pide: frecuencia.veces }
 }
 
+/** «Nunca falles dos veces»: el fallo seguido que rompe la racha (y abre el diagnóstico). */
+const FALLOS_RUPTURA = 2
+
+/** La unidad del periodo de una frecuencia: los días concretos son periodos de un día. */
+export const unidadDePeriodo = (f: Frecuencia) => (f.tipo === 'veces_por_periodo' ? f.periodo : 'dia')
+
 /** Los registros que cuentan como hecho (y como voto): un salto no. */
 export const esVoto = (r: Registro) => r.tipo === 'minima' || r.tipo === 'completa'
 
@@ -189,7 +195,7 @@ function racha(periodos: Periodo[]) {
     if (estaCumplido(p)) {
       fallosSeguidos = 0
       mejor = Math.max(mejor, ++actual)
-    } else if (p.estado === 'fallido' && ++fallosSeguidos === 2) {
+    } else if (p.estado === 'fallido' && ++fallosSeguidos === FALLOS_RUPTURA) {
       actual = 0
       rupturas.push(p)
     }

@@ -11,7 +11,13 @@ export interface Pausa {
   hasta: Dia
 }
 
+/** Los idiomas de Pepita. */
+export const IDIOMAS = ['es', 'en'] as const
+export type CodigoIdioma = (typeof IDIOMAS)[number]
+
 export interface Ajustes {
+  /** Falta mientras no se elija: se propone el del navegador. Va en la copia, así se conserva al restaurar. */
+  idioma?: CodigoIdioma
   horaCierre: Hora
   /** «Vacaciones»: pausa todos los hábitos. Deja de aplicar sola después de `hasta`. */
   pausaGlobal?: Pausa

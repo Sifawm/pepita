@@ -1,6 +1,6 @@
 import { diaLogico, sumarDias } from './calendario'
-import { evaluarHabito } from './evaluacion'
-import type { Ajustes, Diagnostico, Habito, Nuevo, Registro, Regla, SugerenciaDescartada, TipoSugerencia } from './tipos'
+import { evaluarHabito, type EstadoPeriodo } from './evaluacion'
+import type { Ajustes, Diagnostico, Habito, Ley, Nuevo, Registro, Regla, SugerenciaDescartada, TipoSugerencia } from './tipos'
 
 // Calibración (Ricitos de Oro): ajustables.
 /** Fuerza a partir de la cual el hábito está asentado (un diario perfecto la alcanza hacia los 30 días). */
@@ -13,8 +13,11 @@ export const DIAS_SILENCIO_SUGERENCIA = 21
 /** Cuánto se mueve el objetivo de un cuantitativo al proponer un cambio (un 20 %, redondeado a entero). */
 export const PASO_OBJETIVO = 0.2
 
+/** La 3ª ley («hazlo fácil»): su diagnóstico, «era difícil», sugiere bajar el listón. */
+const LEY_FACIL: Ley = 3
+
 /**
- * `predomina`: qué versión se cumplió más (empate = completa). Con la mínima, el texto anima a hacer más
+ * `predomina`: qué versión se cumplió más en los últimos `DIAS_FUERZA_ALTA` días (empate = completa). Con la mínima, el texto anima a hacer más
  * a menudo la completa; con la completa, a subir el objetivo o la frecuencia.
  * `propuesta`: la regla nueva que se ofrece confirmar (solo cuantitativos; sin ella, se ajusta en el asistente).
  */
@@ -58,23 +61,26 @@ export function sugerenciaEscalado({
   const hoy = diaLogico(ahora, ajustes.horaCierre)
   const silencios = sugerenciasDescartadas.filter((s) => s.habitoId === habito.id)
   const callada = (tipo: TipoSugerencia) => silencios.some((s) => s.tipo === tipo && s.hasta >= hoy)
-  const { fuerza, proporcion } = evaluarHabito({ habito, registros, ahora, ajustes })
+  const { fuerza, periodos } = evaluarHabito({ habito, registros, ahora, ajustes })
   const ultimos = fuerza.slice(-DIAS_FUERZA_ALTA)
   // Al evitar no hay listón que subir: el día limpio ya es todo.
   if (habito.tipo !== 'evitar' && ultimos.length === DIAS_FUERZA_ALTA && ultimos.every((p) => p.valor >= UMBRAL_FUERZA_ALTA)) {
     // Con fuerza alta no tiene sentido bajar, aunque subir esté descartada.
     if (callada('subir')) return undefined
-    if (proporcion.minima > proporcion.completa) return { tipo: 'subir', predomina: 'minima' }
+    // Lo reciente, no toda la historia: la misma ventana en la que la fuerza fue alta.
+    const recientes = periodos.filter((p) => p.hasta >= ultimos[0].dia)
+    const cuantos = (estado: EstadoPeriodo) => recientes.filter((p) => p.estado === estado).length
+    if (cuantos('cumplido_minima') > cuantos('cumplido_completa')) return { tipo: 'subir', predomina: 'minima' }
     const propuesta = moverObjetivo(habito, 1)
     return { tipo: 'subir', predomina: 'completa', ...(propuesta && { propuesta }) }
   }
   const ultimo = diagnosticos
     .filter((d) => d.habitoId === habito.id)
     .reduce<Diagnostico | undefined>((a, d) => (!a || d.periodoQueLoDisparo > a.periodoQueLoDisparo ? d : a), undefined)
-  if (ultimo?.estado !== 'respondido' || ultimo.ley !== 3 || callada('bajar')) return undefined
-  // Una vez por diagnóstico: atendida después de él, no vuelve aunque pasen los 21 días.
-  const atendida = silencios.some((s) => s.tipo === 'bajar' && diaLogico(new Date(s.creadoEn), ajustes.horaCierre) >= ultimo.periodoQueLoDisparo)
-  if (atendida) return undefined
+  if (ultimo?.estado !== 'respondido' || ultimo.ley !== LEY_FACIL || callada('bajar')) return undefined
+  // Si la regla ya cambió después de la ruptura, el hábito ya se ajustó: no se propone otro recorte.
+  // Si no, descartada vuelve pasados los 21 días, mientras ese diagnóstico siga siendo el último.
+  if (habito.versiones?.some((v) => v.hasta >= ultimo.periodoQueLoDisparo)) return undefined
   const propuesta = bajar(habito)
   return { tipo: 'bajar', ...(propuesta && { propuesta }) }
 }

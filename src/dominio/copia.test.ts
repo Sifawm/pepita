@@ -4,7 +4,7 @@ import { AJUSTES_POR_DEFECTO, exportar, importar, necesitaCopia, registrosCsv, t
 const ahora = new Date('2026-05-10T18:30:00.000Z')
 
 const datos: Datos = {
-  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', notificaciones: true, pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
+  ajustes: { ...AJUSTES_POR_DEFECTO, horaCierre: '03:00', idioma: 'es', notificaciones: true, pausaGlobal: { desde: '2026-05-08', hasta: '2026-05-15' } },
   identidades: [
     { id: 'g', creadoEn: '2026-05-01T08:00:00.000Z', nombre: '', esGeneral: true, archivada: false, orden: 0 },
     { id: 'lectora', creadoEn: '2026-05-01T08:01:00.000Z', nombre: 'Soy lectora', esGeneral: false, archivada: true, orden: 1 },
@@ -213,6 +213,13 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una nota semanal vacía', con((c) => (c.datos.revisionesSemanales[0].nota = '  ')), { motivo: 'invalido', ruta: 'datos.revisionesSemanales[0].nota' }],
     ['dos notas de la misma semana', con((c) => (c.datos.revisionesSemanales[1].semana = '2026-04-27')), { motivo: 'invalido', ruta: 'datos.revisionesSemanales[1].semana' }],
     ['dos notas con el mismo id', con((c) => (c.datos.revisionesSemanales[1].id = 'w1')), { motivo: 'invalido', ruta: 'datos.revisionesSemanales[1].id' }],
+    ['una recaída en un hábito sí/no', con((c) => (c.datos.registros[0].tipo = 'recaida')), { motivo: 'invalido', ruta: 'datos.registros[0].tipo' }],
+    ['un valor en un hábito sí/no', con((c) => ((c.datos.registros[0].tipo = 'valor'), (c.datos.registros[0].valor = 2))), { motivo: 'invalido', ruta: 'datos.registros[0].tipo' }],
+    ['una mínima en un hábito a evitar', con((c) => ((c.datos.registros[3].tipo = 'minima'), delete c.datos.registros[3].disparador)), { motivo: 'invalido', ruta: 'datos.registros[3].tipo' }],
+    ['una mínima en un cuantitativo', con((c) => ((c.datos.registros[5].tipo = 'minima'), delete c.datos.registros[5].valor)), { motivo: 'invalido', ruta: 'datos.registros[5].tipo' }],
+    ['días de la semana vacíos', con((c) => (c.datos.habitos[2].frecuencia.dias = [])), { motivo: 'invalido', ruta: 'datos.habitos[2].frecuencia.dias' }],
+    ['un día de la semana repetido', con((c) => (c.datos.habitos[2].frecuencia.dias = [2, 2])), { motivo: 'invalido', ruta: 'datos.habitos[2].frecuencia.dias' }],
+    ['un idioma que Pepita no habla', con((c) => (c.datos.ajustes.idioma = 'fr')), { motivo: 'invalido', ruta: 'datos.ajustes.idioma' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

@@ -28,6 +28,18 @@ export const pausarHabito = (habito: Habito, pausa: Pausa): Habito => ({
   pausas: [...(habito.pausas ?? []), pausa],
 })
 
+/**
+ * Calibración: lo que dura la pausa de un toque que ofrece el diagnóstico de la 4ª ley. El
+ * spec no fija la duración; una semana da aire sin que el hábito se olvide. Afínalo con el uso.
+ */
+export const DIAS_PAUSA_DIAGNOSTICO = 7
+
+/** «Pausar» desde el diagnóstico: `DIAS_PAUSA_DIAGNOSTICO` días a partir de hoy (incluido). */
+export function pausaDeDiagnostico({ habito, ahora, ajustes }: Contexto & { habito: Habito }): Habito {
+  const hoy = diaLogico(ahora, ajustes.horaCierre)
+  return pausarHabito(habito, { desde: hoy, hasta: sumarDias(hoy, DIAS_PAUSA_DIAGNOSTICO - 1) })
+}
+
 /** Reanudar hoy: la pausa en curso acaba ayer; las pasadas y las futuras se quedan. */
 export function reanudarHabito(habito: Habito, ahora: Date, ajustes: Ajustes): Habito {
   const hoy = diaLogico(ahora, ajustes.horaCierre)

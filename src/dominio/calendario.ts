@@ -24,6 +24,16 @@ export function diaLogico(instante: Date, horaCierre: Hora): Dia {
   return formatearDia(desplazado)
 }
 
+/**
+ * El próximo instante en que cambia el día lógico: ahí se cierran los periodos de hoy (y con
+ * ellos pueden aparecer fallos y diagnósticos). Sirve para volver a evaluar con la app abierta.
+ */
+export function proximoCierre(ahora: Date, horaCierre: Hora): Date {
+  const [h, min] = horaCierre.split(':').map(Number)
+  const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), h, min)
+  return hoy > ahora ? hoy : new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate() + 1, h, min)
+}
+
 // Aritmética de días sobre `AAAA-MM-DD` en UTC: sin husos ni cambios de hora.
 const aFecha = (dia: Dia) => {
   const [a, m, d] = dia.split('-').map(Number)
