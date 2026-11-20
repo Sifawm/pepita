@@ -7,10 +7,9 @@ import { Button } from '@/components/ui/button'
 import { db, useAjustes } from '@/db'
 import {
   ACCIONES_DIAGNOSTICO,
-  diaLogico,
-  pausarHabito,
+  DIAS_PAUSA_DIAGNOSTICO,
+  pausaDeDiagnostico,
   responderDiagnostico,
-  sumarDias,
   type AccionDiagnostico,
   type Diagnostico,
   type Habito,
@@ -19,8 +18,6 @@ import {
 } from '@/dominio'
 import { fechaDia } from '@/lib/utils'
 
-/** Calibración: lo que dura la pausa de un toque que ofrece la 4ª ley. */
-const DIAS_PAUSA = 7
 const LEYES: Ley[] = [1, 2, 3, 4]
 const LARGO = 'h-auto w-full whitespace-normal py-2 text-left'
 
@@ -112,10 +109,9 @@ function VentanaDiagnostico({
       case 'ver_votos':
         return navigate(`/identidades/${habito.identidadId}`)
       case 'pausar': {
-        const hoy = diaLogico(new Date(), ajustes.horaCierre)
-        const hasta = sumarDias(hoy, DIAS_PAUSA - 1)
-        await db.habitos.put(pausarHabito(habito, { desde: hoy, hasta }))
-        return cerrar(t('pausas.pausadoAviso', { fecha: fechaDia(hasta, i18n.language) }))
+        const pausado = pausaDeDiagnostico({ habito, ahora: new Date(), ajustes })
+        await db.habitos.put(pausado)
+        return cerrar(t('pausas.pausadoAviso', { fecha: fechaDia(pausado.pausas!.at(-1)!.hasta, i18n.language) }))
       }
       case 'archivar':
         await db.habitos.update(habito.id, { archivado: true })
@@ -176,7 +172,7 @@ function VentanaDiagnostico({
                     </div>
                   ) : (
                     <Button className={LARGO} variant={i === 0 ? 'default' : 'secondary'} autoFocus={i === 0} onClick={() => aplicar(accion)}>
-                      {t(`diagnostico.acciones.${accion}`, { dias: DIAS_PAUSA })}
+                      {t(`diagnostico.acciones.${accion}`, { dias: DIAS_PAUSA_DIAGNOSTICO })}
                     </Button>
                   )}
                 </li>

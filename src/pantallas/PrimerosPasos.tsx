@@ -5,24 +5,24 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { conId, db, useAjustes } from '@/db'
-import { nuevaIdentidad, nuevoHabito, toque, type Habito, type Identidad, type Registro } from '@/dominio'
+import { conId, db, guardarAjustes, useAjustes } from '@/db'
+import { nuevaIdentidad, nuevoHabito, siguienteOrden, toque, type CodigoIdioma, type Habito, type Identidad, type Registro } from '@/dominio'
 import { esIos, instalada, instalar, useAvisoInstalacion, usePersistente } from '@/lib/instalacion'
 import { cn } from '@/lib/utils'
 import { Asistente } from '@/pantallas/AsistenteHabito'
 
 /** Los idiomas se nombran en su propia lengua. */
-const IDIOMAS = { es: 'Español', en: 'English' } as const
+const IDIOMAS: Record<CodigoIdioma, string> = { es: 'Español', en: 'English' }
 
 type Etapa = 'idioma' | 'identidad' | 'habito' | 'registrar' | 'instalar'
 
 /**
  * Primeros pasos: idioma → identidad → un hábito → registrarlo hoy → instalar y proteger los datos.
  * Hoy trae aquí cuando no hay datos (`necesitaPrimerosPasos`); Ajustes permite repetirlos.
- * Nada se guarda hasta crear el hábito: si se abandona antes, vuelven a aparecer.
+ * Nada se guarda hasta crear el hábito (salvo el idioma elegido): si se abandona antes, vuelven a aparecer.
  */
 export default function PrimerosPasos() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const ajustes = useAjustes()
   const datos = useLiveQuery(async () => {
@@ -53,11 +53,13 @@ export default function PrimerosPasos() {
             const propia = nueva.nombre ? conId<Identidad>(nueva) : undefined
             if (propia) await db.identidades.add(propia)
             const h = conId<Habito>(
-              nuevoHabito({ ...b, identidadId: propia?.id ?? general.id, orden: await db.habitos.count() }, new Date(), ajustes),
+              nuevoHabito({ ...b, identidadId: propia?.id ?? general.id, orden: siguienteOrden(await db.habitos.toArray()) }, new Date(), ajustes),
             )
             await db.habitos.add(h)
             setHabito(h)
           })
+          // Seguir sin tocar el idioma acepta el propuesto: queda guardado en Ajustes (y en la copia).
+          await guardarAjustes({ idioma: i18n.resolvedLanguage as CodigoIdioma })
         }}
         alTerminar={() => setEtapa('registrar')}
       />
@@ -195,8 +197,10 @@ function Etapa({
   )
 }
 
-/** Propone el idioma del navegador (lo detecta i18next) y cambia toda la app al elegir. */
-/** Elegir idioma. También en Ajustes: se puede cambiar en cualquier momento. */
+/**
+ * Elegir idioma: propone el del navegador (lo detecta i18next) y, al elegir, cambia toda la app y
+ * lo guarda en Ajustes. También en Ajustes: se puede cambiar en cualquier momento.
+ */
 export function Idioma({ leyenda }: { leyenda?: string }) {
   const { t, i18n } = useTranslation()
   return (
@@ -213,7 +217,7 @@ export function Idioma({ leyenda }: { leyenda?: string }) {
             name="idioma"
             value={codigo}
             checked={i18n.resolvedLanguage === codigo}
-            onChange={() => i18n.changeLanguage(codigo)}
+            onChange={() => (void i18n.changeLanguage(codigo), void guardarAjustes({ idioma: codigo as CodigoIdioma }))}
             className="size-5 accent-primary outline-none"
           />
           {nombre}

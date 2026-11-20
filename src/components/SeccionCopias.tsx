@@ -3,7 +3,7 @@ import { useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { guardarAjustes, leerDatos, sustituirDatos, useAjustes } from '@/db'
-import { diaLogico, exportar, importar, registrosCsv, type Datos, type ErrorImportacion } from '@/dominio'
+import { diaLogico, exportar, importar, marcaDeCopia, registrosCsv, type Datos, type ErrorImportacion } from '@/dominio'
 import { usePersistente } from '@/lib/instalacion'
 import { descargar } from '@/lib/utils'
 
@@ -22,7 +22,8 @@ export default function SeccionCopias() {
   const exportarJson = async () => {
     const ahora = new Date()
     descargar(`pepita-${hoyLocal(ahora)}.json`, [exportar(await leerDatos(), ahora)], 'application/json')
-    await guardarAjustes({ ultimaCopia: ahora.toISOString() })
+    // La misma marca que lleva el fichero.
+    await guardarAjustes(marcaDeCopia(ahora))
     setAviso(t('copias.exportada'))
   }
 

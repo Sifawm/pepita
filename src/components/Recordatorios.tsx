@@ -3,23 +3,18 @@ import { CalendarPlus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import { db, guardarAjustes, useAjustes } from '@/db'
-import { AJUSTES_POR_DEFECTO, avisosDeHoy, recordatoriosIcs } from '@/dominio'
+import { db, guardarAjustes, leerAjustes, useAjustes } from '@/db'
+import { avisosDeHoy, recordatoriosIcs } from '@/dominio'
 import { descargar, tituloFrase } from '@/lib/utils'
 
 /** Descarga el .ics de todos los recordatorios. Devuelve si había alguno. */
 function useExportarIcs() {
   const { t } = useTranslation()
   return async () => {
-    const [habitos, ajustes] = await Promise.all([db.habitos.toArray(), db.ajustes.get('ajustes')])
-    const ics = recordatoriosIcs({
-      habitos,
-      ahora: new Date(),
-      ajustes: { ...AJUSTES_POR_DEFECTO, ...ajustes },
-      texto: (f) => tituloFrase(f, t),
-    })
+    const [habitos, ajustes] = await Promise.all([db.habitos.toArray(), leerAjustes()])
+    const { ics, eventos } = recordatoriosIcs({ habitos, ahora: new Date(), ajustes, texto: (f) => tituloFrase(f, t) })
     descargar('pepita-recordatorios.ics', [ics], 'text/calendar;charset=utf-8')
-    return ics.includes('BEGIN:VEVENT')
+    return eventos > 0
   }
 }
 

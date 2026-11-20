@@ -16,6 +16,7 @@ import {
   editarHabito,
   fraseIntencion,
   nuevoHabito,
+  siguienteOrden,
   type CamposHabito,
   type Cuando,
   type Habito,
@@ -136,7 +137,7 @@ export default function AsistenteHabito() {
       guardar={async ({ senal, friccion, sustituto, ...resto }) => {
         const b = { ...resto, leyesInversas: { senal, friccion, sustituto } }
         if (habito) await db.habitos.put(editarHabito(habito, b, new Date(), ajustes))
-        else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: await db.habitos.count() }, new Date(), ajustes)))
+        else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: siguienteOrden(await db.habitos.toArray()) }, new Date(), ajustes)))
       }}
     />
   )

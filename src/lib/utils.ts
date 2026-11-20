@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from 'clsx'
 import type { TFunction } from 'i18next'
 import { twMerge } from 'tailwind-merge'
-import type { Dia, FraseIntencion, Habito, Identidad, Periodo } from '@/dominio'
+import { unidadDePeriodo, type Dia, type FraseIntencion, type Habito, type Identidad, type Periodo } from '@/dominio'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -25,7 +25,7 @@ export const progresoCuantitativo = ({ cuantitativo: c, frecuencia: f }: Habito,
     hechos: n(periodo.hechos),
     objetivo: n(c.objetivo),
     unidad: c.unidad,
-    periodo: t(`cuantitativo.periodo.${f.tipo === 'veces_por_periodo' ? f.periodo : 'dia'}`),
+    periodo: t(`cuantitativo.periodo.${unidadDePeriodo(f)}`),
   })
 }
 

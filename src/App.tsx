@@ -1,9 +1,12 @@
+import { liveQuery } from 'dexie'
 import { Settings } from 'lucide-react'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes } from 'react-router'
 import { Avisos } from '@/components/Recordatorios'
 import { buttonVariants } from '@/components/ui/button'
-import { useDiagnosticosAlDia } from '@/db'
+import { db, leerAjustes, reconciliarDiagnosticosGuardados, useAjustes } from '@/db'
+import { proximoCierre } from '@/dominio'
 import Ajustes from '@/pantallas/Ajustes'
 import Archivados from '@/pantallas/Archivados'
 import AsistenteHabito from '@/pantallas/AsistenteHabito'
@@ -14,9 +17,48 @@ import Identidades from '@/pantallas/Identidades'
 import PrimerosPasos from '@/pantallas/PrimerosPasos'
 import Revision from '@/pantallas/Revision'
 
+/**
+ * Mantiene los diagnósticos al día mientras la app está abierta: tras cada cambio de hábitos,
+ * registros o ajustes (también al corregir el pasado o importar), al volver a la app y en cada
+ * cierre del día lógico (ahí se cierran periodos y pueden aparecer rupturas).
+ */
+function useDiagnosticosAlDia() {
+  useEffect(() => {
+    let vivo = true
+    let cierre: ReturnType<typeof setTimeout> | undefined
+    const revisar = async () => {
+      const ahora = new Date()
+      await reconciliarDiagnosticosGuardados(ahora)
+      const { horaCierre } = await leerAjustes()
+      clearTimeout(cierre)
+      // Un segundo de margen: justo al cierre ya es el día nuevo.
+      if (vivo) cierre = setTimeout(revisar, proximoCierre(ahora, horaCierre).getTime() - ahora.getTime() + 1000)
+    }
+    const cambios = liveQuery(() => Promise.all([db.habitos.toArray(), db.registros.toArray(), db.ajustes.toArray()])).subscribe(() => void revisar())
+    const alVolver = () => document.visibilityState === 'visible' && void revisar()
+    document.addEventListener('visibilitychange', alVolver)
+    return () => {
+      vivo = false
+      clearTimeout(cierre)
+      cambios.unsubscribe()
+      document.removeEventListener('visibilitychange', alVolver)
+    }
+  }, [])
+}
+
+/** El idioma guardado en Ajustes manda (también tras importar una copia); sin él, el del navegador. */
+function useIdiomaGuardado() {
+  const { i18n } = useTranslation()
+  const idioma = useAjustes()?.idioma
+  useEffect(() => {
+    if (idioma && idioma !== i18n.resolvedLanguage) void i18n.changeLanguage(idioma)
+  }, [idioma, i18n])
+}
+
 export default function App() {
   const { t } = useTranslation()
   useDiagnosticosAlDia()
+  useIdiomaGuardado()
   return (
     <HashRouter>
       <Avisos />

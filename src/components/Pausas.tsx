@@ -13,6 +13,7 @@ import {
   reanudarHabito,
   saltar,
   terminarPausaGlobal,
+  unidadDePeriodo,
   type Ajustes,
   type Registro,
   type TarjetaHoy,
@@ -31,8 +32,7 @@ export function SaltarYPausar({ tarjeta, ajustes, hecho }: { tarjeta: TarjetaHoy
   const [desde, setDesde] = useState(hoy)
   const [hasta, setHasta] = useState(hoy)
   const id = useId()
-  const f = habito.frecuencia
-  const unidad = f.tipo === 'veces_por_periodo' ? f.periodo : 'dia'
+  const unidad = unidadDePeriodo(habito.frecuencia)
   const pausaPropia = pausa && habito.pausas?.includes(pausa)
 
   const alSaltar = async (e: FormEvent) => {
