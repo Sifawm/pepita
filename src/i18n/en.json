@@ -113,7 +113,11 @@
     "que_dias": "Which days",
     "lleva_dia": "{{hechos}} of {{pide}} today",
     "lleva_semana": "{{hechos}} of {{pide}} this week",
-    "lleva_mes": "{{hechos}} of {{pide}} this month"
+    "lleva_mes": "{{hechos}} of {{pide}} this month",
+    "cada_periodo": "Every day, week or month",
+    "cada_dia": "every day",
+    "cada_semana": "every week",
+    "cada_mes": "every month"
   },
   "ajustes": {
     "titulo": "Settings",
@@ -170,6 +174,16 @@
       "titulo": "Who are you voting for with this habit?",
       "ayuda": "Every time you do it, you cast a vote for the person you want to be."
     },
+    "tipo": {
+      "titulo": "What kind of habit is it?",
+      "ayuda": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
+      "si_no": "Do something",
+      "si_noAyuda": "You check it off when you do it.",
+      "cuantitativo": "Count an amount",
+      "cuantitativoAyuda": "At least 20 pages, or at most 2 coffees. You add up what you do.",
+      "evitar": "Avoid something",
+      "evitarAyuda": "You only log a slip. Every clean day adds a vote once it closes."
+    },
     "frecuencia": {
       "titulo": "How often?",
       "ayuda": "It doesn’t have to be daily. Pick a pace you can keep."
@@ -209,6 +223,21 @@
       "titulo": "Paired reward",
       "ayuda": "Pair the habit with something you enjoy and you’ll look forward to it.",
       "ejemplo": "For example: I only listen to my podcast while walking"
+    },
+    "senal": {
+      "titulo": "Which cue will you remove from sight?",
+      "ayuda": "Make it invisible: what you don’t see barely tempts you.",
+      "ejemplo": "For example: leave the phone outside the bedroom"
+    },
+    "friccion": {
+      "titulo": "What friction will you add?",
+      "ayuda": "Make it difficult: the more steps, the less you’ll want to.",
+      "ejemplo": "For example: log out of the app"
+    },
+    "sustituto": {
+      "titulo": "What will you do instead?",
+      "ayuda": "A habit doesn’t just vanish: it helps to have something else at hand.",
+      "ejemplo": "For example: read one page"
     }
   },
   "habito": {
@@ -244,7 +273,8 @@
     "tipo": {
       "minima": "Minimum version",
       "completa": "Full version",
-      "salto": "Skip"
+      "salto": "Skip",
+      "recaida": "Slip"
     },
     "pasarA": {
       "minima": "It was the minimum",
@@ -352,5 +382,61 @@
     "celebracionIdentidad": "Look how many times you voted for “{{identidad}}”. That person is already you.",
     "verCurva": "See your curve",
     "cerrar": "Close"
+  },
+  "cuantitativo": {
+    "modo": "What are you after?",
+    "modos": {
+      "al_menos": "Reaching at least a goal",
+      "como_mucho": "Staying under a limit"
+    },
+    "objetivo": "Amount",
+    "unidad": "Unit",
+    "unidadEjemplo": "For example: pages",
+    "objetivoMinimo": "Minimum goal (optional)",
+    "objetivoMinimoAyuda": "Your minimum version: a small amount that still earns a vote on hard days.",
+    "periodo": {
+      "dia": "today",
+      "semana": "this week",
+      "mes": "this month"
+    },
+    "lleva": {
+      "al_menos": "{{hechos}} of {{objetivo}} {{unidad}} {{periodo}}",
+      "como_mucho": "{{hechos}} {{unidad}} {{periodo}} (at most {{objetivo}})"
+    },
+    "estado": {
+      "completa": "Goal reached · +1 vote",
+      "minima": "Minimum reached · +1 vote",
+      "pendiente": "Add what you do, even a little",
+      "dentro": "Going well: your vote comes when the period closes",
+      "pasado": "Over this time. The next period starts fresh"
+    },
+    "sumar": "Add {{unidad}}",
+    "sumarCorto": "Add",
+    "sumarBoton": "Add to “{{nombre}}”"
+  },
+  "evitar": {
+    "limpio": "Clean day so far",
+    "recaido": "Slip logged. Tomorrow is another day",
+    "heRecaido": "I slipped",
+    "ayuda": "It happens to everyone. Logging it helps you see what sets it off.",
+    "disparador": "What set it off? (optional)",
+    "disparadorEjemplo": "For example: boredom after dinner",
+    "anotar": "Log slip",
+    "anotada": "Logged. One slip doesn’t erase how far you’ve come.",
+    "deshacer": "Undo today’s slip",
+    "deshecha": "Slip undone.",
+    "anadir": "Log a slip",
+    "sustituto": "Instead: {{texto}}",
+    "senal": "Cue removed: {{texto}}",
+    "friccion": "Friction: {{texto}}",
+    "estado": {
+      "cumplido_completa": "Clean day",
+      "cumplido_minima": "Clean day",
+      "fallido": "Slip",
+      "en_curso": "In progress",
+      "no_programado": "Not scheduled",
+      "saltado": "Skipped",
+      "pausado": "Paused"
+    }
   }
 }

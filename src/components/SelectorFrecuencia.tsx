@@ -11,7 +11,16 @@ const nombreDia = (d: DiaSemana, idioma: string, weekday: 'long' | 'short') =>
 const opcion =
   'flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:checked]:font-bold has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring'
 
-export function SelectorFrecuencia({ valor, cambiar }: { valor: Frecuencia; cambiar: (f: Frecuencia) => void }) {
+/** `soloPeriodo`: un cuantitativo pide su objetivo por periodo, no un número de veces. */
+export function SelectorFrecuencia({
+  valor,
+  cambiar,
+  soloPeriodo = false,
+}: {
+  valor: Frecuencia
+  cambiar: (f: Frecuencia) => void
+  soloPeriodo?: boolean
+}) {
   const { t, i18n } = useTranslation()
   const veces = valor.tipo === 'veces_por_periodo' ? valor : { veces: 1, periodo: 'dia' as const }
   const dias = valor.tipo === 'dias_semana' ? valor.dias : []
@@ -29,22 +38,24 @@ export function SelectorFrecuencia({ valor, cambiar }: { valor: Frecuencia; camb
           checked={valor.tipo === 'veces_por_periodo'}
           onChange={() => cambiar({ tipo: 'veces_por_periodo', ...veces })}
         />
-        {t('frecuencia.veces_por_periodo')}
+        {t(soloPeriodo ? 'frecuencia.cada_periodo' : 'frecuencia.veces_por_periodo')}
       </label>
       {valor.tipo === 'veces_por_periodo' && (
         <div className="flex items-center gap-2 pl-8">
-          <Input
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={99}
-            step={1}
-            required
-            aria-label={t('frecuencia.veces')}
-            className="w-20"
-            value={valor.veces || ''}
-            onChange={(e) => cambiar({ ...valor, veces: Math.trunc(e.target.valueAsNumber) || 0 })}
-          />
+          {!soloPeriodo && (
+            <Input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={99}
+              step={1}
+              required
+              aria-label={t('frecuencia.veces')}
+              className="w-20"
+              value={valor.veces || ''}
+              onChange={(e) => cambiar({ ...valor, veces: Math.trunc(e.target.valueAsNumber) || 0 })}
+            />
+          )}
           <select
             aria-label={t('frecuencia.periodo')}
             className="min-h-11 rounded-md border border-input bg-background px-3 outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
@@ -53,7 +64,7 @@ export function SelectorFrecuencia({ valor, cambiar }: { valor: Frecuencia; camb
           >
             {(['dia', 'semana', 'mes'] as const).map((p) => (
               <option key={p} value={p}>
-                {t(`frecuencia.por_${p}`, { count: valor.veces })}
+                {soloPeriodo ? t(`frecuencia.cada_${p}`) : t(`frecuencia.por_${p}`, { count: valor.veces })}
               </option>
             ))}
           </select>

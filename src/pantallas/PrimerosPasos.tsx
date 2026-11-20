@@ -40,7 +40,7 @@ export default function PrimerosPasos() {
   if (etapa === 'habito')
     return (
       <Asistente
-        inicial={{ nombre: '', identidadId: general.id, frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' } }}
+        inicial={{ nombre: '', identidadId: general.id, tipo: 'si_no', frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' } }}
         identidades={datos.identidades}
         habitos={datos.habitos}
         // Lo mínimo para el primer voto: qué, versión mínima, cuándo y dónde. Lo demás, cuando quiera.

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { BorrarHabito } from '@/components/BorrarHabito'
+import { CamposCuantitativo } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,14 +21,19 @@ import {
   type Habito,
   type Identidad,
   type Intencion,
+  type LeyesInversas,
+  type TipoHabito,
 } from '@/dominio'
 import { nombreIdentidad, textoFrase } from '@/lib/utils'
 
-type Borrador = CamposHabito
+/** Las leyes inversas van sueltas: cada una es un paso que se puede saltar por separado. */
+type Borrador = Omit<CamposHabito, 'leyesInversas'> & LeyesInversas & { tipo: TipoHabito }
 interface PropsPaso {
   borrador: Borrador
   cambiar: (c: Partial<Borrador>) => void
   identidades: Identidad[]
+  /** El tipo solo se elige al crear: cambiarlo reinterpretaría toda la historia. */
+  editando: boolean
   /** Todos los hábitos (para nombrar el ancla en la frase). */
   habitos: Habito[]
   /** Los que pueden ser su ancla: activos y sin cerrar un ciclo. */
@@ -35,6 +41,9 @@ interface PropsPaso {
   /** Id del título del paso, para nombrar el campo cuando es uno solo. */
   titulo: string
 }
+
+/** Los tipos que se pueden elegir al crear. Uno nuevo = una entrada aquí + `asistente.tipo.<tipo>` y `<tipo>Ayuda`. */
+const TIPOS: TipoHabito[] = ['si_no', 'cuantitativo', 'evitar']
 
 /**
  * Los pasos del método, en orden. Para añadir uno (tipo, intención, entorno, recompensa…):
@@ -56,13 +65,40 @@ const PASOS: {
     visible: ({ identidades }) => identidades.length > 1,
     Campo: PasoIdentidad,
   },
-  // Ticket 10/11: aquí va el paso «tipo» (sí/no, cuantitativo, evitar).
-  { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, Campo: PasoFrecuencia },
-  { clave: 'versiones', campos: ['versionMinima', 'versionCompleta'], opcional: true, Campo: PasoVersiones },
-  { clave: 'intencion', campos: ['intencion'], opcional: true, Campo: PasoIntencion },
-  { clave: 'entorno', campos: ['entorno'], opcional: true, Campo: PasoEntorno },
-  { clave: 'recompensa', campos: ['recompensaAsociada'], opcional: true, Campo: PasoRecompensa },
+  {
+    clave: 'tipo',
+    campos: ['tipo', 'cuantitativo'],
+    opcional: true,
+    // Al editar, el tipo no cambia: el paso solo sale para ajustar el objetivo de un cuantitativo.
+    visible: ({ editando, borrador }) => !editando || borrador.tipo === 'cuantitativo',
+    Campo: PasoTipo,
+  },
+  { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, visible: noEvitar, Campo: PasoFrecuencia },
+  // En un cuantitativo, la versión mínima es su objetivo mínimo.
+  {
+    clave: 'versiones',
+    campos: ['versionMinima', 'versionCompleta'],
+    opcional: true,
+    visible: ({ borrador }) => borrador.tipo === 'si_no',
+    Campo: PasoVersiones,
+  },
+  // Las leyes para construir; al evitar, sus inversas (sin intención: no hay nada que recordar).
+  { clave: 'intencion', campos: ['intencion'], opcional: true, visible: noEvitar, Campo: PasoIntencion },
+  { clave: 'entorno', campos: ['entorno'], opcional: true, visible: noEvitar, Campo: PasoEntorno },
+  { clave: 'recompensa', campos: ['recompensaAsociada'], opcional: true, visible: noEvitar, Campo: PasoRecompensa },
+  // Leyes inversas (hábito a evitar): invisible, difícil y qué haré en su lugar.
+  ...(['senal', 'friccion', 'sustituto'] as const).map((clave) => ({
+    clave,
+    campos: [clave],
+    opcional: true,
+    visible: ({ borrador }: PropsPaso) => borrador.tipo === 'evitar',
+    Campo: (p: PropsPaso) => <PasoLey {...p} campo={clave} />,
+  })),
 ]
+
+function noEvitar({ borrador }: PropsPaso) {
+  return borrador.tipo !== 'evitar'
+}
 
 /** Crear (`/nuevo`) y editar (`/habito/:id`) son el mismo asistente. */
 export default function AsistenteHabito() {
@@ -80,11 +116,14 @@ export default function AsistenteHabito() {
   const general = identidades.find((i) => i.esGeneral)!
   // Desde Hoy filtrado, la identidad del filtro viene elegida.
   const pedida = identidades.find((i) => i.id === params.get('identidad') && !i.archivada)
-  const inicial: Borrador = habito ?? {
-    nombre: '',
-    identidadId: (pedida ?? general).id,
-    frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
-  }
+  const inicial: Borrador = habito
+    ? { ...habito, ...habito.leyesInversas }
+    : {
+        nombre: '',
+        identidadId: (pedida ?? general).id,
+        tipo: 'si_no',
+        frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
+      }
   return (
     <Asistente
       key={id ?? 'nuevo'}
@@ -93,7 +132,8 @@ export default function AsistenteHabito() {
       // Las archivadas no se ofrecen, salvo la que ya tiene el hábito.
       identidades={identidades.filter((i) => !i.archivada || i.id === inicial.identidadId)}
       habitos={habitos}
-      guardar={async (b) => {
+      guardar={async ({ senal, friccion, sustituto, ...resto }) => {
+        const b = { ...resto, leyesInversas: { senal, friccion, sustituto } }
         if (habito) await db.habitos.put(editarHabito(habito, b, new Date(), ajustes))
         else await db.habitos.add(conId<Habito>(nuevoHabito({ ...b, orden: await db.habitos.count() }, new Date(), ajustes)))
       }}
@@ -131,7 +171,7 @@ export function Asistente({
   const [borrador, setBorrador] = useState(inicial)
   const cambiar = (c: Partial<Borrador>) => setBorrador((b) => ({ ...b, ...c }))
   const anclas = anclasPosibles(habito?.id, habitos)
-  const props = { borrador, cambiar, identidades, habitos, anclas, titulo: 'paso-titulo' }
+  const props = { borrador, cambiar, identidades, habitos, anclas, editando: !!habito, titulo: 'paso-titulo' }
   const pasos = PASOS.filter((p) => (!claves || claves.includes(p.clave)) && (!p.visible || p.visible(props)))
   const [n, setN] = useState(0)
   const paso = pasos[n]
@@ -145,8 +185,11 @@ export function Asistente({
     anterior.current = n
   }, [n])
 
+  const formulario = useRef<HTMLFormElement>(null)
   const terminar = async () => {
     if (!borrador.nombre.trim()) return setN(0)
+    // «Guardar» desde un paso a medias: que el navegador avise del campo que falta.
+    if (!formulario.current?.reportValidity()) return
     await guardar(borrador)
     if (alTerminar) alTerminar()
     else navigate('/')
@@ -163,7 +206,7 @@ export function Asistente({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={siguiente} className="space-y-6">
+      <form ref={formulario} onSubmit={siguiente} className="space-y-6">
         <header className="space-y-1">
           <h1 className="text-3xl font-bold">{titulo ?? t(habito ? 'asistente.editar' : 'nuevo.titulo')}</h1>
           <p className="text-muted-foreground">{t('asistente.paso', { n: n + 1, total: pasos.length })}</p>
@@ -258,8 +301,67 @@ function PasoIdentidad({ borrador, cambiar, identidades, titulo }: PropsPaso) {
   )
 }
 
+function PasoTipo({ borrador, cambiar, editando }: PropsPaso) {
+  const { t } = useTranslation()
+  return (
+    <>
+      {!editando && (
+        <fieldset className="space-y-3">
+          {/* El título del paso ya hace la pregunta. */}
+          <legend className="sr-only">{t('asistente.tipo.titulo')}</legend>
+          {TIPOS.map((tipo) => (
+            <label
+              key={tipo}
+              className="flex min-h-11 cursor-pointer items-start gap-3 rounded-md border p-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring"
+            >
+              <input
+                type="radio"
+                name="tipo"
+                className="mt-0.5 size-5 shrink-0 accent-primary"
+                checked={borrador.tipo === tipo}
+                onChange={() =>
+                  cambiar({
+                    tipo,
+                    cuantitativo: tipo === 'cuantitativo' ? (borrador.cuantitativo ?? { unidad: '', objetivo: 0, modo: 'al_menos' }) : undefined,
+                  })
+                }
+              />
+              <span>
+                <span className="block font-bold">{t(`asistente.tipo.${tipo}`)}</span>
+                <span className="block text-sm text-muted-foreground">{t(`asistente.tipo.${tipo}Ayuda`)}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+      {borrador.tipo === 'cuantitativo' && borrador.cuantitativo && (
+        <CamposCuantitativo valor={borrador.cuantitativo} cambiar={(cuantitativo) => cambiar({ cuantitativo })} />
+      )}
+    </>
+  )
+}
+
+function PasoLey({ borrador, cambiar, titulo, campo }: PropsPaso & { campo: keyof LeyesInversas }) {
+  const { t } = useTranslation()
+  return (
+    <Input
+      aria-labelledby={titulo}
+      value={borrador[campo] ?? ''}
+      onChange={(e) => cambiar({ [campo]: e.target.value })}
+      placeholder={t(`asistente.${campo}.ejemplo`)}
+      autoComplete="off"
+    />
+  )
+}
+
 function PasoFrecuencia({ borrador, cambiar }: PropsPaso) {
-  return <SelectorFrecuencia valor={borrador.frecuencia} cambiar={(frecuencia) => cambiar({ frecuencia })} />
+  return (
+    <SelectorFrecuencia
+      valor={borrador.frecuencia}
+      cambiar={(frecuencia) => cambiar({ frecuencia })}
+      soloPeriodo={borrador.tipo === 'cuantitativo'}
+    />
+  )
 }
 
 function PasoVersiones({ borrador, cambiar }: PropsPaso) {
