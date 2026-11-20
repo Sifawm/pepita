@@ -102,9 +102,9 @@ function VentanaDiagnostico({
         return editar('recompensa')
       case 'editar_entorno':
         return editar('entorno')
-      // Ticket 15: convertir en la sugerencia `bajar`. De momento abre las versiones para quedarse con la mínima.
+      // La causa 3 deja vigente la sugerencia `bajar`: se confirma en el detalle del hábito, nunca aquí.
       case 'solo_minima':
-        return editar('versiones')
+        return navigate(`/habito/${habito.id}`, { state: { escalado: true } })
       case 'editar_identidad':
         return navigate('/identidades')
       case 'ver_votos':

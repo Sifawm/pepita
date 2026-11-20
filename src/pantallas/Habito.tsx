@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { SumarValor } from '@/components/Cuantitativo'
 import { Diagnosticos } from '@/components/Diagnostico'
+import { SugerenciaEscalado } from '@/components/Escalado'
 import { GraficoSerie } from '@/components/GraficoSerie'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -19,6 +20,7 @@ import {
   diaLogico,
   evaluarHabito,
   mapaDeCalor,
+  sugerenciaEscalado,
   sumarDias,
   type Ajustes,
   type AnotacionDeFallo,
@@ -58,10 +60,8 @@ export default function Habito() {
   const datos = useLiveQuery(async () => ({
     habito: await db.habitos.get(id),
     registros: await db.registros.where('habitoId').equals(id).toArray(),
-    // El sin responder (pendiente o pospuesto): como mucho uno por hábito.
-    diagnostico: (await db.diagnosticos.where('habitoId').equals(id).toArray()).find(
-      (d) => d.estado === 'pendiente' || d.estado === 'pospuesto',
-    ),
+    diagnosticos: await db.diagnosticos.where('habitoId').equals(id).toArray(),
+    sugerenciasDescartadas: await db.sugerenciasDescartadas.where('habitoId').equals(id).toArray(),
   }), [id])
 
   if (!datos || !ajustes) return null
@@ -75,6 +75,8 @@ export default function Habito() {
 
   const ahora = new Date()
   const evaluacion = evaluarHabito({ ...datos, habito: datos.habito, ahora, ajustes })
+  // El sin responder (pendiente o pospuesto): como mucho uno por hábito.
+  const diagnostico = datos.diagnosticos.find((d) => d.estado === 'pendiente' || d.estado === 'pospuesto')
 
   return (
     <div className="space-y-8">
@@ -87,7 +89,10 @@ export default function Habito() {
           {t('recuperacion.rachaAyuda')}
         </p>
       </header>
-      <Diagnosticos items={datos.diagnostico ? [{ diagnostico: datos.diagnostico, habito: datos.habito }] : []} />
+      <Diagnosticos items={diagnostico ? [{ diagnostico, habito: datos.habito }] : []} />
+      {!datos.habito.archivado && (
+        <SugerenciaEscalado habito={datos.habito} sugerencia={sugerenciaEscalado({ ...datos, habito: datos.habito, ahora, ajustes })} ajustes={ajustes} />
+      )}
       <Fuerza evaluacion={evaluacion} hoy={diaLogico(ahora, ajustes.horaCierre)} />
       <MapaDeCalor habito={datos.habito} registros={datos.registros} ahora={ahora} ajustes={ajustes} />
       {/* Al evitar no hay versiones: todo día limpio es completo. */}

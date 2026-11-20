@@ -506,5 +506,32 @@
     "pospuesto": "We’ll leave it for later. It’s waiting in the habit’s details.",
     "descartado": "Dismissed. Let’s keep going.",
     "archivado": "Archived. You can bring it back whenever you like."
+  },
+  "escalado": {
+    "titulo": "An idea from Pepita",
+    "avisos": "Ideas from Pepita",
+    "aviso": "Pepita has an idea for “{{nombre}}”",
+    "subir": {
+      "minima": "“{{nombre}}” has been steady for weeks. Fancy doing the full version more often?",
+      "completa": "“{{nombre}}” is part of you now. It might be a good time to raise the goal or the frequency a little."
+    },
+    "bajar": {
+      "otro": "If “{{nombre}}” has felt uphill, stick to the minimum version for a while. What matters is not letting go.",
+      "evitar": "If “{{nombre}}” has felt uphill, let's make temptation harder: add some friction."
+    },
+    "propuesta": {
+      "al_menos": "New goal: at least {{despues}} {{unidad}} (now {{antes}})",
+      "como_mucho": "New limit: at most {{despues}} {{unidad}} (now {{antes}})"
+    },
+    "verCambio": "See the change",
+    "ajustar": "Adjust it",
+    "entendido": "I'll give it a go",
+    "descartar": "Not now",
+    "confirmar": "Shall we change it? It applies from the current period; the past stays as it was.",
+    "cambiar": "Yes, change it",
+    "cancelar": "Cancel",
+    "cambiado": "Done. Your habit has its new bar.",
+    "animo": "Go for it!",
+    "descartado": "OK. I won't suggest it again for a few weeks."
   }
 }

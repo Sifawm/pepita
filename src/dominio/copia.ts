@@ -2,7 +2,7 @@
 // se valida entera antes de devolver nada, y la persistencia solo escribe si sale `ok`.
 import { ACCIONES_DIAGNOSTICO } from './diagnostico'
 import { HITOS } from './identidad'
-import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, VersionRegla } from './tipos'
+import type { AccionDiagnostico, Ajustes, AnotacionDeFallo, Cuando, Cuantitativo, Datos, Diagnostico, Frecuencia, Habito, HitoCelebrado, Identidad, Instante, Intencion, LeyesInversas, Pausa, Registro, SugerenciaDescartada, VersionRegla } from './tipos'
 import {
   booleano,
   conPatron,
@@ -175,6 +175,8 @@ const diagnostico: Validador<Diagnostico> = (v, r) => {
   return d
 }
 
+const sugerenciaDescartada = objeto<SugerenciaDescartada>({ ...entidad, habitoId: id, tipo: literal('subir', 'bajar'), hasta: dia })
+
 /** Al añadir una tabla a `Datos`, añádela aquí (TypeScript lo exige) y en `comprobarReferencias`. */
 const datos = objeto<Datos>({
   ajustes,
@@ -184,6 +186,7 @@ const datos = objeto<Datos>({
   anotacionesDeFallo: lista(anotacionDeFallo),
   hitosCelebrados: lista(hitoCelebrado),
   diagnosticos: lista(diagnostico),
+  sugerenciasDescartadas: lista(sugerenciaDescartada),
 })
 
 const copia = objeto<Copia>({
@@ -210,6 +213,7 @@ function comprobarReferencias(d: Datos) {
   ids('anotacionesDeFallo', d.anotacionesDeFallo)
   ids('hitosCelebrados', d.hitosCelebrados)
   ids('diagnosticos', d.diagnosticos)
+  ids('sugerenciasDescartadas', d.sugerenciasDescartadas)
 
   if (d.identidades.filter((i) => i.esGeneral).length !== 1) throw new Invalido('datos.identidades')
   d.habitos.forEach((h, i) => {
@@ -235,6 +239,9 @@ function comprobarReferencias(d: Datos) {
     if (!habitos.has(x.habitoId)) throw new Invalido(`datos.diagnosticos[${i}].habitoId`)
     if (rupturas.has(`${x.habitoId} ${x.periodoQueLoDisparo}`)) throw new Invalido(`datos.diagnosticos[${i}].periodoQueLoDisparo`)
     rupturas.add(`${x.habitoId} ${x.periodoQueLoDisparo}`)
+  })
+  d.sugerenciasDescartadas.forEach((s, i) => {
+    if (!habitos.has(s.habitoId)) throw new Invalido(`datos.sugerenciasDescartadas[${i}].habitoId`)
   })
 }
 

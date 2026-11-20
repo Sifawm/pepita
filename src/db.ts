@@ -2,7 +2,7 @@
 import Dexie, { liveQuery, type EntityTable } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect } from 'react'
-import { AJUSTES_POR_DEFECTO, reconciliarDiagnosticos, type Ajustes, type AnotacionDeFallo, type Diagnostico, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro } from '@/dominio'
+import { AJUSTES_POR_DEFECTO, reconciliarDiagnosticos, type Ajustes, type AnotacionDeFallo, type Diagnostico, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro, type SugerenciaDescartada } from '@/dominio'
 import type { Datos } from '@/dominio'
 
 export const db = new Dexie('pepita') as Dexie & {
@@ -12,6 +12,7 @@ export const db = new Dexie('pepita') as Dexie & {
   anotacionesDeFallo: EntityTable<AnotacionDeFallo, 'id'>
   hitosCelebrados: EntityTable<HitoCelebrado, 'id'>
   diagnosticos: EntityTable<Diagnostico, 'id'>
+  sugerenciasDescartadas: EntityTable<SugerenciaDescartada, 'id'>
   /** Una sola fila, con `id: 'ajustes'`. */
   ajustes: EntityTable<Partial<Ajustes> & { id: string }, 'id'>
 }
@@ -30,6 +31,8 @@ db.version(3).stores({ anotacionesDeFallo: 'id, habitoId, [habitoId+periodo]' })
 db.version(4).stores({ hitosCelebrados: 'id, identidadId' })
 
 db.version(5).stores({ diagnosticos: 'id, habitoId' })
+
+db.version(6).stores({ sugerenciasDescartadas: 'id, habitoId' })
 
 /** Añade `id` y `creadoEn` a lo que crea el núcleo. */
 export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
@@ -50,10 +53,11 @@ export const guardarAjustes = (cambios: Partial<Ajustes>) =>
 
 /** Borra un hábito y todo lo que cuelga de él. Si añades una tabla con `habitoId`, bórrala aquí también. */
 export const borrarHabito = (id: string) =>
-  db.transaction('rw', [db.habitos, db.registros, db.anotacionesDeFallo, db.diagnosticos], async () => {
+  db.transaction('rw', [db.habitos, db.registros, db.anotacionesDeFallo, db.diagnosticos, db.sugerenciasDescartadas], async () => {
     await db.registros.where('habitoId').equals(id).delete()
     await db.anotacionesDeFallo.where('habitoId').equals(id).delete()
     await db.diagnosticos.where('habitoId').equals(id).delete()
+    await db.sugerenciasDescartadas.where('habitoId').equals(id).delete()
     await db.habitos.delete(id)
   })
 
@@ -110,6 +114,7 @@ export const leerDatos = (): Promise<Datos> =>
       anotacionesDeFallo: await db.anotacionesDeFallo.toArray(),
       hitosCelebrados: await db.hitosCelebrados.toArray(),
       diagnosticos: await db.diagnosticos.toArray(),
+      sugerenciasDescartadas: await db.sugerenciasDescartadas.toArray(),
     }
   })
 

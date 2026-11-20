@@ -506,5 +506,32 @@
     "pospuesto": "Lo dejamos para luego. Lo tienes en el detalle del hábito.",
     "descartado": "Descartado. Seguimos.",
     "archivado": "Archivado. Puedes recuperarlo cuando quieras."
+  },
+  "escalado": {
+    "titulo": "Una idea de Pepita",
+    "avisos": "Ideas de Pepita",
+    "aviso": "Pepita tiene una idea para «{{nombre}}»",
+    "subir": {
+      "minima": "«{{nombre}}» lleva semanas bien asentado. ¿Te animas a hacer la versión completa más a menudo?",
+      "completa": "«{{nombre}}» ya es parte de ti. Quizá es buen momento para subir un poco el objetivo o la frecuencia."
+    },
+    "bajar": {
+      "otro": "Si «{{nombre}}» se ha puesto cuesta arriba, quédate un tiempo solo con la versión mínima. Lo que cuenta es no soltarlo.",
+      "evitar": "Si «{{nombre}}» se ha puesto cuesta arriba, pongámoselo más difícil a la tentación: añade algo de fricción."
+    },
+    "propuesta": {
+      "al_menos": "Nuevo objetivo: al menos {{despues}} {{unidad}} (ahora {{antes}})",
+      "como_mucho": "Nuevo límite: como mucho {{despues}} {{unidad}} (ahora {{antes}})"
+    },
+    "verCambio": "Ver el cambio",
+    "ajustar": "Ajustarlo",
+    "entendido": "Me animo",
+    "descartar": "Ahora no",
+    "confirmar": "¿Lo cambiamos? Vale desde el periodo en curso; lo anterior no cambia.",
+    "cambiar": "Sí, cambiarlo",
+    "cancelar": "Cancelar",
+    "cambiado": "Hecho. Tu hábito ya tiene su nuevo listón.",
+    "animo": "¡A por ello!",
+    "descartado": "Vale. No te lo vuelvo a proponer en unas semanas."
   }
 }

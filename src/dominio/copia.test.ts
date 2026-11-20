@@ -115,6 +115,12 @@ const datos: Datos = {
     { id: 'd4', creadoEn: '2026-05-09T09:00:00.000Z', habitoId: 'yoga', periodoQueLoDisparo: '2026-05-07', estado: 'descartado' },
     { id: 'd5', creadoEn: '2026-05-09T09:00:00.000Z', habitoId: 'leer', periodoQueLoDisparo: '2026-05-08', ley: 1, estado: 'respondido' },
   ],
+  // Una de cada tipo; varias del mismo hábito valen (se acumulan).
+  sugerenciasDescartadas: [
+    { id: 's1', creadoEn: '2026-05-09T10:00:00.000Z', habitoId: 'leer', tipo: 'subir', hasta: '2026-05-29' },
+    { id: 's2', creadoEn: '2026-05-09T10:00:00.000Z', habitoId: 'agua', tipo: 'bajar', hasta: '2026-05-29' },
+    { id: 's3', creadoEn: '2026-05-10T10:00:00.000Z', habitoId: 'leer', tipo: 'subir', hasta: '2026-05-30' },
+  ],
 }
 
 describe('exportar', () => {
@@ -194,6 +200,10 @@ describe('importar rechaza un fichero inválido sin devolver datos', () => {
     ['una causa en un diagnóstico sin responder', con((c) => (c.datos.diagnosticos[1].ley = 2)), { motivo: 'invalido', ruta: 'datos.diagnosticos[1].ley' }],
     ['un diagnóstico de un hábito que no existe', con((c) => (c.datos.diagnosticos[1].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.diagnosticos[1].habitoId' }],
     ['dos diagnósticos de la misma ruptura', con((c) => (c.datos.diagnosticos[4].periodoQueLoDisparo = '2026-05-06')), { motivo: 'invalido', ruta: 'datos.diagnosticos[4].periodoQueLoDisparo' }],
+    ['una sugerencia de un tipo desconocido', con((c) => (c.datos.sugerenciasDescartadas[0].tipo = 'mantener')), { motivo: 'invalido', ruta: 'datos.sugerenciasDescartadas[0].tipo' }],
+    ['una sugerencia sin fecha válida', con((c) => (c.datos.sugerenciasDescartadas[1].hasta = '2026-02-30')), { motivo: 'invalido', ruta: 'datos.sugerenciasDescartadas[1].hasta' }],
+    ['una sugerencia de un hábito que no existe', con((c) => (c.datos.sugerenciasDescartadas[2].habitoId = 'nadie')), { motivo: 'invalido', ruta: 'datos.sugerenciasDescartadas[2].habitoId' }],
+    ['dos sugerencias con el mismo id', con((c) => (c.datos.sugerenciasDescartadas[2].id = 's1')), { motivo: 'invalido', ruta: 'datos.sugerenciasDescartadas[2].id' }],
     ['sin identidad «General»', con((c) => (c.datos.identidades[0].esGeneral = false)), { motivo: 'invalido', ruta: 'datos.identidades' }],
   ])('%s', (_caso, contenido, error) => {
     expect(importar(contenido)).toEqual({ ok: false, error })

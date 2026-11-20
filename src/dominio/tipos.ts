@@ -153,8 +153,8 @@ export interface AnotacionDeFallo extends Entidad {
 export type EstadoDiagnostico = 'pendiente' | 'respondido' | 'pospuesto' | 'descartado'
 
 /**
- * Lo que ofrece cada causa, con un toque (`ACCIONES_DIAGNOSTICO`). Ticket 15 completa
- * `'solo_minima'` con la sugerencia `bajar`.
+ * Lo que ofrece cada causa, con un toque (`ACCIONES_DIAGNOSTICO`). `solo_minima` deja vigente
+ * la sugerencia `bajar` (ver `sugerenciaEscalado`).
  */
 export type AccionDiagnostico =
   | 'editar_intencion'
@@ -185,6 +185,19 @@ export interface HitoCelebrado extends Entidad {
   umbral: number
 }
 
+/** `subir` el listón (fuerza alta) o `bajar` (tras un diagnóstico de la 3ª ley). */
+export type TipoSugerencia = 'subir' | 'bajar'
+
+/**
+ * Una sugerencia de escalado ya atendida: descartada o aplicada (las dos la silencian).
+ * No vuelve a salir hasta pasado `hasta` (incluido).
+ */
+export interface SugerenciaDescartada extends Entidad {
+  habitoId: string
+  tipo: TipoSugerencia
+  hasta: Dia
+}
+
 /** Lo que el núcleo crea; la persistencia le añade `id` y `creadoEn`. */
 export type Nuevo<T extends Entidad> = Omit<T, keyof Entidad>
 
@@ -200,4 +213,5 @@ export interface Datos {
   anotacionesDeFallo: AnotacionDeFallo[]
   hitosCelebrados: HitoCelebrado[]
   diagnosticos: Diagnostico[]
+  sugerenciasDescartadas: SugerenciaDescartada[]
 }

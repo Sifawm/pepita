@@ -14,3 +14,4 @@ export { HITOS, moverIdentidad, nuevaIdentidad, resumirIdentidades, type Resumen
 export { ACCIONES_DIAGNOSTICO, diagnosticosPendientes, reconciliarDiagnosticos, responderDiagnostico, type RespuestaDiagnostico } from './diagnostico'
 export { DIAS_AVISO_COPIA, exportar, importar, necesitaCopia, registrosCsv, VERSION_ESQUEMA, type Copia, type ErrorImportacion, type ResultadoImportacion } from './copia'
 export { necesitaPrimerosPasos } from './primerosPasos'
+export { descartarSugerencia, DIAS_FUERZA_ALTA, DIAS_SILENCIO_SUGERENCIA, PASO_OBJETIVO, sugerenciaEscalado, sugerenciasEscalado, UMBRAL_FUERZA_ALTA, type Sugerencia } from './escalado'
