@@ -123,6 +123,7 @@
     "titulo": "Settings",
     "hora_cierre": "End of the day",
     "hora_cierre_ayuda": "Anything you do before {{hora}} counts for the day before, so a late night still counts.",
+    "idioma": "Language",
     "volver": "Back to Today"
   },
   "copias": {
@@ -131,17 +132,17 @@
     "ultima": "Last backup: {{fecha}}.",
     "ninguna": "You haven't made a backup yet.",
     "exportarJson": "Save a backup (JSON)",
-    "exportarCsv": "Export records (CSV)",
+    "exportarCsv": "Export check-ins (CSV)",
     "importar": "Restore a backup",
-    "importarAyuda": "Choose a Pepita JSON file. We'll ask before changing anything.",
+    "importarAyuda": "Choose a Pepita JSON file. I'll ask before changing anything.",
     "exportada": "Backup saved. Your data is safe.",
     "importada": "Done: your data has been restored.",
     "confirmarTitulo": "Replace your data with this backup?",
     "confirmarTexto": "The backup has {{habitos}} and {{registros}}. It will replace everything currently on this device.",
     "habitos_one": "{{count}} habit",
     "habitos_other": "{{count}} habits",
-    "registros_one": "{{count}} record",
-    "registros_other": "{{count}} records",
+    "registros_one": "{{count}} check-in",
+    "registros_other": "{{count}} check-ins",
     "confirmar": "Yes, restore the backup",
     "cancelar": "Cancel",
     "intactos": "Your data is just as it was.",
@@ -251,7 +252,7 @@
     "borrarTexto_other": "Its {{count}} check-ins and their votes will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
     "borrarConfirmar": "Yes, delete forever",
     "cancelar": "Cancel",
-    "noExiste": "We couldn't find this habit.",
+    "noExiste": "I can't find this habit.",
     "abrir": "Calendar for “{{nombre}}”",
     "volver": "Back to Today",
     "mesAnterior": "Previous month",
@@ -267,8 +268,8 @@
       "saltado": "Skipped",
       "pausado": "Paused"
     },
-    "registros_one": "{{count}} entry",
-    "registros_other": "{{count}} entries",
+    "registros_one": "{{count}} check-in",
+    "registros_other": "{{count}} check-ins",
     "sinRegistros": "Nothing logged. If you forgot, you can log it now.",
     "tipo": {
       "minima": "Minimum version",
@@ -424,7 +425,7 @@
       "minima": "Minimum reached · +1 vote",
       "pendiente": "Add what you do, even a little",
       "dentro": "Going well: your vote comes when the period closes",
-      "pasado": "Over this time. The next period starts fresh"
+      "pasado": "Over the limit this time. The next period starts fresh"
     },
     "sumar": "Add {{unidad}}",
     "sumarCorto": "Add",
@@ -463,7 +464,7 @@
     "exportados": "Done. Open the file to add it to your calendar.",
     "ninguno": "You don't have habits with a time yet. Once you give one a time under “When”, it will show up here.",
     "notificaciones": "Remind me while Pepita is open",
-    "notificacionesAyuda": "We'll nudge you at the time of each habit still left for today. Only works while the app is open.",
+    "notificacionesAyuda": "I'll nudge you at the time of each habit still left for today. Only works while the app is open.",
     "bloqueadas": "Your browser doesn't let Pepita notify you. If you like, you can allow it in its settings.",
     "noDisponibles": "This browser doesn't support notifications. The calendar file (.ics) will still work.",
     "despues": "And then: {{lista}}"
@@ -560,12 +561,12 @@
     "sugerencias": {
       "titulo": "Ideas from Pepita",
       "ver": "See the idea for “{{nombre}}”",
-      "verCorto": "See it",
+      "verCorto": "See the idea",
       "vacia": "No new ideas for now."
     },
     "campos": {
       "titulo": "Steps left blank",
-      "intro": "No rush: whenever you feel like going back to the book, here's what you left for later.",
+      "intro": "No rush: here's what you left for later, whenever you feel like it.",
       "vacia": "No steps left blank.",
       "rellenar": "Fill in {{campo}} for “{{nombre}}”",
       "identidad": "identity",

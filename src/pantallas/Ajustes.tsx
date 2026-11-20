@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { guardarAjustes, useAjustes } from '@/db'
+import { Idioma } from '@/pantallas/PrimerosPasos'
 
 export default function Ajustes() {
   const { t } = useTranslation()
@@ -31,6 +32,12 @@ export default function Ajustes() {
           {t('ajustes.hora_cierre_ayuda', { hora: ajustes.horaCierre })}
         </p>
       </div>
+      <section aria-labelledby="idioma-titulo" className="space-y-3">
+        <h2 id="idioma-titulo" className="text-xl font-bold">
+          {t('ajustes.idioma')}
+        </h2>
+        <Idioma leyenda={t('ajustes.idioma')} />
+      </section>
       <PausaGlobal />
       <SeccionRecordatorios />
       <SeccionCopias />

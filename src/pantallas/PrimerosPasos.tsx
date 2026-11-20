@@ -196,11 +196,12 @@ function Etapa({
 }
 
 /** Propone el idioma del navegador (lo detecta i18next) y cambia toda la app al elegir. */
-function Idioma() {
+/** Elegir idioma. También en Ajustes: se puede cambiar en cualquier momento. */
+export function Idioma({ leyenda }: { leyenda?: string }) {
   const { t, i18n } = useTranslation()
   return (
     <fieldset className="space-y-3">
-      <legend className="sr-only">{t('primerosPasos.idioma.titulo')}</legend>
+      <legend className="sr-only">{leyenda ?? t('primerosPasos.idioma.titulo')}</legend>
       {Object.entries(IDIOMAS).map(([codigo, nombre]) => (
         <label
           key={codigo}

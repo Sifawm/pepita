@@ -88,6 +88,11 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
     abrir()
     botonMenu.current?.focus()
   }
+  // El botón pulsado desaparece con el menú: el foco vuelve a «Más opciones», no al principio de la página.
+  const desdeMenu = (accion: () => Promise<unknown>) => () => {
+    botonMenu.current?.focus()
+    void accion()
+  }
 
   const caja = cn(
     'flex min-h-16 min-w-0 flex-1 items-center gap-4 rounded-lg border bg-card p-4 text-left',
@@ -161,27 +166,30 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
             {contenido}
           </button>
         )}
-        <Link
-          to={`/habito/${habito.id}`}
-          aria-label={t('habito.abrir', { nombre: habito.nombre })}
-          className={buttonVariants({ variant: 'ghost', className: 'min-h-16 min-w-11 border px-0' })}
-        >
-          <CalendarDays aria-hidden />
-        </Link>
-        <button
-          ref={botonMenu}
-          type="button"
-          aria-label={t('hoy.opciones', { nombre: habito.nombre })}
-          aria-expanded={panel === 'menu'}
-          aria-controls={menuId}
-          onClick={() => {
-            setAviso('')
-            abrir(panel === 'menu' ? undefined : 'menu')
-          }}
-          className={buttonVariants({ variant: 'ghost', className: 'min-h-16 min-w-11 border px-0' })}
-        >
-          <Ellipsis aria-hidden />
-        </button>
+        {/* Apilados: a 375px la tarjeta conserva el ancho para el texto. */}
+        <div className="flex flex-col gap-2">
+          <Link
+            to={`/habito/${habito.id}`}
+            aria-label={t('habito.abrir', { nombre: habito.nombre })}
+            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+          >
+            <CalendarDays aria-hidden />
+          </Link>
+          <button
+            ref={botonMenu}
+            type="button"
+            aria-label={t('hoy.opciones', { nombre: habito.nombre })}
+            aria-expanded={panel === 'menu'}
+            aria-controls={menuId}
+            onClick={() => {
+              setAviso('')
+              abrir(panel === 'menu' ? undefined : 'menu')
+            }}
+            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+          >
+            <Ellipsis aria-hidden />
+          </button>
+        </div>
       </div>
 
       {c && <SumarValor unidad={c.unidad} nombre={habito.nombre} sumar={sumar} />}
@@ -212,10 +220,10 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
         >
           {!c && !hecho && (
             <>
-              <Button variant="ghost" className="justify-start" autoFocus onClick={() => registrar('minima')}>
+              <Button variant="ghost" className="justify-start" autoFocus onClick={desdeMenu(() => registrar('minima'))}>
                 {t('hoy.registrarMinima')}
               </Button>
-              <Button variant="ghost" className="justify-start" onClick={() => registrar('completa')}>
+              <Button variant="ghost" className="justify-start" onClick={desdeMenu(() => registrar('completa'))}>
                 {t('hoy.registrarCompleta')}
               </Button>
             </>
@@ -225,7 +233,7 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
               <Button variant="ghost" className="justify-start" autoFocus={hecho || !!c} onClick={() => abrir('nota')}>
                 {t(ultimo.nota ? 'hoy.editarNota' : 'hoy.anadirNota')}
               </Button>
-              <Button variant="ghost" className="justify-start" onClick={deshacer}>
+              <Button variant="ghost" className="justify-start" onClick={desdeMenu(deshacer)}>
                 {t('hoy.deshacer')}
               </Button>
             </>
@@ -284,7 +292,9 @@ function TarjetaEvitar({ tarjeta, ajustes, panel, abrir }: PropsTarjeta) {
       <div className="flex gap-2">
         <div className={cn('min-w-0 flex-1 space-y-3 rounded-lg border bg-card p-4', recaido && 'border-dashed')}>
           <div>
-            <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
+            <span id={`nombre-${habito.id}`} className="block text-lg font-semibold break-words">
+              {habito.nombre}
+            </span>
             {(['sustituto', 'senal', 'friccion'] as const).map(
               (ley) =>
                 leyes[ley] && (
@@ -303,6 +313,7 @@ function TarjetaEvitar({ tarjeta, ajustes, panel, abrir }: PropsTarjeta) {
             variant="secondary"
             className="w-full"
             aria-expanded={panel === 'recaida'}
+            aria-describedby={`nombre-${habito.id}`}
             onClick={() => {
               setAviso('')
               abrir(panel === 'recaida' ? undefined : 'recaida')
@@ -461,6 +472,13 @@ export function Celebracion({
     const id = setTimeout(cerrar, 5000)
     return () => clearTimeout(id)
   }, [texto, clave, fijada, cerrar])
+  // Escape la quita sin mover el foco, por si tapa lo que lo tiene (WCAG 2.4.11).
+  useEffect(() => {
+    if (!texto) return
+    const tecla = (e: KeyboardEvent) => e.key === 'Escape' && cerrar()
+    document.addEventListener('keydown', tecla)
+    return () => document.removeEventListener('keydown', tecla)
+  }, [texto, cerrar])
 
   return (
     // La región viva existe siempre para que el lector de pantalla anuncie cada celebración.

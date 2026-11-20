@@ -8,27 +8,29 @@ import type { Identidad, ResumenIdentidad } from '@/dominio'
 import { nombreIdentidad } from '@/lib/utils'
 
 /**
- * Celebración especial de un hito. En cuanto hay uno por celebrar lo guarda como celebrado (así
- * no vuelve nunca) y lo muestra hasta que se cierra. Si se pasaron varios a la vez (una copia
- * importada, ediciones), celebra solo el mayor.
+ * Celebración especial de un hito. Muestra los de una identidad a la vez y, al mostrarlos, los
+ * guarda como celebrados (así no vuelven nunca). Si se pasaron varios a la vez (una copia
+ * importada, ediciones), celebra solo el mayor. Los de otra identidad esperan a que se cierre.
  */
 export function CelebracionHito({ resumenes }: { resumenes: ResumenIdentidad[] }) {
   const { t } = useTranslation()
   const pendiente = resumenes.find((r) => r.porCelebrar.length)
-  const clave = pendiente && `${pendiente.identidad.id}:${pendiente.porCelebrar.join(',')}`
-  const [visto, setVisto] = useState<string>()
-  const [hito, setHito] = useState<{ identidad: Identidad; umbral: number }>()
-  // Ajuste de estado durante el render: al aparecer un hito nuevo, pasa a mostrarse.
-  if (pendiente && clave !== visto) {
-    setVisto(clave)
-    setHito({ identidad: pendiente.identidad, umbral: pendiente.porCelebrar.at(-1)! })
-  }
+  const [hito, setHito] = useState<{ identidad: Identidad; umbrales: number[] }>()
+  // Ajuste de estado durante el render: con la pantalla libre, el siguiente hito pasa a mostrarse.
+  // Sin esperar a que se cierre el anterior, guardarlo hacía saltar el de otra identidad encima.
+  if (pendiente && !hito) setHito({ identidad: pendiente.identidad, umbrales: pendiente.porCelebrar })
 
-  const identidadId = pendiente?.identidad.id
-  const umbrales = pendiente?.porCelebrar.join(',')
   useEffect(() => {
-    if (identidadId && umbrales) void celebrarHitos(identidadId, umbrales.split(',').map(Number))
-  }, [identidadId, umbrales])
+    if (hito) void celebrarHitos(hito.identidad.id, hito.umbrales)
+  }, [hito])
+
+  // Escape lo cierra sin mover el foco: así nunca tapa lo que tenga el foco (WCAG 2.4.11).
+  useEffect(() => {
+    if (!hito) return
+    const tecla = (e: KeyboardEvent) => e.key === 'Escape' && setHito(undefined)
+    document.addEventListener('keydown', tecla)
+    return () => document.removeEventListener('keydown', tecla)
+  }, [hito])
 
   return (
     // Región viva siempre montada, para que el lector de pantalla anuncie el hito.
@@ -38,7 +40,7 @@ export function CelebracionHito({ resumenes }: { resumenes: ResumenIdentidad[] }
           <div className="flex items-start gap-3">
             <PartyPopper aria-hidden className="size-8 shrink-0 text-primary motion-safe:animate-in motion-safe:spin-in-45 motion-safe:duration-700" />
             <div>
-              <p className="text-xl font-bold">{t('hitos.celebracion', { count: hito.umbral })}</p>
+              <p className="text-xl font-bold">{t('hitos.celebracion', { count: hito.umbrales.at(-1) })}</p>
               <p>{t('hitos.celebracionIdentidad', { identidad: nombreIdentidad(hito.identidad, t) })}</p>
             </div>
           </div>

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { borrarHabito, db } from '@/db'
 import type { Habito } from '@/dominio'
+import { enfocar } from '@/lib/utils'
 
 /** Borrar es para siempre: pide confirmación explícita, con el foco en la opción segura. */
 export function BorrarHabito({ habito, alBorrar }: { habito: Habito; alBorrar?: () => void }) {
@@ -15,8 +16,9 @@ export function BorrarHabito({ habito, alBorrar }: { habito: Habito; alBorrar?: 
 
   if (!confirmando)
     return (
-      <Button variant="ghost" className="text-destructive" onClick={() => setConfirmando(true)}>
+      <Button id={`borrar-${habito.id}`} variant="ghost" className="text-destructive" onClick={() => setConfirmando(true)}>
         {t('habito.borrar')}
+        <span className="sr-only">{habito.nombre}</span>
       </Button>
     )
   return (
@@ -35,7 +37,7 @@ export function BorrarHabito({ habito, alBorrar }: { habito: Habito; alBorrar?: 
         >
           {t('habito.borrarConfirmar')}
         </Button>
-        <Button variant="secondary" autoFocus onClick={() => setConfirmando(false)}>
+        <Button variant="secondary" autoFocus onClick={() => (setConfirmando(false), enfocar(`borrar-${habito.id}`))}>
           {t('habito.cancelar')}
         </Button>
       </div>

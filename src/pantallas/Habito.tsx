@@ -33,7 +33,7 @@ import {
   type Ley,
   type Registro,
 } from '@/dominio'
-import { cn, fechaDia } from '@/lib/utils'
+import { cn, enfocar, fechaDia } from '@/lib/utils'
 
 const fechaDe = (dia: Dia) => {
   const [a, m, d] = dia.split('-').map(Number)
@@ -320,7 +320,9 @@ function EditarDia({
 
   return (
     <div className="space-y-3 rounded-lg border bg-card p-4">
-      <h3 className="text-lg font-semibold first-letter:uppercase">{titulo}</h3>
+      <h3 id="dia-titulo" tabIndex={-1} className="text-lg font-semibold outline-none first-letter:uppercase">
+        {titulo}
+      </h3>
       <p aria-live="polite" className="text-muted-foreground">
         {dia.estado && `${nombreEstado(dia.estado)} · `}
         {dia.registros.length ? t('habito.registros', { count: dia.registros.length }) : t('habito.sinRegistros')}
@@ -340,7 +342,7 @@ function EditarDia({
                     {t(`habito.pasarA.${otro}`)}
                   </Button>
                 )}
-                <Button variant="ghost" onClick={() => db.registros.delete(r.id)}>
+                <Button variant="ghost" onClick={() => db.registros.delete(r.id).then(() => enfocar('dia-titulo'))}>
                   {t('habito.deshacer')}
                 </Button>
               </li>

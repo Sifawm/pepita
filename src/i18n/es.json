@@ -123,6 +123,7 @@
     "titulo": "Ajustes",
     "hora_cierre": "Hora de cierre del día",
     "hora_cierre_ayuda": "Lo que hagas antes de las {{hora}} cuenta para el día anterior. Así, trasnochar no te quita el día.",
+    "idioma": "Idioma",
     "volver": "Volver a Hoy"
   },
   "copias": {
@@ -133,7 +134,7 @@
     "exportarJson": "Guardar una copia (JSON)",
     "exportarCsv": "Exportar registros (CSV)",
     "importar": "Restaurar una copia",
-    "importarAyuda": "Elige un fichero JSON de Pepita. Te preguntaremos antes de cambiar nada.",
+    "importarAyuda": "Elige un fichero JSON de Pepita. Te preguntaré antes de cambiar nada.",
     "exportada": "Copia guardada. Tus datos están a salvo.",
     "importada": "Listo: tus datos se han restaurado.",
     "confirmarTitulo": "¿Cambiar tus datos por esta copia?",
@@ -251,7 +252,7 @@
     "borrarTexto_other": "También se borrarán sus {{count}} registros, con sus votos. No se puede deshacer. Si solo quieres dejarlo, archívalo.",
     "borrarConfirmar": "Sí, borrar para siempre",
     "cancelar": "Cancelar",
-    "noExiste": "No encontramos este hábito.",
+    "noExiste": "No encuentro este hábito.",
     "abrir": "Calendario de «{{nombre}}»",
     "volver": "Volver a Hoy",
     "mesAnterior": "Mes anterior",
@@ -424,7 +425,7 @@
       "minima": "Mínimo alcanzado · +1 voto",
       "pendiente": "Suma lo que hagas, aunque sea poco",
       "dentro": "Vas bien: el voto llega al cerrar el periodo",
-      "pasado": "Esta vez te has pasado. El próximo periodo empieza de cero"
+      "pasado": "Esta vez se pasó del límite. El próximo periodo empieza de cero"
     },
     "sumar": "Añadir {{unidad}}",
     "sumarCorto": "Sumar",
@@ -463,7 +464,7 @@
     "exportados": "Listo. Abre el fichero para añadirlo a tu calendario.",
     "ninguno": "Aún no tienes hábitos con hora. Cuando le pongas una a alguno en «Cuándo», saldrá aquí.",
     "notificaciones": "Avisarme mientras Pepita está abierta",
-    "notificacionesAyuda": "Te avisamos a la hora de cada hábito que te quede hoy. Solo funciona con la app abierta.",
+    "notificacionesAyuda": "Te aviso a la hora de cada hábito que te quede hoy. Solo funciona con la app abierta.",
     "bloqueadas": "Tu navegador no deja a Pepita avisarte. Si te apetece, puedes permitirlo en sus ajustes.",
     "noDisponibles": "Este navegador no admite avisos. El calendario (.ics) sí te servirá.",
     "despues": "Y después: {{lista}}"
@@ -560,12 +561,12 @@
     "sugerencias": {
       "titulo": "Ideas de Pepita",
       "ver": "Ver la idea para «{{nombre}}»",
-      "verCorto": "Verla",
+      "verCorto": "Ver la idea",
       "vacia": "Ninguna idea nueva por ahora."
     },
     "campos": {
       "titulo": "Pasos por rellenar",
-      "intro": "Sin prisa: cuando te apetezca volver al libro, aquí tienes lo que dejaste para luego.",
+      "intro": "Sin prisa: aquí tienes lo que dejaste para luego, para cuando te apetezca.",
       "vacia": "No queda ningún paso por rellenar.",
       "rellenar": "Rellenar {{campo}} de «{{nombre}}»",
       "identidad": "identidad",

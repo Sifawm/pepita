@@ -4,6 +4,8 @@
 
 /* Tema de Pepita sobre los tokens de shadcn/ui. Claro y oscuro según el sistema. Contrastes AA. */
 :root {
+  /* Controles nativos (fecha, hora, casillas, desplegables) con el tema del sistema: sin esto, en oscuro sus iconos apenas se ven. */
+  color-scheme: light dark;
   --radius: 0.75rem;
   --background: #fbf8f3;
   --foreground: #1f2a24;
@@ -47,6 +49,7 @@
 /* Papel: siempre claro, aunque el sistema esté en oscuro. */
 @media print {
   :root {
+    color-scheme: light;
     --background: #ffffff;
     --foreground: #000000;
     --card: #ffffff;

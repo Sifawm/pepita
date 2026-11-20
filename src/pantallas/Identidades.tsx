@@ -14,7 +14,7 @@ import {
   type Identidad,
   type ResumenIdentidad,
 } from '@/dominio'
-import { cn, nombreIdentidad } from '@/lib/utils'
+import { cn, enfocar, nombreIdentidad } from '@/lib/utils'
 
 export default function Identidades() {
   const { t } = useTranslation()
@@ -60,7 +60,9 @@ export default function Identidades() {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold">{t('identidades.titulo')}</h1>
+        <h1 id="identidades-titulo" tabIndex={-1} className="text-3xl font-bold outline-none">
+          {t('identidades.titulo')}
+        </h1>
         <p className="text-muted-foreground">{t('identidades.intro')}</p>
       </header>
       <p className="sr-only" aria-live="polite">
@@ -96,7 +98,7 @@ export default function Identidades() {
 
       {archivadas.length > 0 && (
         <section aria-labelledby="archivadas" className="space-y-3">
-          <h2 id="archivadas" className="text-xl font-bold">
+          <h2 id="archivadas" tabIndex={-1} className="text-xl font-bold outline-none">
             {t('identidades.archivadas')}
           </h2>
           <p className="text-sm text-muted-foreground">{t('identidades.archivadasAyuda')}</p>
@@ -104,7 +106,7 @@ export default function Identidades() {
             {archivadas.map((r) => (
               <li key={r.identidad.id} className="flex items-center gap-3 rounded-lg border bg-card p-4">
                 <Nombre resumen={r} />
-                <Button variant="ghost" onClick={() => db.identidades.update(r.identidad.id, { archivada: false })}>
+                <Button variant="ghost" onClick={() => db.identidades.update(r.identidad.id, { archivada: false }).then(() => enfocar('identidades-titulo'))}>
                   <ArchiveRestore aria-hidden />
                   {t('identidades.recuperar')}
                   <span className="sr-only">{nombreIdentidad(r.identidad, t)}</span>
@@ -165,6 +167,7 @@ function Fila({
     if (!limpio && !identidad.esGeneral) return
     await db.identidades.update(identidad.id, { nombre: limpio })
     setEditando(false)
+    enfocar(`renombrar-boton-${identidad.id}`)
   }
 
   if (editando) {
@@ -183,7 +186,7 @@ function Fila({
         />
         <div className="flex gap-2">
           <Button type="submit">{t('identidades.guardar')}</Button>
-          <Button type="button" variant="ghost" onClick={() => (setTexto(identidad.nombre), setEditando(false))}>
+          <Button type="button" variant="ghost" onClick={() => (setTexto(identidad.nombre), setEditando(false), enfocar(`renombrar-boton-${identidad.id}`))}>
             {t('identidades.cancelar')}
           </Button>
         </div>
@@ -216,14 +219,14 @@ function Fila({
         >
           <ArrowDown aria-hidden />
         </Button>
-        <Button variant="ghost" onClick={() => setEditando(true)}>
+        <Button id={`renombrar-boton-${identidad.id}`} variant="ghost" onClick={() => setEditando(true)}>
           <Pencil aria-hidden />
           {t('identidades.renombrar')}
           <span className="sr-only">{nombre}</span>
         </Button>
         {/* «General» no se archiva: es donde van los hábitos sin identidad. */}
         {!identidad.esGeneral && (
-          <Button variant="ghost" onClick={() => db.identidades.update(identidad.id, { archivada: true })}>
+          <Button variant="ghost" onClick={() => db.identidades.update(identidad.id, { archivada: true }).then(() => enfocar('archivadas'))}>
             <Archive aria-hidden />
             {t('identidades.archivar')}
             <span className="sr-only">{nombre}</span>

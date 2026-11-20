@@ -17,7 +17,7 @@ import {
   type Registro,
   type TarjetaHoy,
 } from '@/dominio'
-import { fechaDia } from '@/lib/utils'
+import { enfocar, fechaDia } from '@/lib/utils'
 
 /**
  * Saltar el periodo o pausar el hábito. Va dentro del menú de la tarjeta de Hoy;
@@ -138,12 +138,14 @@ export function PausaGlobal() {
       await guardarAjustes({ pausaGlobal: r.pausaGlobal })
     })
     setHasta('')
+    enfocar('vacaciones-terminar')
     setAviso(t('pausas.global.empezada', { fecha: fechaDia(r.pausaGlobal.hasta, i18n.language) }))
   }
 
   const terminar = async () => {
     await guardarAjustes({ pausaGlobal: terminarPausaGlobal({ ajustes, ahora: new Date() }) })
     setAviso(t('pausas.global.terminada'))
+    enfocar('vacaciones-hasta')
   }
 
   return (
@@ -155,7 +157,7 @@ export function PausaGlobal() {
       {activa ? (
         <>
           <p>{t('pausas.global.activa', { fecha: fechaDia(activa.hasta, i18n.language) })}</p>
-          <Button variant="secondary" className="w-full" onClick={terminar}>
+          <Button id="vacaciones-terminar" variant="secondary" className="w-full" onClick={terminar}>
             {t('pausas.global.terminar')}
           </Button>
         </>

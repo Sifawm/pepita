@@ -32,12 +32,12 @@ export default function App() {
         {t('app.saltar')}
       </a>
       <div className="mx-auto max-w-md px-4 pb-10 print:max-w-none print:p-0">
-        <div className="flex items-center justify-between py-2 print:hidden">
+        <header className="flex items-center justify-between py-2 print:hidden">
           <p className="text-lg font-bold text-primary">{t('app.nombre')}</p>
           <Link to="/ajustes" aria-label={t('ajustes.titulo')} className={buttonVariants({ variant: 'ghost', className: 'min-w-11 px-0' })}>
             <Settings aria-hidden />
           </Link>
-        </div>
+        </header>
         <main id="principal" tabIndex={-1} className="outline-none">
           <Routes>
             <Route path="/" element={<Hoy />} />

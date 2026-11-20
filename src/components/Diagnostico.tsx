@@ -57,6 +57,8 @@ export function Diagnosticos({ items }: { items: { diagnostico: Diagnostico; hab
           cerrar={(texto) => {
             setAbierto(undefined)
             setAviso(texto ?? '')
+            // Respondido, pospuesto o descartado, su aviso desaparece: el foco no puede volver a él.
+            requestAnimationFrame(() => document.activeElement === document.body && document.getElementById('principal')?.focus())
           }}
         />
       )}

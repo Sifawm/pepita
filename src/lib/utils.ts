@@ -44,6 +44,14 @@ export function textoFrase({ cuando, donde, que }: FraseIntencion, t: TFunction)
   return t('intencion.frase', { contexto: [inicio, donde].filter(Boolean).join(', '), que })
 }
 
+/**
+ * Lleva el foco a un elemento tras el próximo pintado. Para cuando el botón pulsado desaparece
+ * (deshacer, archivar, cerrar un formulario): sin esto el foco cae al principio de la página.
+ */
+export function enfocar(id: string) {
+  requestAnimationFrame(() => document.getElementById(id)?.focus())
+}
+
 /** Descarga un fichero generado en el navegador. */
 export function descargar(nombre: string, partes: BlobPart[], tipo: string) {
   const url = URL.createObjectURL(new Blob(partes, { type: tipo }))

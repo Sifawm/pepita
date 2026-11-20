@@ -88,7 +88,7 @@ export default function Revision() {
             </h2>
             <p className="text-sm text-muted-foreground">{t('revision.imprimir.ayuda')}</p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="imprimir-desde">{t('revision.imprimir.desde')}</Label>
               <Input id="imprimir-desde" type="date" value={desde} max={hoy} onChange={(e) => setImpresion({ ...impresion, desde: e.target.value })} />
