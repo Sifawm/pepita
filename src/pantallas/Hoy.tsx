@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Archive, Palmtree, Plus, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
+import { Link, Navigate, useSearchParams } from 'react-router'
 import AvisoCopia from '@/components/AvisoCopia'
 import { CelebracionHito } from '@/components/CelebracionHito'
 import { Diagnosticos } from '@/components/Diagnostico'
@@ -11,7 +11,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { db, useAjustes } from '@/db'
-import { componerHoy, diagnosticosPendientes, resumirIdentidades } from '@/dominio'
+import { componerHoy, diagnosticosPendientes, necesitaPrimerosPasos, resumirIdentidades } from '@/dominio'
 import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
 
 /** El reloj de la pantalla: avanza cada minuto para que Hoy cambie de día sola. */
@@ -48,6 +48,8 @@ export default function Hoy() {
   const cerrarCelebracion = useCallback(() => setCelebracion(undefined), [])
 
   if (!datos || !ajustes) return null
+  // Sin nada suyo todavía: empieza por los primeros pasos.
+  if (necesitaPrimerosPasos(datos)) return <Navigate to="/primeros-pasos" replace />
   const activas = datos.identidades.filter((i) => !i.archivada).sort((a, b) => a.orden - b.orden)
   const filtro = activas.find((i) => i.id === params.get('identidad'))
   const hoy = componerHoy({ ...datos, ahora, ajustes, identidadId: filtro?.id })

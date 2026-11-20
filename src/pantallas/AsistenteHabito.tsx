@@ -142,13 +142,18 @@ export default function AsistenteHabito() {
   )
 }
 
-function Asistente({
+/** También lo usan los primeros pasos, con menos pasos y su propio final. */
+export function Asistente({
   inicial,
   habito,
   identidades,
   habitos,
   paso: pasoPedido,
   guardar,
+  claves,
+  titulo,
+  atras,
+  alTerminar,
 }: {
   inicial: Borrador
   habito?: Habito
@@ -157,6 +162,13 @@ function Asistente({
   /** `?paso=<clave>`: abre directamente ese paso (lo usa el diagnóstico). */
   paso?: string
   guardar: (b: Borrador) => Promise<void>
+  /** Solo estos pasos de `PASOS` (por defecto, todos). */
+  claves?: string[]
+  titulo?: string
+  /** «Atrás» desde el primer paso; por defecto, «Cancelar» vuelve a Hoy. */
+  atras?: () => void
+  /** Tras guardar; por defecto, vuelve a Hoy. */
+  alTerminar?: () => void
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -164,7 +176,7 @@ function Asistente({
   const cambiar = (c: Partial<Borrador>) => setBorrador((b) => ({ ...b, ...c }))
   const anclas = anclasPosibles(habito?.id, habitos)
   const props = { borrador, cambiar, identidades, habitos, anclas, editando: !!habito, titulo: 'paso-titulo' }
-  const pasos = PASOS.filter((p) => !p.visible || p.visible(props))
+  const pasos = PASOS.filter((p) => (!claves || claves.includes(p.clave)) && (!p.visible || p.visible(props)))
   const [n, setN] = useState(() => Math.max(0, pasos.findIndex((p) => p.clave === pasoPedido)))
   const paso = pasos[n]
   const ultimo = n === pasos.length - 1
@@ -184,7 +196,8 @@ function Asistente({
     // «Guardar» desde un paso a medias: que el navegador avise del campo que falta.
     if (!formulario.current?.reportValidity()) return
     await guardar(borrador)
-    navigate('/')
+    if (alTerminar) alTerminar()
+    else navigate('/')
   }
   const siguiente = (e?: FormEvent) => {
     e?.preventDefault()
@@ -200,7 +213,7 @@ function Asistente({
     <div className="space-y-6">
       <form ref={formulario} onSubmit={siguiente} className="space-y-6">
         <header className="space-y-1">
-          <h1 className="text-3xl font-bold">{t(habito ? 'asistente.editar' : 'nuevo.titulo')}</h1>
+          <h1 className="text-3xl font-bold">{titulo ?? t(habito ? 'asistente.editar' : 'nuevo.titulo')}</h1>
           <p className="text-muted-foreground">{t('asistente.paso', { n: n + 1, total: pasos.length })}</p>
         </header>
 
@@ -231,8 +244,8 @@ function Asistente({
               {t('asistente.guardar')}
             </Button>
           )}
-          {n > 0 ? (
-            <Button type="button" variant="ghost" onClick={() => setN(n - 1)}>
+          {n > 0 || atras ? (
+            <Button type="button" variant="ghost" onClick={() => (n > 0 ? setN(n - 1) : atras?.())}>
               {t('asistente.atras')}
             </Button>
           ) : (

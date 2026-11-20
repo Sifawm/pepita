@@ -12,3 +12,4 @@ export { calendarioHabito, type DiaCalendario, type MesCalendario } from './hist
 export { HITOS, moverIdentidad, nuevaIdentidad, resumirIdentidades, type ResumenIdentidad } from './identidad'
 export { ACCIONES_DIAGNOSTICO, diagnosticosPendientes, reconciliarDiagnosticos, responderDiagnostico, type RespuestaDiagnostico } from './diagnostico'
 export { DIAS_AVISO_COPIA, exportar, importar, necesitaCopia, registrosCsv, VERSION_ESQUEMA, type Copia, type ErrorImportacion, type ResultadoImportacion } from './copia'
+export { necesitaPrimerosPasos } from './primerosPasos'

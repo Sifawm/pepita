@@ -3,6 +3,40 @@
     "nombre": "Pepita",
     "saltar": "Saltar al contenido"
   },
+  "primerosPasos": {
+    "titulo": "Primeros pasos",
+    "habito": "Tu primer hábito",
+    "empezar": "Ir a Hoy",
+    "repetir": "Repetir los primeros pasos",
+    "repetirAyuda": "Vuelve a elegir idioma, crea una identidad y un hábito, y repasa cómo instalar Pepita. No borra nada.",
+    "idioma": {
+      "titulo": "¡Hola! Soy Pepita. ¿En qué idioma hablamos?",
+      "ayuda": "Te propongo el de tu navegador; puedes cambiarlo cuando quieras. Sin cuentas: todo se queda en este dispositivo.",
+      "copia": "¿Tienes una copia? Restáurala en Ajustes"
+    },
+    "identidad": {
+      "titulo": "¿Quién quieres ser?",
+      "ayuda": "Escríbelo como una frase: «Soy una persona que…». Cada hábito será un voto por esa persona."
+    },
+    "registrar": {
+      "titulo": "¿Lo hacemos ahora?",
+      "ayuda": "Haz tu versión mínima y tócala: será tu primer voto. Si ahora no puedes, no pasa nada."
+    },
+    "instalar": {
+      "titulo": "Ten a Pepita a mano",
+      "ayuda": "Instalada en tu pantalla de inicio, se abre al momento y cuida mejor tus datos.",
+      "boton": "Instalar Pepita",
+      "menu": "Si tu navegador lo permite, añádela a la pantalla de inicio desde su menú.",
+      "yaInstalada": "Ya tienes Pepita instalada. ¡Genial!",
+      "ios": {
+        "titulo": "Cómo instalarla en tu iPhone o iPad",
+        "compartir": "En Safari, toca el botón Compartir (el cuadrado con una flecha hacia arriba).",
+        "anadir": "Elige «Añadir a pantalla de inicio» y toca «Añadir».",
+        "abrir": "A partir de ahora, abre Pepita desde su icono.",
+        "porque": "Safari puede borrar los datos de las webs que no abres en unas semanas. Instalada, Pepita los conserva."
+      }
+    }
+  },
   "identidad": {
     "general": "General"
   },
