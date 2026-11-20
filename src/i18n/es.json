@@ -79,7 +79,11 @@
     "que_dias": "Qué días",
     "lleva_dia": "{{hechos}} de {{pide}} hoy",
     "lleva_semana": "{{hechos}} de {{pide}} esta semana",
-    "lleva_mes": "{{hechos}} de {{pide}} este mes"
+    "lleva_mes": "{{hechos}} de {{pide}} este mes",
+    "cada_periodo": "Cada día, cada semana o cada mes",
+    "cada_dia": "cada día",
+    "cada_semana": "cada semana",
+    "cada_mes": "cada mes"
   },
   "ajustes": {
     "titulo": "Ajustes",
@@ -135,6 +139,14 @@
     "identidad": {
       "titulo": "¿Por quién votas con este hábito?",
       "ayuda": "Cada vez que lo hagas, sumarás un voto a la persona que quieres ser."
+    },
+    "tipo": {
+      "titulo": "¿Cómo lo vas a contar?",
+      "ayuda": "Hecho o no hecho basta para casi todo. Si te ayuda contar algo (páginas, kilómetros, cafés), mídelo.",
+      "opciones": {
+        "si_no": "Hecho o no hecho",
+        "cuantitativo": "Contando una cantidad"
+      }
     },
     "frecuencia": {
       "titulo": "¿Cada cuánto?",
@@ -282,5 +294,36 @@
     "celebracionIdentidad": "Mira cuánto has votado por «{{identidad}}». Esa persona ya eres tú.",
     "verCurva": "Ver tu curva",
     "cerrar": "Cerrar"
+  },
+  "cuantitativo": {
+    "modo": "¿Qué buscas?",
+    "modos": {
+      "al_menos": "Llegar al menos a un objetivo",
+      "como_mucho": "No pasar de un límite"
+    },
+    "objetivo": "Cantidad",
+    "unidad": "Unidad",
+    "unidadEjemplo": "Por ejemplo: páginas",
+    "objetivoMinimo": "Objetivo mínimo (opcional)",
+    "objetivoMinimoAyuda": "Tu versión mínima: una cantidad pequeña que también vale un voto en los días malos.",
+    "periodo": {
+      "dia": "hoy",
+      "semana": "esta semana",
+      "mes": "este mes"
+    },
+    "lleva": {
+      "al_menos": "{{hechos}} de {{objetivo}} {{unidad}} {{periodo}}",
+      "como_mucho": "{{hechos}} {{unidad}} {{periodo}} (máximo {{objetivo}})"
+    },
+    "estado": {
+      "completa": "Objetivo alcanzado · +1 voto",
+      "minima": "Mínimo alcanzado · +1 voto",
+      "pendiente": "Suma lo que hagas, aunque sea poco",
+      "dentro": "Vas bien: el voto llega al cerrar el periodo",
+      "pasado": "Esta vez te has pasado. El próximo periodo empieza de cero"
+    },
+    "sumar": "Añadir {{unidad}}",
+    "sumarCorto": "Sumar",
+    "sumarBoton": "Sumar a «{{nombre}}»"
   }
 }

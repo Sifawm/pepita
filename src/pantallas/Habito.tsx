@@ -3,6 +3,7 @@ import { Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
+import { SumarValor } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -178,8 +179,10 @@ function Calendario({ habito, registros, ajustes }: { habito: THabito; registros
 
 /** Registrar, corregir o deshacer un día. La evaluación se recalcula sola al cambiar los registros. */
 function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendario; titulo: string }) {
-  const { t } = useTranslation()
-  const anadir = (tipo: Registro['tipo']) => db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo }))
+  const { t, i18n } = useTranslation()
+  const anadir = (tipo: Registro['tipo'], valor?: number) =>
+    db.registros.add(conId<Registro>({ habitoId: habito.id, dia: dia.dia, tipo, ...(valor !== undefined && { valor }) }))
+  const c = habito.cuantitativo
 
   return (
     <div className="space-y-3 rounded-lg border bg-card p-4">
@@ -195,10 +198,10 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
             return (
               <li key={r.id} className="flex flex-wrap items-center gap-2">
                 <span className="flex-1 font-semibold">
-                  {t(`habito.tipo.${r.tipo}`)}
+                  {r.tipo === 'valor' ? `${r.valor?.toLocaleString(i18n.language)} ${c?.unidad}` : t(`habito.tipo.${r.tipo}`)}
                   {r.motivo && <span className="font-normal text-muted-foreground"> · {r.motivo}</span>}
                 </span>
-                {r.tipo !== 'salto' && (
+                {(r.tipo === 'minima' || r.tipo === 'completa') && (
                   <Button variant="secondary" onClick={() => db.registros.update(r.id, { tipo: otro })}>
                     {t(`habito.pasarA.${otro}`)}
                   </Button>
@@ -211,12 +214,16 @@ function EditarDia({ habito, dia, titulo }: { habito: THabito; dia: DiaCalendari
           })}
         </ul>
       )}
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button onClick={() => anadir('minima')}>{t('habito.anadir.minima')}</Button>
-        <Button variant="secondary" onClick={() => anadir('completa')}>
-          {t('habito.anadir.completa')}
-        </Button>
-      </div>
+      {c ? (
+        <SumarValor unidad={c.unidad} nombre={habito.nombre} sumar={(valor) => anadir('valor', valor)} />
+      ) : (
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button onClick={() => anadir('minima')}>{t('habito.anadir.minima')}</Button>
+          <Button variant="secondary" onClick={() => anadir('completa')}>
+            {t('habito.anadir.completa')}
+          </Button>
+        </div>
+      )}
       {dia.estado === 'fallido' && dia.periodo && <AnotarFallo habitoId={habito.id} periodo={dia.periodo} />}
     </div>
   )
@@ -297,7 +304,11 @@ function CambiarFrecuencia({ habito, ajustes }: { habito: THabito; ajustes: Ajus
         {t('habito.frecuencia')}
       </h2>
       <p className="text-sm text-muted-foreground">{t('habito.frecuenciaAyuda')}</p>
-      <SelectorFrecuencia valor={frecuencia} cambiar={(f) => (setFrecuencia(f), setGuardada(false))} />
+      <SelectorFrecuencia
+        valor={frecuencia}
+        cambiar={(f) => (setFrecuencia(f), setGuardada(false))}
+        soloPeriodo={habito.tipo === 'cuantitativo'}
+      />
       <Button type="submit" disabled={igual}>
         {t('habito.guardarFrecuencia')}
       </Button>

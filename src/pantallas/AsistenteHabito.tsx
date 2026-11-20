@@ -4,23 +4,32 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 import { BorrarHabito } from '@/components/BorrarHabito'
+import { CamposCuantitativo } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
 import { conId, db, useAjustes } from '@/db'
-import { editarHabito, nuevoHabito, type CamposHabito, type Habito, type Identidad } from '@/dominio'
+import { editarHabito, nuevoHabito, type CamposHabito, type Habito, type Identidad, type TipoHabito } from '@/dominio'
 import { nombreIdentidad } from '@/lib/utils'
 
 type Borrador = CamposHabito
+
+const OPCION =
+  'flex min-h-11 cursor-pointer items-center gap-3 rounded-md border px-3 has-[:checked]:border-primary has-[:checked]:bg-accent has-[:checked]:font-bold has-[:focus-visible]:ring-[3px] has-[:focus-visible]:ring-ring'
 interface PropsPaso {
   borrador: Borrador
   cambiar: (c: Partial<Borrador>) => void
   identidades: Identidad[]
   /** Id del título del paso, para nombrar el campo cuando es uno solo. */
   titulo: string
+  /** Editando un hábito que ya existe (su tipo no cambia). */
+  editando: boolean
 }
+
+/** Los tipos que se pueden elegir al crear. Uno nuevo = una entrada aquí + `asistente.tipo.opciones.<tipo>`. */
+const TIPOS: TipoHabito[] = ['si_no', 'cuantitativo']
 
 /**
  * Los pasos del método, en orden. Para añadir uno (tipo, intención, entorno, recompensa…):
@@ -42,9 +51,23 @@ const PASOS: {
     visible: ({ identidades }) => identidades.length > 1,
     Campo: PasoIdentidad,
   },
-  // Ticket 10/11: aquí va el paso «tipo» (sí/no, cuantitativo, evitar).
+  {
+    clave: 'tipo',
+    campos: ['tipo', 'cuantitativo'],
+    opcional: true,
+    // Al editar, el tipo no cambia: el paso solo sale para ajustar el objetivo de un cuantitativo.
+    visible: ({ editando, borrador }) => !editando || borrador.tipo === 'cuantitativo',
+    Campo: PasoTipo,
+  },
   { clave: 'frecuencia', campos: ['frecuencia'], opcional: true, Campo: PasoFrecuencia },
-  { clave: 'versiones', campos: ['versionMinima', 'versionCompleta'], opcional: true, Campo: PasoVersiones },
+  {
+    clave: 'versiones',
+    campos: ['versionMinima', 'versionCompleta'],
+    opcional: true,
+    // En un cuantitativo, la versión mínima es su objetivo mínimo.
+    visible: ({ borrador }) => (borrador.tipo ?? 'si_no') === 'si_no',
+    Campo: PasoVersiones,
+  },
   // Ticket 09: intención (cuándo y dónde), entorno y recompensa asociada.
 ]
 
@@ -70,6 +93,7 @@ export default function AsistenteHabito() {
   const inicial: Borrador = habito ?? {
     nombre: '',
     identidadId: (pedida ?? general).id,
+    tipo: 'si_no',
     frecuencia: { tipo: 'veces_por_periodo', veces: 1, periodo: 'dia' },
   }
   return (
@@ -102,7 +126,7 @@ function Asistente({
   const navigate = useNavigate()
   const [borrador, setBorrador] = useState(inicial)
   const cambiar = (c: Partial<Borrador>) => setBorrador((b) => ({ ...b, ...c }))
-  const props = { borrador, cambiar, identidades, titulo: 'paso-titulo' }
+  const props = { borrador, cambiar, identidades, titulo: 'paso-titulo', editando: !!habito }
   const pasos = PASOS.filter((p) => !p.visible || p.visible(props))
   const [n, setN] = useState(0)
   const paso = pasos[n]
@@ -116,8 +140,11 @@ function Asistente({
     anterior.current = n
   }, [n])
 
+  const formulario = useRef<HTMLFormElement>(null)
   const terminar = async () => {
     if (!borrador.nombre.trim()) return setN(0)
+    // «Guardar» desde un paso a medias: que el navegador avise del campo que falta.
+    if (!formulario.current?.reportValidity()) return
     await guardar(borrador)
     navigate('/')
   }
@@ -133,7 +160,7 @@ function Asistente({
 
   return (
     <div className="space-y-6">
-      <form onSubmit={siguiente} className="space-y-6">
+      <form ref={formulario} onSubmit={siguiente} className="space-y-6">
         <header className="space-y-1">
           <h1 className="text-3xl font-bold">{t(habito ? 'asistente.editar' : 'nuevo.titulo')}</h1>
           <p className="text-muted-foreground">{t('asistente.paso', { n: n + 1, total: pasos.length })}</p>
@@ -228,8 +255,49 @@ function PasoIdentidad({ borrador, cambiar, identidades, titulo }: PropsPaso) {
   )
 }
 
+function PasoTipo({ borrador, cambiar, editando }: PropsPaso) {
+  const { t } = useTranslation()
+  const tipo = borrador.tipo ?? 'si_no'
+  return (
+    <>
+      {!editando && (
+        <fieldset className="space-y-2">
+          {/* El título del paso ya hace la pregunta. */}
+          <legend className="sr-only">{t('asistente.tipo.titulo')}</legend>
+          {TIPOS.map((opcion) => (
+            <label key={opcion} className={OPCION}>
+              <input
+                type="radio"
+                name="tipo"
+                className="size-5 accent-primary"
+                checked={tipo === opcion}
+                onChange={() =>
+                  cambiar({
+                    tipo: opcion,
+                    cuantitativo: opcion === 'cuantitativo' ? (borrador.cuantitativo ?? { unidad: '', objetivo: 0, modo: 'al_menos' }) : undefined,
+                  })
+                }
+              />
+              {t(`asistente.tipo.opciones.${opcion}`)}
+            </label>
+          ))}
+        </fieldset>
+      )}
+      {borrador.cuantitativo && tipo === 'cuantitativo' && (
+        <CamposCuantitativo valor={borrador.cuantitativo} cambiar={(cuantitativo) => cambiar({ cuantitativo })} />
+      )}
+    </>
+  )
+}
+
 function PasoFrecuencia({ borrador, cambiar }: PropsPaso) {
-  return <SelectorFrecuencia valor={borrador.frecuencia} cambiar={(frecuencia) => cambiar({ frecuencia })} />
+  return (
+    <SelectorFrecuencia
+      valor={borrador.frecuencia}
+      cambiar={(frecuencia) => cambiar({ frecuencia })}
+      soloPeriodo={borrador.tipo === 'cuantitativo'}
+    />
+  )
 }
 
 function PasoVersiones({ borrador, cambiar }: PropsPaso) {

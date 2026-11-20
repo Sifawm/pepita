@@ -2,12 +2,13 @@ import { CalendarDays, Check, Circle, Ellipsis } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { SumarValor } from '@/components/Cuantitativo'
 import { SaltarYPausar } from '@/components/Pausas'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { conId, db } from '@/db'
-import { anotar, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
-import { cn, fechaDia, nombreIdentidad } from '@/lib/utils'
+import { anotar, sumarValor, toque, type Ajustes, type Registro, type TarjetaHoy } from '@/dominio'
+import { cn, fechaDia, nombreIdentidad, progresoCuantitativo } from '@/lib/utils'
 
 /** Calibración: lo que hay que mantener pulsado para la versión completa. Afínalo con el uso real. */
 const PULSACION_LARGA_MS = 500
@@ -33,21 +34,36 @@ export function TarjetaHabito({
   const { habito, identidad, hecho, periodo, pausa, enRecuperacion, racha } = tarjeta
   const ultimo = tarjeta.registros.at(-1)
   const f = habito.frecuencia
-  // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez.
-  const contador =
-    f.tipo === 'veces_por_periodo' && (f.periodo !== 'dia' || f.veces > 1)
+  const c = habito.cuantitativo
+  // «2 de 3 esta semana»: solo cuando el periodo pide más de un día o más de una vez. Un cuantitativo, siempre.
+  const contador = c
+    ? progresoCuantitativo(habito, periodo, t, i18n.language)
+    : f.tipo === 'veces_por_periodo' && (f.periodo !== 'dia' || f.veces > 1)
       ? t(`frecuencia.lleva_${f.periodo}`, { hechos: periodo.hechos, pide: periodo.pide })
       : null
   const menuId = `menu-${habito.id}`
   const botonMenu = useRef<HTMLButtonElement>(null)
   const [aviso, setAviso] = useState('')
   const estado = hecho
-    ? t(ultimo?.tipo === 'completa' ? 'hoy.hechoCompleta' : 'hoy.hechoMinima')
+    ? c
+      ? t(periodo.estado === 'cumplido_completa' ? 'cuantitativo.estado.completa' : 'cuantitativo.estado.minima')
+      : t(ultimo?.tipo === 'completa' ? 'hoy.hechoCompleta' : 'hoy.hechoMinima')
     : pausa
       ? t('pausas.enPausa', { fecha: fechaDia(pausa.hasta, i18n.language) })
       : periodo.estado === 'saltado'
         ? t('pausas.saltado')
-        : t('hoy.pendiente')
+        : !c
+          ? t('hoy.pendiente')
+          : c.modo === 'al_menos'
+            ? t('cuantitativo.estado.pendiente')
+            : t(periodo.hechos <= c.objetivo ? 'cuantitativo.estado.dentro' : 'cuantitativo.estado.pasado')
+
+  const sumar = async (valor: number) => {
+    abrir()
+    const { registro, voto } = sumarValor({ habito, registros, valor, ahora: new Date(), ajustes })
+    await db.registros.add(conId<Registro>(registro))
+    if (voto) celebrar()
+  }
 
   const registrar = async (version: 'minima' | 'completa') => {
     abrir()
@@ -72,61 +88,77 @@ export function TarjetaHabito({
     botonMenu.current?.focus()
   }
 
+  const caja = cn(
+    'flex min-h-16 min-w-0 flex-1 items-center gap-4 rounded-lg border bg-card p-4 text-left',
+    hecho && 'border-primary bg-accent',
+    // Recuperación: borde grueso además del texto de sugerencia (no solo color).
+    enRecuperacion && !hecho && 'border-2 border-primary',
+  )
+  const contenido = (
+    <>
+      <span
+        aria-hidden
+        className={cn(
+          'flex size-10 shrink-0 items-center justify-center rounded-full border-2',
+          hecho ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
+        )}
+      >
+        {hecho ? <Check className="size-6" /> : <Circle className="size-6" />}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
+        {enRecuperacion && !hecho && <span className="block text-sm font-semibold text-primary">{t('recuperacion.sugerencia')}</span>}
+        {!c && habito.versionMinima && !hecho && (
+          <span className="block break-words">{t('hoy.minima', { texto: habito.versionMinima })}</span>
+        )}
+        <span className="block text-sm text-muted-foreground">
+          {nombreIdentidad(identidad, t)}
+          {contador && ` · ${contador}`}
+          {' · '}
+          {estado}
+        </span>
+        {racha.mejor > 0 && <span className="block text-xs text-muted-foreground">{t('recuperacion.racha', { ...racha })}</span>}
+      </span>
+    </>
+  )
+
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        <button
-          type="button"
-          aria-pressed={hecho}
-          onPointerDown={(e) => {
-            if (e.button !== 0) return
-            largo.current = false
-            temporizador.current = setTimeout(() => {
-              largo.current = true
-              void registrar('completa')
-            }, PULSACION_LARGA_MS)
-          }}
-          onPointerUp={soltar}
-          onPointerLeave={soltar}
-          onPointerCancel={soltar}
-          // Sin el menú del sistema al mantener pulsado en el móvil.
-          onContextMenu={(e) => e.preventDefault()}
-          onClick={() => {
-            if (largo.current) largo.current = false
-            else void registrar('minima')
-          }}
-          className={cn(
-            'flex min-h-16 min-w-0 flex-1 touch-manipulation select-none items-center gap-4 rounded-lg border bg-card p-4 text-left transition-colors outline-none [-webkit-touch-callout:none]',
-            'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-            hecho ? 'border-primary bg-accent' : 'hover:bg-muted',
-            // Recuperación: borde grueso además del texto de sugerencia (no solo color).
-            enRecuperacion && !hecho && 'border-2 border-primary',
-          )}
-        >
-          <span
-            aria-hidden
+        {/* Un cuantitativo no se marca con un toque: se le suman valores en el campo de abajo. */}
+        {c ? (
+          <div className={caja}>{contenido}</div>
+        ) : (
+          <button
+            type="button"
+            aria-pressed={hecho}
+            onPointerDown={(e) => {
+              if (e.button !== 0) return
+              largo.current = false
+              temporizador.current = setTimeout(() => {
+                largo.current = true
+                void registrar('completa')
+              }, PULSACION_LARGA_MS)
+            }}
+            onPointerUp={soltar}
+            onPointerLeave={soltar}
+            onPointerCancel={soltar}
+            // Sin el menú del sistema al mantener pulsado en el móvil.
+            onContextMenu={(e) => e.preventDefault()}
+            onClick={() => {
+              if (largo.current) largo.current = false
+              else void registrar('minima')
+            }}
             className={cn(
-              'flex size-10 shrink-0 items-center justify-center rounded-full border-2',
-              hecho ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
+              caja,
+              'touch-manipulation select-none transition-colors outline-none [-webkit-touch-callout:none]',
+              'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+              !hecho && 'hover:bg-muted',
             )}
           >
-            {hecho ? <Check className="size-6" /> : <Circle className="size-6" />}
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
-            {enRecuperacion && !hecho && <span className="block text-sm font-semibold text-primary">{t('recuperacion.sugerencia')}</span>}
-            {habito.versionMinima && !hecho && (
-              <span className="block break-words">{t('hoy.minima', { texto: habito.versionMinima })}</span>
-            )}
-            <span className="block text-sm text-muted-foreground">
-              {nombreIdentidad(identidad, t)}
-              {contador && ` · ${contador}`}
-              {' · '}
-              {estado}
-            </span>
-            {racha.mejor > 0 && <span className="block text-xs text-muted-foreground">{t('recuperacion.racha', { ...racha })}</span>}
-          </span>
-        </button>
+            {contenido}
+          </button>
+        )}
         <Link
           to={`/habito/${habito.id}`}
           aria-label={t('habito.abrir', { nombre: habito.nombre })}
@@ -150,6 +182,8 @@ export function TarjetaHabito({
         </button>
       </div>
 
+      {c && <SumarValor unidad={c.unidad} nombre={habito.nombre} sumar={sumar} />}
+
       {panel === 'menu' && (
         // Alternativa accesible a la pulsación larga: todas las acciones como botones.
         <div
@@ -159,7 +193,7 @@ export function TarjetaHabito({
           onKeyDown={(e) => e.key === 'Escape' && cerrarMenu()}
           className="flex flex-col gap-2 rounded-lg border bg-card p-2"
         >
-          {!hecho && (
+          {!c && !hecho && (
             <>
               <Button variant="ghost" className="justify-start" autoFocus onClick={() => registrar('minima')}>
                 {t('hoy.registrarMinima')}
@@ -171,7 +205,7 @@ export function TarjetaHabito({
           )}
           {ultimo && (
             <>
-              <Button variant="ghost" className="justify-start" autoFocus={hecho} onClick={() => abrir('nota')}>
+              <Button variant="ghost" className="justify-start" autoFocus={hecho || !!c} onClick={() => abrir('nota')}>
                 {t(ultimo.nota ? 'hoy.editarNota' : 'hoy.anadirNota')}
               </Button>
               <Button variant="ghost" className="justify-start" onClick={deshacer}>
