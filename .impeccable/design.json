@@ -1,0 +1,396 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T18:55:26.332Z",
+  "title": "Design System: Pepita",
+  "extensions": {
+    "colorMeta": {
+      "cricket-green": {
+        "role": "primary",
+        "displayName": "Cricket Green",
+        "canonical": "oklch(47.9% 0.078 161)",
+        "tonalRamp": [
+          "#050e09",
+          "#0f2a1d",
+          "#1b4a35",
+          "#2f6b4f",
+          "#538f71",
+          "#80b297",
+          "#b4d3c2",
+          "#e5f2ea"
+        ]
+      },
+      "cricket-green-dark": {
+        "role": "primary",
+        "displayName": "Cricket Green (dark)"
+      },
+      "paper-cream": {
+        "role": "neutral",
+        "displayName": "Paper Cream",
+        "canonical": "oklch(98.0% 0.007 80)",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252422",
+          "#413f3c",
+          "#605d59",
+          "#82807b",
+          "#a7a4a0",
+          "#cccac8",
+          "#efeeed"
+        ]
+      },
+      "paper-cream-dark": {
+        "role": "neutral",
+        "displayName": "Paper Cream (dark)"
+      },
+      "ink-pine": {
+        "role": "neutral",
+        "displayName": "Ink Pine",
+        "canonical": "oklch(27.2% 0.019 160)",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#202622",
+          "#39423d",
+          "#55615a",
+          "#77847d",
+          "#9ca8a1",
+          "#c5cdc8",
+          "#ecefed"
+        ]
+      },
+      "ink-pine-dark": {
+        "role": "neutral",
+        "displayName": "Ink Pine (dark)"
+      },
+      "sage-wash": {
+        "role": "neutral",
+        "displayName": "Sage Wash",
+        "canonical": "oklch(94.6% 0.010 145)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#222522",
+          "#3d413d",
+          "#5a5f5a",
+          "#7d827d",
+          "#a1a6a1",
+          "#c8cbc8",
+          "#edefed"
+        ]
+      },
+      "sage-wash-dark": {
+        "role": "neutral",
+        "displayName": "Sage Wash (dark)"
+      },
+      "oat-mist": {
+        "role": "neutral",
+        "displayName": "Oat Mist",
+        "canonical": "oklch(94.1% 0.010 81)",
+        "tonalRamp": [
+          "#0c0b0a",
+          "#252421",
+          "#423f3b",
+          "#615d57",
+          "#838079",
+          "#a7a49f",
+          "#cccac7",
+          "#efeeed"
+        ]
+      },
+      "oat-mist-dark": {
+        "role": "neutral",
+        "displayName": "Oat Mist (dark)"
+      },
+      "lichen-grey": {
+        "role": "neutral",
+        "displayName": "Lichen Grey",
+        "canonical": "oklch(48.7% 0.018 160)",
+        "tonalRamp": [
+          "#0a0c0a",
+          "#202622",
+          "#39423d",
+          "#55615a",
+          "#77847c",
+          "#9da8a1",
+          "#c5ccc8",
+          "#ecefed"
+        ]
+      },
+      "lichen-grey-dark": {
+        "role": "neutral",
+        "displayName": "Lichen Grey (dark)"
+      },
+      "moss-glow": {
+        "role": "neutral",
+        "displayName": "Moss Glow",
+        "canonical": "oklch(94.1% 0.017 156)",
+        "tonalRamp": [
+          "#0a0c0a",
+          "#212522",
+          "#3a423d",
+          "#56615a",
+          "#79837c",
+          "#9ea7a1",
+          "#c6ccc8",
+          "#ecefed"
+        ]
+      },
+      "moss-glow-dark": {
+        "role": "neutral",
+        "displayName": "Moss Glow (dark)"
+      },
+      "ember-red": {
+        "role": "error",
+        "displayName": "Ember Red",
+        "canonical": "oklch(50.0% 0.182 29)",
+        "tonalRamp": [
+          "#1a0403",
+          "#480704",
+          "#7c0401",
+          "#ad1a10",
+          "#d74839",
+          "#f67b6a",
+          "#ffb3a6",
+          "#ffe5de"
+        ]
+      },
+      "ember-red-dark": {
+        "role": "error",
+        "displayName": "Ember Red (dark)"
+      },
+      "linen-line": {
+        "role": "neutral",
+        "displayName": "Linen Line",
+        "canonical": "oklch(87.9% 0.017 79)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#26241f",
+          "#443f38",
+          "#635d53",
+          "#867f75",
+          "#a9a49b",
+          "#cecac4",
+          "#f0eeec"
+        ]
+      },
+      "linen-line-dark": {
+        "role": "neutral",
+        "displayName": "Linen Line (dark)"
+      },
+      "pebble-stroke": {
+        "role": "neutral",
+        "displayName": "Pebble Stroke",
+        "canonical": "oklch(61.0% 0.019 76)",
+        "tonalRamp": [
+          "#0c0b09",
+          "#27231f",
+          "#453f37",
+          "#645c52",
+          "#877f74",
+          "#aaa39a",
+          "#cecac3",
+          "#f0eeeb"
+        ]
+      },
+      "pebble-stroke-dark": {
+        "role": "neutral",
+        "displayName": "Pebble Stroke (dark)"
+      },
+      "card-white": {
+        "role": "neutral",
+        "displayName": "Card White"
+      },
+      "card-white-dark": {
+        "role": "neutral",
+        "displayName": "Card White (dark)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Onboarding step titles and the printed report's title."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings (h2), diagnosis and milestone titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Screen title, habit names, votes of the day, celebration toast."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Pepita's sentences, intention phrases, form values."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels, notices, recovery suggestion."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Streak line, chart axes."
+      }
+    },
+    "shadows": [
+      {
+        "name": "toast-lift",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "The bottom \"+1 vote\" celebration."
+      },
+      {
+        "name": "milestone-lift",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "The top milestone card."
+      }
+    ],
+    "motion": [
+      {
+        "name": "strike-through",
+        "value": "background-size 300ms ease-out",
+        "purpose": "Stroke drawn through a done habit name; none with reduced motion."
+      },
+      {
+        "name": "celebrate-in",
+        "value": "fade-in + zoom-in-90 + slide-in-from-bottom-4 (tw-animate-css, 150ms)",
+        "purpose": "\"+1 vote\" toast entrance, motion-safe only."
+      },
+      {
+        "name": "milestone-in",
+        "value": "fade-in + zoom-in-75, 500ms; icon spin-in-45, 700ms",
+        "purpose": "Milestone celebration entrance, motion-safe only."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column",
+        "value": "448px",
+        "purpose": "Max width of the single column; no other breakpoints."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single next step on a view.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5v14\"/></svg>New habit</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: var(--primary); color: var(--primary-foreground); } .ds-btn-primary:hover { background: color-mix(in srgb, var(--primary) 90%, transparent); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Alternatives and secondary navigation.",
+      "html": "<button class=\"ds-btn-secondary\">Weekly review</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: var(--secondary); color: var(--secondary-foreground); } .ds-btn-secondary:hover { background: color-mix(in srgb, var(--secondary) 80%, transparent); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Menu items, icon buttons, cancel.",
+      "html": "<button class=\"ds-btn-ghost\">Not now</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: transparent; color: var(--foreground); } .ds-btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Inputs, selects and native date/time controls.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-label\">Where?</span><input class=\"ds-input\" placeholder=\"In the kitchen\"></label>",
+      "css": ".ds-field { display: grid; gap: 8px; } .ds-label { font: 600 0.875rem/1 \"Nunito Variable\", ui-sans-serif, sans-serif; color: var(--foreground); } .ds-input { min-height: 44px; width: 100%; padding: 8px 12px; border: 1px solid var(--input); border-radius: 10px; background: var(--card); color: var(--foreground); font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, sans-serif; } .ds-input::placeholder { color: var(--muted-foreground); } .ds-input:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--ring); }"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "description": "Compact screen header: back, title, settings.",
+      "html": "<header class=\"ds-header\"><div class=\"ds-header-start\"><button class=\"ds-icon\" aria-label=\"Back to Today\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"m15 18-6-6 6-6\"/></svg></button><h1 class=\"ds-header-title\">Read every day</h1></div><button class=\"ds-icon ds-icon-plain\" aria-label=\"Settings\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1\"/></svg></button></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 56px; padding: 8px 0; } .ds-header-start { display: flex; align-items: center; gap: 4px; } .ds-header-title { margin: 0; font: 600 1.125rem/1.75rem \"Nunito Variable\", ui-sans-serif, sans-serif; color: var(--foreground); } .ds-icon { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-left: -12px; border: none; border-radius: 10px; background: transparent; color: var(--primary); cursor: pointer; } .ds-icon-plain { margin-left: 0; color: var(--foreground); } .ds-icon:hover { background: var(--accent); } .ds-icon:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
+    },
+    {
+      "name": "Habit Card",
+      "kind": "card",
+      "refersTo": "habit-card",
+      "description": "Tap = minimum version, long press = full. Signature component.",
+      "html": "<button class=\"ds-habit\" aria-pressed=\"false\"><span class=\"ds-habit-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></span><span class=\"ds-habit-body\"><span class=\"ds-habit-name\">Read</span><span>Minimum: read 1 page</span><span>After pouring my coffee, in the kitchen</span><span class=\"ds-habit-meta\">I'm a reader · Pending</span></span></button>",
+      "css": ".ds-habit { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; } .ds-habit:hover { background: var(--muted); } .ds-habit:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-habit-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--input); border-radius: 9999px; color: transparent; } .ds-habit-body { display: grid; min-width: 0; color: var(--foreground); } .ds-habit-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-habit-meta { font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }"
+    },
+    {
+      "name": "Habit Card (done)",
+      "kind": "card",
+      "refersTo": "habit-card-done",
+      "description": "Done state: moss fill, green border, check, struck-through name.",
+      "html": "<button class=\"ds-habit-done\" aria-pressed=\"true\"><span class=\"ds-done-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span class=\"ds-done-body\"><span class=\"ds-done-name\"><span>Read</span></span><span>After pouring my coffee, in the kitchen</span><span class=\"ds-done-meta\">I'm a reader · Done (minimum)</span></span></button>",
+      "css": ".ds-habit-done { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; border-color: var(--primary); background: var(--accent); } .ds-habit-done:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-done-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--primary); border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); } .ds-done-body { display: grid; min-width: 0; color: var(--muted-foreground); } .ds-done-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-done-name span { background: linear-gradient(currentColor, currentColor) 0 55% / 100% 2px no-repeat; } .ds-done-meta { font-size: 0.875rem; line-height: 1.25rem; }"
+    },
+    {
+      "name": "Habit Card (recovery)",
+      "kind": "card",
+      "description": "After a failure: thick green border and a minimum-version suggestion.",
+      "html": "<button class=\"ds-habit-rec\" aria-pressed=\"false\"><span class=\"ds-rec-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></span><span class=\"ds-rec-body\"><span class=\"ds-rec-name\">Walk</span><span class=\"ds-rec-hint\">Never miss twice: the minimum version is enough today</span><span class=\"ds-rec-meta\">I'm active · Pending</span></span></button>",
+      "css": ".ds-habit-rec { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; border: 2px solid var(--primary); } .ds-habit-rec:hover { background: var(--muted); } .ds-habit-rec:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-rec-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--input); border-radius: 9999px; color: transparent; } .ds-rec-body { display: grid; min-width: 0; color: var(--foreground); } .ds-rec-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-rec-hint { font-size: 0.875rem; font-weight: 600; line-height: 1.25rem; color: var(--primary); } .ds-rec-meta { font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }"
+    },
+    {
+      "name": "Celebration Toast",
+      "kind": "custom",
+      "refersTo": "celebration-toast",
+      "description": "\"+1 vote · identity\" after a log. Floating, auto-dismisses.",
+      "html": "<div class=\"ds-toast\" role=\"status\"><span class=\"ds-toast-text\">+1 vote · I'm a reader</span><button class=\"ds-toast-btn\">Add note</button></div>",
+      "css": ".ds-toast { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 16px; border-radius: 12px; background: var(--primary); color: var(--primary-foreground); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); font-family: \"Nunito Variable\", ui-sans-serif, sans-serif; } .ds-toast-text { font-size: 1.125rem; font-weight: 700; } .ds-toast-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: var(--secondary); color: var(--secondary-foreground); } .ds-toast-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Conscience",
+    "overview": "Pepita's interface steps back so its voice can speak. Each screen is a single narrow column on warm paper, with one clear action at a time and Pepita's short, kind sentences doing the persuading. Nothing decorates; the green appears where something is done, needs attention, or is the next step. The feeling is a calm friend at your ear, not a dashboard demanding you look at it.\n\nDensity is low and touch-first: the app lives in a phone, opened for a few seconds several times a day. Targets are large, the type is rounded and friendly (Nunito), and surfaces are flat. Motion exists only to acknowledge an action (a stroke drawing through a finished habit, a \"+1 vote\" rising from the bottom) and always yields to `prefers-reduced-motion`.\n\nThe current palette and type are a provisional adjusted shadcn/ui theme; a dedicated identity (logo, palette) is planned in Penpot. Until then, this file is the authority.",
+    "keyCharacteristics": [
+      "One centered column (448px max) on cream paper, 16px side gutters.",
+      "A single accent, Cricket Green, reserved for done, recovery, primary action and focus.",
+      "Flat surfaces separated by hairline borders; shadows only on floating celebrations.",
+      "Every interactive target at least 44px; focus is always a visible 3px ring.",
+      "State is never color alone: recovery adds a thicker border and a sentence, a relapse adds a dashed border.",
+      "Light and dark follow the system; print is always light."
+    ],
+    "rules": [
+      {
+        "name": "The One Voice Rule",
+        "body": "Cricket Green is the only accent. It marks done, recovery, the next action and focus; nothing else gets color. Don't add a second hue for categories, identities or decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Never Red Rule",
+        "body": "Failure, missed periods and relapses are never shown in Ember Red. Red is reserved for destroying data and real errors. A bad day is information, not an alarm.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "All copy is sentence case, including buttons and headings. No uppercase labels, no tracking: Pepita talks, it doesn't announce.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Column Rule",
+        "body": "Everything lives in one reachable column. Card side actions stack vertically so the habit text keeps its width at 375px.",
+        "section": "layout"
+      },
+      {
+        "name": "The Floating-Only Shadow Rule",
+        "body": "If it stays on the page, it has no shadow. Shadows mean \"this is temporary and above everything\".",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep every tap target at least 44px and every focus ring visible (3px Cricket Green).",
+      "Do pair every state color with a second signal: border weight, dashed border, an icon or a sentence.",
+      "Do keep Cricket Green for done, recovery, the primary action and focus (The One Voice Rule).",
+      "Do use theme tokens for every color so light, dark and print stay correct; charts take `currentColor` from Cricket Green.",
+      "Do wrap motion in `motion-safe` / `motion-reduce` and keep it to acknowledgement (≤700ms).",
+      "Do write all copy in sentence case, short, in Pepita's voice."
+    ],
+    "donts": [
+      "Don't show failure, missed days or relapses in red (The Never Red Rule).",
+      "Don't add shadows to anything that stays on the page (The Floating-Only Shadow Rule).",
+      "Don't add a mascot, avatar, currency, badges or RPG visuals; Pepita is only a voice.",
+      "Don't make the streak visually prominent; votes and strength lead, the streak is a caption.",
+      "Don't introduce a second typeface or uppercase tracked labels.",
+      "Don't break the single column into a desktop grid."
+    ]
+  }
+}
