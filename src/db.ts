@@ -36,9 +36,13 @@ db.version(6).stores({ sugerenciasDescartadas: 'id, habitoId' })
 
 db.version(7).stores({ revisionesSemanales: 'id, &semana' })
 
+// `randomUUID` solo existe en contexto seguro (HTTPS/localhost); por http en la red local, `getRandomValues` sí.
+const nuevoId = () =>
+  crypto.randomUUID?.() ?? Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('')
+
 /** Añade `id` y `creadoEn` a lo que crea el núcleo. */
 export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
-  ({ ...datos, id: crypto.randomUUID(), creadoEn: new Date().toISOString() }) as T
+  ({ ...datos, id: nuevoId(), creadoEn: new Date().toISOString() }) as T
 
 db.on('populate', (tx) =>
   tx.table('identidades').add(conId<Identidad>({ nombre: '', esGeneral: true, archivada: false, orden: 0 })),
