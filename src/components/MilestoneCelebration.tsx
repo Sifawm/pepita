@@ -33,8 +33,8 @@ export function MilestoneCelebration({ summaries }: { summaries: IdentitySummary
   }, [milestone])
 
   return (
-    // Live region always mounted, so the screen reader announces the milestone.
-    <div role="status" className="pointer-events-none fixed inset-x-4 top-4 z-20 mx-auto max-w-md">
+    // Live region always mounted, so the screen reader announces the milestone. Below the header: back and settings stay reachable.
+    <div role="status" className="pointer-events-none fixed inset-x-4 top-16 z-20 mx-auto max-w-md">
       {milestone && (
         <div className="pointer-events-auto space-y-3 rounded-xl border-2 border-primary bg-card p-5 text-card-foreground shadow-xl motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-500">
           <div className="flex items-start gap-3">

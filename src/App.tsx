@@ -92,7 +92,7 @@ export default function App() {
         {t('app.skip')}
       </a>
       <HeaderSlot.Provider value={slot}>
-        <div className="mx-auto max-w-md px-4 pb-10 print:max-w-none print:p-0">
+        <div className="mx-auto max-w-md px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] print:max-w-none print:p-0">
           <Header onSlot={setSlot} />
           <main id="main" tabIndex={-1} className="outline-none">
             <Routes>

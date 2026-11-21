@@ -57,7 +57,8 @@ const STYLE: Record<PeriodStatus, string> = {
   in_progress: 'border-input',
   not_scheduled: 'border-transparent text-muted-foreground',
   skipped: 'border-dotted border-input text-muted-foreground',
-  paused: 'border-transparent bg-muted text-muted-foreground',
+  // Hatched, like the heatmap: a pause is a shape, not only a tint.
+  paused: 'border-transparent bg-[repeating-linear-gradient(135deg,var(--input)_0_1px,transparent_1px_6px)] text-muted-foreground',
 }
 
 /** A habit's detail: strength, heatmap, minimum/full, a calendar to edit any past day, and frequency change. */
@@ -138,16 +139,17 @@ function Strength({ evaluation: { strength }, today }: { evaluation: HabitEvalua
 
 const HEATMAP_WEEKS = 26
 
-// Small cells: filled = full, light = minimum, dashed border = not done, dotted = skipped,
-// gray = paused. The legend with the day count is the text alternative.
+// Small cells, each state with a shape and not only a tint (like the calendar): filled = full,
+// outlined and light = minimum, dashed border = not done, dotted = skipped, hatched = paused.
+// The legend with the day count is the text alternative.
 const CELL: Record<PeriodStatus, string> = {
   done_full: 'bg-primary',
-  done_minimum: 'bg-primary/40',
+  done_minimum: 'border-2 border-primary bg-primary/30',
   failed: 'border border-dashed border-muted-foreground',
   in_progress: 'border border-input',
   not_scheduled: '',
   skipped: 'border border-dotted border-muted-foreground',
-  paused: 'bg-muted',
+  paused: 'bg-[repeating-linear-gradient(135deg,var(--muted-foreground)_0_1px,transparent_1px_4px)]',
 }
 
 function Heatmap({ habit, logs, now, settings }: { habit: Habit; logs: Log[]; now: Date; settings: Settings }) {

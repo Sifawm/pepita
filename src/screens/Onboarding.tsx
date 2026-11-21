@@ -160,7 +160,7 @@ function OnboardingStep({
     <form onSubmit={submit} className="space-y-6">
       <ScreenHeader title={t('onboarding.title')} onBack={onBack} />
       <header className="space-y-3">
-        <h2 id="stage-title" ref={ref} tabIndex={-1} className="text-2xl font-bold outline-none">
+        <h2 id="stage-title" ref={ref} tabIndex={-1} className="text-xl font-bold outline-none">
           {title}
         </h2>
         <p className="flex gap-2 rounded-lg bg-accent p-3 text-accent-foreground">

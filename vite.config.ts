@@ -9,6 +9,8 @@ import en from './src/i18n/en.json'
 // Static texts (manifest, index.html) come from the i18n fallback language: the browser reads them
 // before the app runs. At runtime, src/i18n switches <html lang> and the meta description to the chosen language.
 const FALLBACK_LANGUAGE = 'en'
+/** The brand name is the same in every language. */
+const APP_NAME = 'Pepita'
 
 export default defineConfig({
   // Relative paths: works the same on GitHub Pages (/pepita/) as at the root of any server.
@@ -22,8 +24,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: en.app.name,
-        short_name: en.app.name,
+        name: APP_NAME,
+        short_name: APP_NAME,
         description: en.app.description,
         lang: FALLBACK_LANGUAGE,
         start_url: './',
@@ -37,7 +39,8 @@ export default defineConfig({
           { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'] },
+      // Spanish and English only need Nunito's Latin subsets; the others still load on demand while online.
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2}'], globIgnores: ['**/node_modules/**', '**/nunito-{cyrillic,cyrillic-ext,vietnamese}-*.woff2'] },
     }),
   ],
   test: { include: ['src/**/*.test.ts'] },

@@ -94,4 +94,13 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  /* No lone word on a paragraph's last line; headings break into even lines. */
+  p {
+    text-wrap: pretty;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
 }

@@ -69,7 +69,8 @@ export default function TodayScreen() {
   const notes = diagnoses.length + suggestions.length + (backup ? 1 : 0) + (today.globalPause ? 1 : 0)
 
   return (
-    <div className="space-y-6">
+    // Bottom room for the "+1 vote" toast: it never covers the last link.
+    <div className="space-y-6 pb-20">
       <ScreenHeader title={t('today.title')} />
       <header className="space-y-2">
         <p className="text-muted-foreground first-letter:uppercase">{date}</p>

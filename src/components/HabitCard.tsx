@@ -566,7 +566,7 @@ export function Celebration({
 
   return (
     // The live region always exists so the screen reader announces every celebration.
-    <div role="status" className="pointer-events-none fixed inset-x-4 bottom-4 z-10 mx-auto max-w-md">
+    <div role="status" className="pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 mx-auto max-w-md">
       {text && (
         <div
           key={animationKey}
