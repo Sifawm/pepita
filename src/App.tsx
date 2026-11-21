@@ -1,9 +1,10 @@
 import { liveQuery } from 'dexie'
-import { ChevronLeft, Settings } from 'lucide-react'
-import { useEffect } from 'react'
+import { Settings } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HashRouter, Link, matchPath, Route, Routes, useLocation } from 'react-router'
+import { HashRouter, Link, Route, Routes, useLocation } from 'react-router'
 import { Notifications } from '@/components/Reminders'
+import { HeaderSlot } from '@/components/ScreenHeader'
 import { buttonVariants } from '@/components/ui/button'
 import { db, readSettings, reconcileStoredDiagnoses, useSettings } from '@/db'
 import { nextCutoff } from '@/domain'
@@ -55,34 +56,13 @@ function useSavedLanguage() {
   }, [language, i18n])
 }
 
-/** Where the header's "back" goes, like in any mobile app. With no destination, the screen is a root. */
-function useBack(): { to: string; label: string; ariaLabel: string } | undefined {
+function Header({ onSlot }: { onSlot: (slot: HTMLElement | null) => void }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
-  if (pathname === '/' || pathname === '/onboarding') return undefined
-  const edit = matchPath('/habit/:id/edit', pathname)
-  if (edit) return { to: `/habit/${edit.params.id}`, label: t('wizard.back'), ariaLabel: t('wizard.back') }
-  const [to, label] = matchPath('/identities/:id', pathname) ? ['/identities', t('identities.title')] : ['/', t('today.title')]
-  return { to, label, ariaLabel: t('app.backTo', { destination: label }) }
-}
-
-function Header() {
-  const { t } = useTranslation()
-  const { pathname } = useLocation()
-  const back = useBack()
   return (
-    <header className="flex items-center justify-between py-2 print:hidden">
-      {back ? (
-        <Link to={back.to} aria-label={back.ariaLabel} className={buttonVariants({ variant: 'ghost', className: '-ml-3 gap-1 px-2 text-primary' })}>
-          <ChevronLeft aria-hidden className="size-6" />
-          {back.label}
-        </Link>
-      ) : pathname === '/' ? (
-        // Today's title lives in the header: it's the screen's h1.
-        <h1 className="text-3xl font-bold">{t('today.title')}</h1>
-      ) : (
-        <p className="text-lg font-bold text-primary">{t('app.name')}</p>
-      )}
+    <header className="flex min-h-14 items-center justify-between gap-2 py-2 print:hidden">
+      {/* Each screen fills this with `ScreenHeader`: its title and "back". */}
+      <div ref={onSlot} className="flex min-w-0 items-center gap-1" />
       {pathname !== '/settings' && (
         <Link to="/settings" aria-label={t('settings.title')} className={buttonVariants({ variant: 'ghost', className: 'min-w-11 px-0' })}>
           <Settings aria-hidden />
@@ -96,6 +76,7 @@ export default function App() {
   const { t } = useTranslation()
   useLiveDiagnoses()
   useSavedLanguage()
+  const [slot, setSlot] = useState<HTMLElement | null>(null)
   return (
     <HashRouter>
       <Notifications />
@@ -110,23 +91,25 @@ export default function App() {
       >
         {t('app.skip')}
       </a>
-      <div className="mx-auto max-w-md px-4 pb-10 print:max-w-none print:p-0">
-        <Header />
-        <main id="main" tabIndex={-1} className="outline-none">
-          <Routes>
-            <Route path="/" element={<TodayScreen />} />
-            <Route path="/new" element={<HabitWizardScreen />} />
-            <Route path="/habit/:id/edit" element={<HabitWizardScreen />} />
-            <Route path="/archived" element={<ArchivedScreen />} />
-            <Route path="/identities" element={<IdentitiesScreen />} />
-            <Route path="/identities/:id" element={<IdentityDetailScreen />} />
-            <Route path="/habit/:id" element={<HabitDetailScreen />} />
-            <Route path="/settings" element={<SettingsScreen />} />
-            <Route path="/onboarding" element={<OnboardingScreen />} />
-            <Route path="/review" element={<WeeklyReviewScreen />} />
-          </Routes>
-        </main>
-      </div>
+      <HeaderSlot.Provider value={slot}>
+        <div className="mx-auto max-w-md px-4 pb-10 print:max-w-none print:p-0">
+          <Header onSlot={setSlot} />
+          <main id="main" tabIndex={-1} className="outline-none">
+            <Routes>
+              <Route path="/" element={<TodayScreen />} />
+              <Route path="/new" element={<HabitWizardScreen />} />
+              <Route path="/habit/:id/edit" element={<HabitWizardScreen />} />
+              <Route path="/archived" element={<ArchivedScreen />} />
+              <Route path="/identities" element={<IdentitiesScreen />} />
+              <Route path="/identities/:id" element={<IdentityDetailScreen />} />
+              <Route path="/habit/:id" element={<HabitDetailScreen />} />
+              <Route path="/settings" element={<SettingsScreen />} />
+              <Route path="/onboarding" element={<OnboardingScreen />} />
+              <Route path="/review" element={<WeeklyReviewScreen />} />
+            </Routes>
+          </main>
+        </div>
+      </HeaderSlot.Provider>
     </HashRouter>
   )
 }

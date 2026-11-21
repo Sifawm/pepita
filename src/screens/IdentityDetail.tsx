@@ -7,6 +7,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { db, useSettings } from '@/db'
 import { logicalDay, MILESTONES, summarizeIdentities } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 /** An identity's detail: accumulated votes curve, milestones and its habits. */
 export default function IdentityDetailScreen() {
@@ -33,7 +34,7 @@ export default function IdentityDetailScreen() {
   return (
     <div className="space-y-8">
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold break-words">{identityName(identity, t)}</h1>
+        <ScreenHeader title={identityName(identity, t)} />
         <p className="text-lg font-semibold text-primary">{t('identities.votes', { count: summary.votes })}</p>
       </header>
 

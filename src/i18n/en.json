@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "Pepita",
     "description": "Your kind conscience for building habits.",
     "skip": "Skip to content",
     "backTo": "Back to {{destination}}"

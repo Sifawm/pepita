@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { withId, db, useSettings } from '@/db'
 import { moveIdentity, newIdentity, summarizeIdentities, type Identity, type IdentitySummary } from '@/domain'
 import { focusById, identityName } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 export default function IdentitiesScreen() {
   const { t } = useTranslation()
@@ -50,9 +51,7 @@ export default function IdentitiesScreen() {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 id="identities-title" tabIndex={-1} className="text-3xl font-bold outline-none">
-          {t('identities.title')}
-        </h1>
+        <ScreenHeader id="identities-title" title={t('identities.title')} />
         <p className="text-muted-foreground">{t('identities.intro')}</p>
       </header>
       <p className="sr-only" aria-live="polite">

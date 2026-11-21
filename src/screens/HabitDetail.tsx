@@ -41,6 +41,7 @@ import {
   type Log,
 } from '@/domain'
 import { cn, focusById, formatDay } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 const toDate = (day: Day) => {
   const [y, m, d] = day.split('-').map(Number)
@@ -85,7 +86,7 @@ export default function HabitDetailScreen() {
   return (
     <div className="space-y-8">
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold break-words">{data.habit.name}</h1>
+        <ScreenHeader title={data.habit.name} />
         {/* In the background: the streak is a reference, not the main thing. */}
         <p className="text-sm text-muted-foreground">
           {t('recovery.streak', { ...evaluation.streak })}

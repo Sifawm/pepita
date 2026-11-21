@@ -3,6 +3,7 @@ import { Download, Share, Sparkles, SquarePlus } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
+import { ScreenHeader } from '@/components/ScreenHeader'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { withId, db, saveSettings, useSettings } from '@/db'
@@ -157,11 +158,11 @@ function OnboardingStep({
   }
   return (
     <form onSubmit={submit} className="space-y-6">
+      <ScreenHeader title={t('onboarding.title')} onBack={onBack} />
       <header className="space-y-3">
-        <p className="text-muted-foreground">{t('onboarding.title')}</p>
-        <h1 id="stage-title" ref={ref} tabIndex={-1} className="text-3xl font-bold outline-none">
+        <h2 id="stage-title" ref={ref} tabIndex={-1} className="text-2xl font-bold outline-none">
           {title}
-        </h1>
+        </h2>
         <p className="flex gap-2 rounded-lg bg-accent p-3 text-accent-foreground">
           <Sparkles aria-hidden className="mt-0.5 size-5 shrink-0 text-primary" />
           <span>
@@ -176,11 +177,6 @@ function OnboardingStep({
         {onNotNow && (
           <Button type="button" variant="secondary" onClick={onNotNow}>
             {t('wizard.notNow')}
-          </Button>
-        )}
-        {onBack && (
-          <Button type="button" variant="ghost" onClick={onBack}>
-            {t('wizard.back')}
           </Button>
         )}
         {extra}

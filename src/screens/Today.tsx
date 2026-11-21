@@ -14,6 +14,7 @@ import { Select } from '@/components/ui/select'
 import { db, useSettings } from '@/db'
 import { buildToday, pendingDiagnoses, needsOnboarding, summarizeIdentities, progressionSuggestions } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 /** The screen's clock: ticks every minute so Today rolls over to the next day on its own. */
 function useNow() {
@@ -59,6 +60,7 @@ export default function TodayScreen() {
 
   return (
     <div className="space-y-6">
+      <ScreenHeader title={t('today.title')} />
       <header className="space-y-1">
         <p className="text-muted-foreground first-letter:uppercase">{date}</p>
         <p className="text-lg font-semibold text-primary" aria-live="polite">

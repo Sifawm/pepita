@@ -6,6 +6,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { DeleteHabit } from '@/components/DeleteHabit'
 import { QuantitativeFields } from '@/components/QuantitativeInputs'
 import { FrequencyPicker } from '@/components/FrequencyPicker'
+import { ScreenHeader } from '@/components/ScreenHeader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -168,6 +169,8 @@ export function Wizard({
   const [n, setN] = useState(() => Math.max(0, steps.findIndex((s) => s.key === requestedStep)))
   const step = steps[n]
   const isLast = n === steps.length - 1
+  const back = n > 0 ? () => setN(n - 1) : onBack
+  const heading = title ?? t(habit ? 'wizard.edit' : 'new.title')
 
   // When the step changes, focus goes to its title (on open, the name field takes it).
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -199,9 +202,9 @@ export function Wizard({
 
   return (
     <div className="space-y-6">
+      <ScreenHeader title={heading} onBack={back} />
       <form ref={form} onSubmit={next} className="space-y-6">
         <header className="space-y-1">
-          <h1 className="text-3xl font-bold">{title ?? t(habit ? 'wizard.edit' : 'new.title')}</h1>
           <p className="text-muted-foreground">{t('wizard.step', { n: n + 1, total: steps.length })}</p>
         </header>
 
@@ -230,11 +233,6 @@ export function Wizard({
           {habit && !isLast && (
             <Button type="button" variant="secondary" onClick={finish}>
               {t('wizard.save')}
-            </Button>
-          )}
-          {(n > 0 || onBack) && (
-            <Button type="button" variant="ghost" onClick={() => (n > 0 ? setN(n - 1) : onBack?.())}>
-              {t('wizard.back')}
             </Button>
           )}
         </div>

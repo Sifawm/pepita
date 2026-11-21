@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { db, saveWeeklyNote, useSettings } from '@/db'
 import { logicalDay, review, addDays, type MethodField, type Habit, type Review } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 const SECTIONS = ['votes', 'recovery', 'diagnoses', 'failures', 'suggestions', 'fields', 'note'] as const
 type Section = (typeof SECTIONS)[number]
@@ -61,7 +62,7 @@ export default function WeeklyReviewScreen() {
     <>
       <div className="space-y-8 print:hidden">
         <header className="space-y-1">
-          <h1 className="text-3xl font-bold">{t('review.title')}</h1>
+          <ScreenHeader title={t('review.title')} />
           <p className="text-muted-foreground">{t('review.intro')}</p>
         </header>
 

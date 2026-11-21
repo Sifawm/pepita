@@ -5,6 +5,7 @@ import { DeleteHabit } from '@/components/DeleteHabit'
 import { Button } from '@/components/ui/button'
 import { db } from '@/db'
 import { focusById, identityName } from '@/lib/utils'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 export default function ArchivedScreen() {
   const { t } = useTranslation()
@@ -17,9 +18,7 @@ export default function ArchivedScreen() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 id="archived-title" tabIndex={-1} className="text-3xl font-bold outline-none">
-          {t('archived.title')}
-        </h1>
+        <ScreenHeader id="archived-title" title={t('archived.title')} />
         <p className="text-muted-foreground">{t('archived.intro')}</p>
       </header>
 

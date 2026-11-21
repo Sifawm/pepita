@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { saveSettings, useSettings } from '@/db'
 import { LanguagePicker } from '@/screens/Onboarding'
+import { ScreenHeader } from '@/components/ScreenHeader'
 
 export default function SettingsScreen() {
   const { t } = useTranslation()
@@ -16,7 +17,7 @@ export default function SettingsScreen() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">{t('settings.title')}</h1>
+      <ScreenHeader title={t('settings.title')} />
       <div className="space-y-2">
         <Label htmlFor="day-cutoff">{t('settings.dayCutoff')}</Label>
         <Input

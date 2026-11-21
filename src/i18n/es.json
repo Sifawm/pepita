@@ -1,6 +1,5 @@
 {
   "app": {
-    "name": "Pepita",
     "description": "Tu conciencia amable para construir hábitos.",
     "skip": "Saltar al contenido",
     "backTo": "Volver a {{destination}}"
