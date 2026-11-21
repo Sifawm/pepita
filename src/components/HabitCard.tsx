@@ -8,6 +8,7 @@ import { SkipAndPause } from '@/components/Pauses'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { withId, db } from '@/db'
 import { annotate, relapse, addValue, tap, type Settings, type Log, type TodayCard } from '@/domain'
 import { cn, formatDay, identityName, quantitativeProgress, phraseText } from '@/lib/utils'
@@ -517,15 +518,7 @@ export function NoteEditor({ log, onClose }: { log: Log; onClose: () => void }) 
       }}
     >
       <Label htmlFor={id}>{t('today.note')}</Label>
-      <textarea
-        id={id}
-        autoFocus
-        rows={2}
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder={t('today.noteExample')}
-        className="w-full rounded-md border border-input bg-background px-3 py-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
-      />
+      <Textarea id={id} autoFocus rows={2} value={text} onChange={(e) => setText(e.target.value)} placeholder={t('today.noteExample')} />
       <div className="flex gap-2">
         <Button type="submit">{t('today.saveNote')}</Button>
         <Button type="button" variant="ghost" onClick={onClose}>

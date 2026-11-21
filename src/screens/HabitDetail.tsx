@@ -140,15 +140,15 @@ function Strength({ evaluation: { strength }, today }: { evaluation: HabitEvalua
 const HEATMAP_WEEKS = 26
 
 // Small cells, each state with a shape and not only a tint (like the calendar): filled = full,
-// outlined and light = minimum, dashed border = not done, dotted = skipped, hatched = paused.
-// The legend with the day count is the text alternative.
+// outlined and light = minimum, dashed border = not done, a centered dot = skipped, hatched = paused.
+// A dotted border for skipped would read as the dashed one at this size. The legend with the day count is the text alternative.
 const CELL: Record<PeriodStatus, string> = {
   done_full: 'bg-primary',
   done_minimum: 'border-2 border-primary bg-primary/30',
   failed: 'border border-dashed border-muted-foreground',
   in_progress: 'border border-input',
   not_scheduled: '',
-  skipped: 'border border-dotted border-muted-foreground',
+  skipped: 'bg-[radial-gradient(circle,var(--muted-foreground)_25%,transparent_30%)]',
   paused: 'bg-[repeating-linear-gradient(135deg,var(--muted-foreground)_0_1px,transparent_1px_4px)]',
 }
 

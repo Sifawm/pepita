@@ -7,6 +7,7 @@ import { suggestionTextKey } from '@/components/ProgressionSuggestion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { db, saveWeeklyNote, useSettings } from '@/db'
 import { logicalDay, review, addDays, type MethodField, type Habit, type Review } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
@@ -126,7 +127,7 @@ export default function WeeklyReviewScreen() {
       </div>
 
       {/* Paper only: always light (see `@media print` in index.css), no links or controls. */}
-      <article className="hidden space-y-6 text-black print:block">
+      <article className="hidden space-y-6 print:block">
         <header className="space-y-1">
           <h1 className="text-2xl font-bold">{t('review.print.report')}</h1>
           <p className="font-semibold">{t('review.week', { from: formatDay(report.start, i18n.language, long), until: formatDay(report.end, i18n.language, long) })}</p>
@@ -202,7 +203,7 @@ function ReviewContent({ r, sections, paper = false }: { r: Review; sections: re
     ),
     fields: (
       <>
-        {r.emptyFields.length > 0 && <p className="text-muted-foreground print:text-black">{t('review.fields.intro')}</p>}
+        {r.emptyFields.length > 0 && <p className="text-muted-foreground">{t('review.fields.intro')}</p>}
         <List empty={r.emptyFields.length === 0 && t('review.fields.empty')}>
           {r.emptyFields.map(({ habit: h, fields }) => (
             <li key={h.id} className="space-y-1">
@@ -255,7 +256,7 @@ function ReviewContent({ r, sections, paper = false }: { r: Review; sections: re
 }
 
 function List({ empty, children }: { empty: string | false; children: ReactNode }) {
-  if (empty) return <p className="text-muted-foreground print:text-black">{empty}</p>
+  if (empty) return <p className="text-muted-foreground">{empty}</p>
   return <ul className="space-y-2">{children}</ul>
 }
 
@@ -279,7 +280,7 @@ function WeeklyNote({ week, initial }: { week: string; initial: string }) {
       <p id="note-help" className="text-sm text-muted-foreground">
         {t('review.note.help')}
       </p>
-      <textarea
+      <Textarea
         id="week-note"
         aria-describedby="note-help"
         rows={4}
@@ -288,12 +289,11 @@ function WeeklyNote({ week, initial }: { week: string; initial: string }) {
           setText(e.target.value)
           setNotice('')
         }}
-        className="w-full rounded-md border border-input bg-card px-3 py-2 outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
       />
       <Button type="submit" variant="secondary">
         {t('review.note.save')}
       </Button>
-      <p role="status" className="text-sm text-muted-foreground empty:hidden">
+      <p role="status" className="text-sm text-muted-foreground empty:sr-only">
         {notice && t(notice)}
       </p>
     </form>

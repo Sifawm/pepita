@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { withId, db, useSettings } from '@/db'
 import { possibleAnchors, editHabit, intentionPhrase, newHabit, nextOrder, type HabitFields, type When, type Habit, type Identity, type Intention, type InverseLaws, type HabitType } from '@/domain'
 import { identityName, phraseText } from '@/lib/utils'
@@ -438,13 +439,12 @@ function EnvironmentStep({ draft, update }: StepProps) {
     <div className="space-y-2">
       <Label htmlFor="environment">{t('wizard.environment.list')}</Label>
       {/* One thing per line: empty lines aren't saved. */}
-      <textarea
+      <Textarea
         id="environment"
         rows={4}
         value={(draft.environment ?? []).join('\n')}
         onChange={(e) => update({ environment: e.target.value.split('\n') })}
         placeholder={t('wizard.environment.example')}
-        className="w-full rounded-md border border-input bg-card px-3 py-2 text-base placeholder:text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
       />
     </div>
   )

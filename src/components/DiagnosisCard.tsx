@@ -34,7 +34,7 @@ export function DiagnosisList({ items }: { items: { diagnosis: Diagnosis; habit:
           ))}
         </ul>
       )}
-      <p role="status" className="empty:hidden text-sm text-muted-foreground">
+      <p role="status" className="empty:sr-only text-sm text-muted-foreground">
         {notice}
       </p>
       {chosen && (

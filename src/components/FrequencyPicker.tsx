@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui/input'
+import { Select } from '@/components/ui/select'
 import type { Weekday, Frequency } from '@/domain'
 import { cn } from '@/lib/utils'
 
@@ -55,9 +56,9 @@ export function FrequencyPicker({
               onChange={(e) => onChange({ ...value, times: Math.trunc(e.target.valueAsNumber) || 0 })}
             />
           )}
-          <select
+          <Select
             aria-label={t('frequency.period')}
-            className="min-h-11 rounded-md border border-input bg-background px-3 outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+            className="w-auto"
             value={value.period}
             onChange={(e) => onChange({ ...value, period: e.target.value as typeof value.period })}
           >
@@ -66,7 +67,7 @@ export function FrequencyPicker({
                 {periodOnly ? t(`frequency.every_${p}`) : t(`frequency.per_${p}`, { count: value.times })}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       )}
 

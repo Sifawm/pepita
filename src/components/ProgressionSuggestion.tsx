@@ -34,7 +34,7 @@ export function ProgressionSuggestion({ habit, suggestion, settings }: { habit: 
   return (
     <>
       {suggestion && <SuggestionCard key={suggestion.type} habit={habit} suggestion={suggestion} settings={settings} announce={setNotice} />}
-      <p role="status" className="empty:hidden text-sm text-muted-foreground">
+      <p role="status" className="empty:sr-only text-sm text-muted-foreground">
         {notice && t(notice)}
       </p>
     </>
