@@ -1,6 +1,6 @@
 import { liveQuery } from 'dexie'
 import { Settings } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router'
 import { Notifications } from '@/components/Reminders'
@@ -8,15 +8,17 @@ import { HeaderSlot } from '@/components/ScreenHeader'
 import { buttonVariants } from '@/components/ui/button'
 import { db, readSettings, reconcileStoredDiagnoses, useSettings } from '@/db'
 import { nextCutoff } from '@/domain'
-import ArchivedScreen from '@/screens/Archived'
-import HabitDetailScreen from '@/screens/HabitDetail'
-import HabitWizardScreen from '@/screens/HabitWizard'
-import IdentitiesScreen from '@/screens/Identities'
-import IdentityDetailScreen from '@/screens/IdentityDetail'
-import OnboardingScreen from '@/screens/Onboarding'
-import SettingsScreen from '@/screens/Settings'
 import TodayScreen from '@/screens/Today'
-import WeeklyReviewScreen from '@/screens/WeeklyReview'
+
+// Today ships in the main chunk; every other screen loads on first visit (the service worker precaches them all).
+const ArchivedScreen = lazy(() => import('@/screens/Archived'))
+const HabitDetailScreen = lazy(() => import('@/screens/HabitDetail'))
+const HabitWizardScreen = lazy(() => import('@/screens/HabitWizard'))
+const IdentitiesScreen = lazy(() => import('@/screens/Identities'))
+const IdentityDetailScreen = lazy(() => import('@/screens/IdentityDetail'))
+const OnboardingScreen = lazy(() => import('@/screens/Onboarding'))
+const SettingsScreen = lazy(() => import('@/screens/Settings'))
+const WeeklyReviewScreen = lazy(() => import('@/screens/WeeklyReview'))
 
 /**
  * Keeps diagnoses up to date while the app is open: after every change to habits,
@@ -95,18 +97,20 @@ export default function App() {
         <div className="mx-auto max-w-md px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] print:max-w-none print:p-0">
           <Header onSlot={setSlot} />
           <main id="main" tabIndex={-1} className="outline-none">
-            <Routes>
-              <Route path="/" element={<TodayScreen />} />
-              <Route path="/new" element={<HabitWizardScreen />} />
-              <Route path="/habit/:id/edit" element={<HabitWizardScreen />} />
-              <Route path="/archived" element={<ArchivedScreen />} />
-              <Route path="/identities" element={<IdentitiesScreen />} />
-              <Route path="/identities/:id" element={<IdentityDetailScreen />} />
-              <Route path="/habit/:id" element={<HabitDetailScreen />} />
-              <Route path="/settings" element={<SettingsScreen />} />
-              <Route path="/onboarding" element={<OnboardingScreen />} />
-              <Route path="/review" element={<WeeklyReviewScreen />} />
-            </Routes>
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={<TodayScreen />} />
+                <Route path="/new" element={<HabitWizardScreen />} />
+                <Route path="/habit/:id/edit" element={<HabitWizardScreen />} />
+                <Route path="/archived" element={<ArchivedScreen />} />
+                <Route path="/identities" element={<IdentitiesScreen />} />
+                <Route path="/identities/:id" element={<IdentityDetailScreen />} />
+                <Route path="/habit/:id" element={<HabitDetailScreen />} />
+                <Route path="/settings" element={<SettingsScreen />} />
+                <Route path="/onboarding" element={<OnboardingScreen />} />
+                <Route path="/review" element={<WeeklyReviewScreen />} />
+              </Routes>
+            </Suspense>
           </main>
         </div>
       </HeaderSlot.Provider>
