@@ -169,9 +169,10 @@ A quiet, warm-neutral palette with one forest-green voice. Every token has a lig
 **Character:** One rounded humanist sans for everything. Its soft terminals carry the "kind" in kind conscience; hierarchy comes from size and weight, never from a second family.
 
 ### Hierarchy
+- **Vote numeral** (800, 3rem/1, tabular, -0.025em): Today's accumulated vote count in Cricket Green, followed by its sentence in Title. The only oversized type in the app.
 - **Display** (700, 1.5rem/2rem): onboarding step titles and the printed report's title.
 - **Headline** (700, 1.25rem/1.75rem): section headings (h2) inside screens, diagnosis and milestone titles.
-- **Title** (600, 1.125rem/1.75rem): the screen title in the header, habit names, the day's vote count, the celebration toast (at 700).
+- **Title** (600, 1.125rem/1.75rem): the screen title in the header, habit names, the vote sentence, the celebration toast (at 700).
 - **Body** (400, 1rem/1.5rem): Pepita's sentences, intention phrases, minimum versions, form values. 16px minimum so iOS never zooms inputs.
 - **Label** (600, 0.875rem/1.25rem): form labels, notices, recovery suggestion. At 400 it is secondary metadata.
 - **Caption** (400, 0.75rem/1rem): streak line, chart axes.
@@ -211,7 +212,7 @@ Tactile and calm: big enough to hit without looking, quiet at rest.
 - **Shape:** gently rounded (10px), minimum 44px tall, 16px horizontal padding, 8px icon gap, 20px icons.
 - **Primary:** Cricket Green fill with Card White semibold text. One per view: the next step.
 - **Hover / Focus:** hover drops the fill to 90% opacity; focus shows a 3px Cricket Green ring offset 2px from the page. Disabled is 50% opacity.
-- **Secondary:** Sage Wash fill, Ink Pine text; hover at 80%. Used for alternatives and Today's secondary navigation.
+- **Secondary:** Sage Wash fill, Ink Pine text; hover at 80%. Used for alternatives and Today's "New habit".
 - **Ghost:** transparent, Moss Glow on hover. Icon buttons (back, settings, card actions) are ghost at 44×44; card actions add a hairline border.
 
 ### Cards / Containers
@@ -228,15 +229,16 @@ Tactile and calm: big enough to hit without looking, quiet at rest.
 - **Labels:** always visible above the field, Label style.
 
 ### Navigation
-No tab bar. A compact header (back chevron in Cricket Green, screen title, settings gear) and full-width buttons at the bottom of Today. Back destinations follow the route, like a native mobile app.
+No tab bar. A compact header (back chevron in Cricket Green, screen title, settings gear) and full-width buttons at the bottom of Today: "New habit" secondary, the rest ghost. Today has no filled primary: the habit cards are its action. Back destinations follow the route, like a native mobile app.
 
 ### Habit Card (signature)
-The whole card is the button: **tap logs the minimum version, long press (500ms) the full one.**
-- **Rest:** white card, 64px minimum, 16px padding, a 40px empty circle in Pebble Stroke, the habit name in Title, then the minimum version, intention phrase and a Lichen Grey metadata line (identity · counter · status).
+The whole card is the button: **tap logs the minimum version, long press (500ms) the full one.** While holding, a Cricket Green ring draws over the circle's border (waits 120ms so taps never flash it, then linear to 500ms; retracts in 150ms on early release; it stays closed until the done state replaces it; with reduced motion the whole ring fades in over the same time instead of drawing). Done cards show no ring.
+- **Rest:** white card, 64px minimum, 16px padding, a 40px empty circle in Pebble Stroke, the habit name in Title, then the intention phrase (or, without one, the minimum version: never both), environment and reward in Lichen Grey, a Lichen Grey metadata line (identity · counter · status; the gesture hint only until 7 days with check-ins) and the streak caption (hidden at 0, no "best" while it is the best). The button is named by the habit alone; everything else is its description.
 - **Done:** Moss Glow fill, Cricket Green border, filled green circle with a check, text drops to Lichen Grey, and a 2px stroke draws through the name over 300ms (instant with reduced motion).
+- **Stable height:** done dims every line instead of removing it, so the list never jumps under the thumb. Removing a check-in (re-tap or menu) leaves a quiet "Check-in removed · Redo" line below the card until the next tap; Redo puts the same log back and returns focus to the card.
 - **Recovery:** 2px Cricket Green border plus a green "minimum version" suggestion line. Sorted to the top of Today.
 - **Avoid habits:** not tappable; a secondary "I slipped" button, and a dashed border once a relapse is logged.
-- **Side actions:** two stacked 44px bordered ghost buttons (calendar, more options). "More options" opens an inline menu that duplicates every gesture as a button, the accessible alternative to the long press.
+- **Side actions:** two stacked 44×44px bordered ghost buttons, fixed size at the card's top (they never stretch) (calendar, more options). "More options" opens an inline menu that duplicates every gesture as a button, the accessible alternative to the long press.
 
 ### Celebration Toast (signature)
 "+1 vote · [identity]" in a Cricket Green bar fixed to the bottom of the column, with an "Add note" secondary button. Fades, scales and slides in; leaves after 5s unless focused; Escape dismisses. The milestone celebration is its larger sibling at the top: white card, 2px green border, party icon, 16px radius.

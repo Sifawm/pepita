@@ -45,7 +45,7 @@
     "title": "Today",
     "votes_one": "{{count}} vote today",
     "votes_other": "{{count}} votes today",
-    "empty": "No habits yet. Start with a small one: that's enough.",
+    "empty": "Nothing due today. Rest, or add a small habit if you like.",
     "new": "New habit",
     "list": "Today's habits",
     "pending": "Tap: minimum · Hold: full",
@@ -61,7 +61,16 @@
     "undo": "Undo the last check-in",
     "note": "Note (optional)",
     "noteExample": "Anything you want to remember?",
-    "saveNote": "Save note"
+    "saveNote": "Save note",
+    "notes_zero": "Nothing else from Pepita",
+    "notes_one": "Pepita has a note for you",
+    "notes_other": "Pepita has {{count}} notes for you",
+    "votesTotal_one": "vote for the person you want to be",
+    "votesTotal_other": "votes for the person you want to be",
+    "votesFor_one": "vote · {{identity}}",
+    "votesFor_other": "votes · {{identity}}",
+    "removed": "Check-in removed",
+    "redo": "Redo"
   },
   "new": {
     "title": "New habit",
@@ -94,8 +103,8 @@
     "restore": "Bring back",
     "forHabit": "Who are you voting for with this habit?",
     "filter": "Show habits for",
-    "all": "All identities",
-    "filterEmpty": "No habits for this identity today. You can add one if you like."
+    "filterEmpty": "No habits for this identity today. You can add one if you like.",
+    "allShort": "All"
   },
   "frequency": {
     "title": "How often?",
@@ -357,7 +366,8 @@
     },
     "note": "Note",
     "save": "Save",
-    "saved": "Noted. Thanks for sharing."
+    "saved": "Noted. Thanks for sharing.",
+    "streakOnly": "Streak {{current}}"
   },
   "intention": {
     "time": "at {{time}}",

@@ -1,6 +1,7 @@
 import { CalendarDays, Check, Circle, Ellipsis } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Link } from 'react-router'
 import { AddValueForm } from '@/components/QuantitativeInputs'
 import { SkipAndPause } from '@/components/Pauses'
@@ -13,6 +14,14 @@ import { cn, formatDay, identityName, quantitativeProgress, phraseText } from '@
 
 /** Calibration: how long to hold for the full version. Tune it with real use. */
 const LONG_PRESS_MS = 500
+/** The hold ring waits this long before drawing, so an ordinary tap never flashes it. */
+const HOLD_RING_DELAY_MS = 120
+/** The gesture hint shows until the person has checked in on this many different days. */
+const HINT_DAYS = 7
+
+/** The streak as a quiet caption: nothing at 0, no "best" while it is the best. */
+const streakText = ({ current, best }: TodayCard['streak'], t: TFunction) =>
+  current === 0 ? null : current === best ? t('recovery.streakOnly', { current }) : t('recovery.streak', { current, best })
 
 export type Panel = 'menu' | 'note' | 'relapse'
 
@@ -54,7 +63,10 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       : period.status === 'skipped'
         ? t('pauses.skipped')
         : !q
-          ? t('today.pending')
+          ? // ponytail: a Set over every log on each render; memoize in Today if lists get long.
+            new Set(logs.map((l) => l.day)).size >= HINT_DAYS
+            ? null
+            : t('today.pending')
           : q.mode === 'at_least'
             ? t('quantitative.status.pending')
             : t(period.progress <= q.target ? 'quantitative.status.within' : 'quantitative.status.over')
@@ -66,23 +78,44 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
     if (vote) celebrate()
   }
 
+  // A removed check-in can be put back: a tap on a done card undoes it, and that is easy to do by accident.
+  const [removed, setRemoved] = useState<Log>()
+  const cardButton = useRef<HTMLButtonElement>(null)
+  const remove = async (log?: Log) => {
+    if (!log) return
+    await db.logs.delete(log.id)
+    setRemoved(log)
+  }
+  const redo = async () => {
+    if (removed) await db.logs.add(removed)
+    setRemoved(undefined)
+    // The Redo button goes away: focus returns to the card.
+    ;(cardButton.current ?? menuButton.current)?.focus()
+  }
+
   const logVersion = async (version: 'minimum' | 'full') => {
     open()
+    setRemoved(undefined)
     // The instant of the tap, not the last time the screen was painted.
     const action = tap({ habit, logs, now: new Date(), settings, version })
-    if (action.type === 'undo') return db.logs.delete(action.logId)
+    if (action.type === 'undo') return remove(logs.find((l) => l.id === action.logId))
     await db.logs.add(withId<Log>(action.log))
     celebrate()
   }
   const undo = async () => {
     open()
-    if (last) await db.logs.delete(last.id)
+    await remove(last)
   }
 
   // Long press = full version. The click that follows it doesn't count as a tap.
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const longPress = useRef(false)
-  const release = () => clearTimeout(timer.current)
+  // Drives the ring that draws around the circle while holding: the timer made visible.
+  const [holding, setHolding] = useState(false)
+  const release = () => {
+    clearTimeout(timer.current)
+    setHolding(false)
+  }
 
   const closeMenu = () => {
     open()
@@ -105,16 +138,47 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       <span
         aria-hidden
         className={cn(
-          'flex size-10 shrink-0 items-center justify-center rounded-full border-2',
+          'relative flex size-10 shrink-0 items-center justify-center rounded-full border-2',
           done ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
         )}
       >
         {done ? <Check className="size-6" /> : <Circle className="size-6" />}
+        {/* Drawn over the border from 12 o'clock; it closes exactly when the full version is logged.
+            Linear because it is a timer; opacity snaps on after the delay so the first arc is already visible.
+            Reduced motion: the whole ring appears after the delay instead of being drawn. */}
+        {!done && !q && (
+          <svg viewBox="0 0 40 40" className="pointer-events-none absolute -inset-0.5 size-10 -rotate-90 text-primary">
+            <circle
+              cx="20"
+              cy="20"
+              r="19"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              pathLength={1}
+              strokeDasharray={1}
+              className={cn(
+                'transition-[stroke-dashoffset,opacity] motion-reduce:[stroke-dashoffset:0]',
+                // Durations follow transition-property: stroke-dashoffset, then opacity. With motion, the draw is the timer and
+                // opacity snaps on (1ms, not 0, so the delayed switch is a real transition). Reduced: the whole ring fades in over
+                // the same time instead, so it is never complete before the full version is logged.
+                holding
+                  ? 'ease-linear [stroke-dashoffset:0] opacity-100 motion-safe:[transition-duration:var(--ring-ms),1ms] motion-reduce:[transition-duration:1ms,var(--ring-ms)]'
+                  : 'ease-out [stroke-dashoffset:1] opacity-0',
+              )}
+              style={
+                holding
+                  ? ({ '--ring-ms': `${LONG_PRESS_MS - HOLD_RING_DELAY_MS}ms`, transitionDelay: `${HOLD_RING_DELAY_MS}ms` } as CSSProperties)
+                  : { transitionDuration: '150ms' }
+              }
+            />
+          </svg>
+        )}
       </span>
       {/* Struck through once done: a sense of task completed (aria-pressed and the text already state it).
           text-decoration can't animate, so the title's stroke is a background line whose width grows; clone repeats it on every wrapped line. */}
       <span className={cn('min-w-0 flex-1 transition-colors duration-300', done && 'text-muted-foreground')}>
-        <span className="block text-lg font-semibold break-words">
+        <span id={`name-${habit.id}`} className="block text-lg font-semibold break-words">
           <span
             className={cn(
               'box-decoration-clone bg-[linear-gradient(currentColor,currentColor)] bg-[position:0_55%] bg-no-repeat transition-[background-size] duration-300 ease-out motion-reduce:transition-none',
@@ -124,16 +188,27 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
             {habit.name}
           </span>
         </span>
-        {recovering && !done && <span className="block text-sm font-semibold text-primary">{t('recovery.suggestion')}</span>}
-        {!q && habit.minimumVersion && !done && <span className="block break-words">{t('today.minimum', { text: habit.minimumVersion })}</span>}
-        {card.phrase && <span className="block break-words first-letter:uppercase">{phraseText(card.phrase, t)}</span>}
-        <span className="block text-sm text-muted-foreground">
-          {identityName(identity, t)}
-          {counter && ` · ${counter}`}
-          {' · '}
-          {status}
+        <span id={`details-${habit.id}`}>
+          {recovering && !done && <span className="block text-sm font-semibold text-primary">{t('recovery.suggestion')}</span>}
+          {/* The intention phrase already ends with the minimum version: never both. */}
+          {card.phrase ? (
+            <span className="block break-words first-letter:uppercase">{phraseText(card.phrase, t)}</span>
+          ) : (
+            !q && habit.minimumVersion && <span className="block break-words">{t('today.minimum', { text: habit.minimumVersion })}</span>
+          )}
+          {habit.environment && (
+            <span className="block text-sm break-words text-muted-foreground">
+              <span className="font-semibold">{t('intention.environment')}</span> {habit.environment.join(' · ')}
+            </span>
+          )}
+          {habit.pairedReward && (
+            <span className="block text-sm break-words text-muted-foreground">
+              <span className="font-semibold">{t('intention.reward')}</span> {habit.pairedReward}
+            </span>
+          )}
+          <span className="block text-sm text-muted-foreground">{[identityName(identity, t), counter, status].filter(Boolean).join(' · ')}</span>
+          {streakText(streak, t) && <span className="block text-xs text-muted-foreground">{streakText(streak, t)}</span>}
         </span>
-        {streak.best > 0 && <span className="block text-xs text-muted-foreground">{t('recovery.streak', { ...streak })}</span>}
       </span>
     </>
   )
@@ -146,13 +221,20 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
           <div className={box}>{content}</div>
         ) : (
           <button
+            ref={cardButton}
             type="button"
             aria-pressed={done}
+            // Named by the habit alone; the rest is its description, not a seven-phrase name.
+            aria-labelledby={`name-${habit.id}`}
+            aria-describedby={`details-${habit.id}`}
             onPointerDown={(e) => {
               if (e.button !== 0) return
               longPress.current = false
+              // On a done card a hold undoes like a tap does: no ring promising the full version.
+              setHolding(!done)
               timer.current = setTimeout(() => {
                 longPress.current = true
+                // The ring stays closed: the done state replaces it (no unwinding before the check-in paints).
                 void logVersion('full')
               }, LONG_PRESS_MS)
             }}
@@ -180,7 +262,7 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
           <Link
             to={`/habit/${habit.id}`}
             aria-label={t('habit.open', { name: habit.name })}
-            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+            className={buttonVariants({ variant: 'ghost', className: 'size-11 border px-0' })}
           >
             <CalendarDays aria-hidden />
           </Link>
@@ -194,7 +276,7 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
               setNotice('')
               open(panel === 'menu' ? undefined : 'menu')
             }}
-            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+            className={buttonVariants({ variant: 'ghost', className: 'size-11 border px-0' })}
           >
             <Ellipsis aria-hidden />
           </button>
@@ -202,21 +284,6 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       </div>
 
       {q && <AddValueForm unit={q.unit} name={habit.name} onAdd={onAdd} />}
-
-      {!done && (habit.environment || habit.pairedReward) && (
-        <div className="space-y-1 px-1 text-sm text-muted-foreground">
-          {habit.environment && (
-            <p className="break-words">
-              <span className="font-semibold">{t('intention.environment')}</span> {habit.environment.join(' · ')}
-            </p>
-          )}
-          {habit.pairedReward && (
-            <p className="break-words">
-              <span className="font-semibold">{t('intention.reward')}</span> {habit.pairedReward}
-            </p>
-          )}
-        </div>
-      )}
 
       {panel === 'menu' && (
         // Accessible alternative to the long press: every action as a button.
@@ -260,9 +327,16 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
           />
         </div>
       )}
-      <p role="status" className="text-sm font-semibold text-primary">
-        {notice}
-      </p>
+      <div className="flex items-center gap-1">
+        <p role="status" className={cn('text-sm font-semibold', notice ? 'text-primary' : 'text-muted-foreground')}>
+          {notice || (removed && t('today.removed'))}
+        </p>
+        {removed && !notice && (
+          <Button variant="ghost" className="px-3 text-sm text-primary" onClick={redo}>
+            {t('today.redo')}
+          </Button>
+        )}
+      </div>
 
       {panel === 'note' && last && <NoteEditor log={last} onClose={closeMenu} />}
     </div>
@@ -315,7 +389,7 @@ function AvoidCard({ card, settings, panel, open }: CardProps) {
             <span className="block text-sm text-muted-foreground">
               {identityName(identity, t)} · {status}
             </span>
-            {streak.best > 0 && <span className="block text-xs text-muted-foreground">{t('recovery.streak', { ...streak })}</span>}
+            {streakText(streak, t) && <span className="block text-xs text-muted-foreground">{streakText(streak, t)}</span>}
           </div>
           <Button
             ref={relapseButton}
@@ -335,7 +409,7 @@ function AvoidCard({ card, settings, panel, open }: CardProps) {
           <Link
             to={`/habit/${habit.id}`}
             aria-label={t('habit.open', { name: habit.name })}
-            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+            className={buttonVariants({ variant: 'ghost', className: 'size-11 border px-0' })}
           >
             <CalendarDays aria-hidden />
           </Link>
@@ -349,7 +423,7 @@ function AvoidCard({ card, settings, panel, open }: CardProps) {
               setNotice('')
               open(panel === 'menu' ? undefined : 'menu')
             }}
-            className={buttonVariants({ variant: 'ghost', className: 'min-h-11 min-w-11 flex-1 border px-0' })}
+            className={buttonVariants({ variant: 'ghost', className: 'size-11 border px-0' })}
           >
             <Ellipsis aria-hidden />
           </button>
