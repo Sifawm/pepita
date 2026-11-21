@@ -1,5 +1,5 @@
 // Persistence: Dexie tables and writes. No business logic (it lives in @/domain).
-import Dexie, { type EntityTable, type Transaction } from 'dexie'
+import Dexie, { type EntityTable } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { DEFAULT_SETTINGS, weeklyNote, reconcileDiagnoses, type Settings, type FailureNote, type Diagnosis, type Entity, type Habit, type CelebratedMilestone, type Identity, type New, type Log, type WeeklyReview, type DismissedSuggestion } from '@/domain'
 import type { AppData } from '@/domain'
@@ -24,36 +24,20 @@ const newId = () =>
 /** Adds `id` and `createdAt` to what the core creates. */
 export const withId = <T extends Entity>(data: New<T>): T => ({ ...data, id: newId(), createdAt: new Date().toISOString() }) as T
 
-const addGeneralIdentity = (tx: Transaction) =>
-  tx.table('identities').add(withId<Identity>({ name: '', isGeneral: true, archived: false, order: 0 }))
-
 // Schema changes: add a new `db.version(n + 1)`; never edit an existing one.
-// Versions 1–7 (pre-v1 installs) used Spanish table names: v8 drops them and starts with empty data.
-// ponytail: drop the `null` tables and the upgrade once no pre-v1 install remains.
-db.version(8)
-  .stores({
-    identities: 'id, order',
-    habits: 'id, identityId, order',
-    logs: 'id, habitId, day, [habitId+day]',
-    settings: 'id',
-    failureNotes: 'id, habitId, [habitId+period]',
-    celebratedMilestones: 'id, identityId',
-    diagnoses: 'id, habitId',
-    dismissedSuggestions: 'id, habitId',
-    weeklyReviews: 'id, &week',
-    identidades: null,
-    habitos: null,
-    registros: null,
-    ajustes: null,
-    anotacionesDeFallo: null,
-    hitosCelebrados: null,
-    diagnosticos: null,
-    sugerenciasDescartadas: null,
-    revisionesSemanales: null,
-  })
-  .upgrade(addGeneralIdentity)
+db.version(8).stores({
+  identities: 'id, order',
+  habits: 'id, identityId, order',
+  logs: 'id, habitId, day, [habitId+day]',
+  settings: 'id',
+  failureNotes: 'id, habitId, [habitId+period]',
+  celebratedMilestones: 'id, identityId',
+  diagnoses: 'id, habitId',
+  dismissedSuggestions: 'id, habitId',
+  weeklyReviews: 'id, &week',
+})
 
-db.on('populate', addGeneralIdentity)
+db.on('populate', (tx) => tx.table('identities').add(withId<Identity>({ name: '', isGeneral: true, archived: false, order: 0 })))
 
 /** Saved settings over the defaults (without the row's `id`). */
 export async function readSettings(): Promise<Settings> {
