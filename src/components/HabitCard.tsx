@@ -111,9 +111,19 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       >
         {done ? <Check className="size-6" /> : <Circle className="size-6" />}
       </span>
-      {/* Struck through once done: a sense of task completed (aria-pressed and the text already state it). */}
-      <span className={cn('min-w-0 flex-1', done && 'text-muted-foreground line-through')}>
-        <span className="block text-lg font-semibold break-words">{habit.name}</span>
+      {/* Struck through once done: a sense of task completed (aria-pressed and the text already state it).
+          text-decoration can't animate, so the title's stroke is a background line whose width grows; clone repeats it on every wrapped line. */}
+      <span className={cn('min-w-0 flex-1 transition-colors duration-300', done && 'text-muted-foreground')}>
+        <span className="block text-lg font-semibold break-words">
+          <span
+            className={cn(
+              'box-decoration-clone bg-[linear-gradient(currentColor,currentColor)] bg-[position:0_55%] bg-no-repeat transition-[background-size] duration-300 ease-out motion-reduce:transition-none',
+              done ? 'bg-[length:100%_2px]' : 'bg-[length:0%_2px]',
+            )}
+          >
+            {habit.name}
+          </span>
+        </span>
         {recovering && !done && <span className="block text-sm font-semibold text-primary">{t('recovery.suggestion')}</span>}
         {!q && habit.minimumVersion && !done && <span className="block break-words">{t('today.minimum', { text: habit.minimumVersion })}</span>}
         {card.phrase && <span className="block break-words first-letter:uppercase">{phraseText(card.phrase, t)}</span>}
