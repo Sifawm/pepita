@@ -4,22 +4,28 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import en from './src/i18n/en.json'
+
+// Static texts (manifest, index.html) come from the i18n fallback language: the browser reads them
+// before the app runs. At runtime, src/i18n switches <html lang> and the meta description to the chosen language.
+const FALLBACK_LANGUAGE = 'en'
 
 export default defineConfig({
-  // Rutas relativas: sirve igual en GitHub Pages (/pepita/) que en la raíz de cualquier servidor.
+  // Relative paths: works the same on GitHub Pages (/pepita/) as at the root of any server.
   base: './',
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   plugins: [
     react(),
     tailwindcss(),
+    { name: 'html-i18n', transformIndexHtml: (html) => html.replace('%APP_DESCRIPTION%', en.app.description) },
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Pepita',
-        short_name: 'Pepita',
-        description: 'Tu conciencia amable para construir hábitos.',
-        lang: 'es',
+        name: en.app.name,
+        short_name: en.app.name,
+        description: en.app.description,
+        lang: FALLBACK_LANGUAGE,
         start_url: './',
         scope: './',
         display: 'standalone',

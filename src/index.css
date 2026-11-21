@@ -2,9 +2,9 @@
 @import 'tw-animate-css';
 @import '@fontsource-variable/nunito';
 
-/* Tema de Pepita sobre los tokens de shadcn/ui. Claro y oscuro según el sistema. Contrastes AA. */
+/* Pepita theme over the shadcn/ui tokens. Light and dark following the system. AA contrast. */
 :root {
-  /* Controles nativos (fecha, hora, casillas, desplegables) con el tema del sistema: sin esto, en oscuro sus iconos apenas se ven. */
+  /* Native controls (date, time, checkboxes, selects) follow the system theme: without this, their icons are barely visible in dark mode. */
   color-scheme: light dark;
   --radius: 0.75rem;
   --background: #fbf8f3;
@@ -46,7 +46,7 @@
   }
 }
 
-/* Papel: siempre claro, aunque el sistema esté en oscuro. */
+/* Paper: always light, even if the system is in dark mode. */
 @media print {
   :root {
     color-scheme: light;

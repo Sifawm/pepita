@@ -17,8 +17,8 @@ export default tseslint.config(
     },
   },
   {
-    // El núcleo de dominio es puro: nada de interfaz, persistencia ni reloj implícito.
-    files: ['src/dominio/**/*.ts'],
+    // The domain core is pure: no UI, no persistence, no implicit clock.
+    files: ['src/domain/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -26,8 +26,8 @@ export default tseslint.config(
       ],
       'no-restricted-syntax': [
         'error',
-        { selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']", message: 'Recibe `ahora` como parámetro.' },
-        { selector: 'NewExpression[callee.name="Date"][arguments.length=0]', message: 'Recibe `ahora` como parámetro.' },
+        { selector: "CallExpression[callee.object.name='Date'][callee.property.name='now']", message: 'Take `now` as a parameter.' },
+        { selector: 'NewExpression[callee.name="Date"][arguments.length=0]', message: 'Take `now` as a parameter.' },
       ],
     },
   },

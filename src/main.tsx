@@ -4,7 +4,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from '@/App'
 
-// Pide al navegador que no borre los datos por falta de espacio. Ajustes muestra la respuesta.
+// Ask the browser not to evict the data when space runs low. Settings shows the answer.
 void navigator.storage?.persist()
 
 createRoot(document.getElementById('root')!).render(

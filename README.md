@@ -1,24 +1,24 @@
 # Pepita
 
-Tu conciencia amable para construir hábitos. Una PWA *local-first*, sin cuentas ni servidor: tus datos se quedan en tu dispositivo.
+Your kind conscience for building habits. A *local-first* PWA, with no accounts or server: your data stays on your device.
 
-- Especificación: [docs/especificacion-v1.md](docs/especificacion-v1.md)
-- Decisiones: [docs/decisiones.md](docs/decisiones.md)
+- Spec: [docs/spec-v1.md](docs/spec-v1.md)
+- Decisions: [docs/decisions.md](docs/decisions.md)
 
-## Desarrollo
+## Development
 
-Requiere Node 24 y pnpm.
+Requires Node 24 and pnpm.
 
 ```sh
 pnpm install
-pnpm dev        # servidor de desarrollo
-pnpm test       # tests del núcleo de dominio (Vitest)
+pnpm dev        # development server
+pnpm test       # domain core tests (Vitest)
 pnpm lint
-pnpm build      # comprueba tipos y genera dist/
+pnpm build      # type-checks and generates dist/
 ```
 
-`dist/` son ficheros estáticos con rutas relativas: puedes servirlos desde cualquier servidor o subcarpeta.
+`dist/` is static files with relative paths: you can serve them from any server or subfolder.
 
-## Licencia
+## License
 
 [AGPL-3.0](LICENSE)

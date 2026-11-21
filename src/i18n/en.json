@@ -1,598 +1,599 @@
 {
   "app": {
-    "nombre": "Pepita",
-    "saltar": "Skip to content",
-    "volverA": "Back to {{destino}}"
+    "name": "Pepita",
+    "description": "Your kind conscience for building habits.",
+    "skip": "Skip to content",
+    "backTo": "Back to {{destination}}"
   },
-  "primerosPasos": {
-    "titulo": "First steps",
-    "habito": "Your first habit",
-    "empezar": "Go to Today",
-    "repetir": "Repeat the first steps",
-    "repetirAyuda": "Choose your language again, create an identity and a habit, and see how to install Pepita. Nothing gets deleted.",
-    "idioma": {
-      "titulo": "Hi! I'm Pepita. Which language shall we use?",
-      "ayuda": "I'm suggesting your browser's language; you can change it any time. No accounts: everything stays on this device.",
-      "copia": "Have a backup? Restore it in Settings"
+  "onboarding": {
+    "title": "First steps",
+    "habit": "Your first habit",
+    "start": "Go to Today",
+    "repeat": "Repeat the first steps",
+    "repeatHelp": "Choose your language again, create an identity and a habit, and see how to install Pepita. Nothing gets deleted.",
+    "language": {
+      "title": "Hi! I'm Pepita. Which language shall we use?",
+      "help": "I'm suggesting your browser's language; you can change it any time. No accounts: everything stays on this device.",
+      "backup": "Have a backup? Restore it in Settings"
     },
-    "identidad": {
-      "titulo": "Who do you want to be?",
-      "ayuda": "Write it as a sentence: “I am a person who…”. Each habit will be a vote for that person."
+    "identity": {
+      "title": "Who do you want to be?",
+      "help": "Write it as a sentence: “I am a person who…”. Each habit will be a vote for that person."
     },
-    "registrar": {
-      "titulo": "Shall we do it now?",
-      "ayuda": "Do your minimum version and tap it: that's your first vote. If you can't right now, that's fine."
+    "log": {
+      "title": "Shall we do it now?",
+      "help": "Do your minimum version and tap it: that's your first vote. If you can't right now, that's fine."
     },
-    "instalar": {
-      "titulo": "Keep Pepita close",
-      "ayuda": "Installed on your home screen, it opens instantly and takes better care of your data.",
-      "boton": "Install Pepita",
+    "install": {
+      "title": "Keep Pepita close",
+      "help": "Installed on your home screen, it opens instantly and takes better care of your data.",
+      "button": "Install Pepita",
       "menu": "If your browser allows it, add it to your home screen from its menu.",
-      "yaInstalada": "You already have Pepita installed. Great!",
+      "alreadyInstalled": "You already have Pepita installed. Great!",
       "ios": {
-        "titulo": "How to install it on your iPhone or iPad",
-        "compartir": "In Safari, tap the Share button (the square with an arrow pointing up).",
-        "anadir": "Choose “Add to Home Screen” and tap “Add”.",
-        "abrir": "From now on, open Pepita from its icon.",
-        "porque": "Safari may delete data from websites you haven't opened in a few weeks. Once installed, Pepita keeps it."
+        "title": "How to install it on your iPhone or iPad",
+        "share": "In Safari, tap the Share button (the square with an arrow pointing up).",
+        "add": "Choose “Add to Home Screen” and tap “Add”.",
+        "open": "From now on, open Pepita from its icon.",
+        "why": "Safari may delete data from websites you haven't opened in a few weeks. Once installed, Pepita keeps it."
       }
     }
   },
-  "identidad": {
+  "identity": {
     "general": "General"
   },
-  "hoy": {
-    "titulo": "Today",
-    "votos_one": "{{count}} vote today",
-    "votos_other": "{{count}} votes today",
-    "vacio": "No habits yet. Start with a small one: that's enough.",
-    "nuevo": "New habit",
-    "lista": "Today's habits",
-    "pendiente": "Tap: minimum · Hold: full",
-    "hechoMinima": "Minimum done · +1 vote",
-    "hechoCompleta": "Full version done · +1 vote",
-    "minima": "Minimum: {{texto}}",
-    "celebracion": "+1 vote · {{identidad}}",
-    "opciones": "More options for “{{nombre}}”",
-    "registrarMinima": "Done: minimum version",
-    "registrarCompleta": "Done: full version",
-    "anadirNota": "Add a note",
-    "editarNota": "Edit note",
-    "deshacer": "Undo the last check-in",
-    "nota": "Note (optional)",
-    "notaEjemplo": "Anything you want to remember?",
-    "guardarNota": "Save note"
+  "today": {
+    "title": "Today",
+    "votes_one": "{{count}} vote today",
+    "votes_other": "{{count}} votes today",
+    "empty": "No habits yet. Start with a small one: that's enough.",
+    "new": "New habit",
+    "list": "Today's habits",
+    "pending": "Tap: minimum · Hold: full",
+    "doneMinimum": "Minimum done · +1 vote",
+    "doneFull": "Full version done · +1 vote",
+    "minimum": "Minimum: {{text}}",
+    "celebration": "+1 vote · {{identity}}",
+    "options": "More options for “{{name}}”",
+    "logMinimum": "Done: minimum version",
+    "logFull": "Done: full version",
+    "addNote": "Add a note",
+    "editNote": "Edit note",
+    "undo": "Undo the last check-in",
+    "note": "Note (optional)",
+    "noteExample": "Anything you want to remember?",
+    "saveNote": "Save note"
   },
-  "nuevo": {
-    "titulo": "New habit",
-    "ejemplo": "For example: read one page",
-    "crear": "Create habit"
+  "new": {
+    "title": "New habit",
+    "example": "For example: read one page",
+    "create": "Create habit"
   },
-  "identidades": {
-    "titulo": "Identities",
+  "identities": {
+    "title": "Identities",
     "intro": "Every time you do a habit, you cast a vote for who you want to be.",
-    "lista": "Your identities",
-    "votos_one": "{{count}} vote",
-    "votos_other": "{{count}} votes",
-    "votosHoy_one": "{{count}} today",
-    "votosHoy_other": "{{count}} today",
-    "nueva": "New identity",
-    "ejemplo": "I am someone who reads",
-    "ayuda": "Write it as a sentence: “I am someone who…”.",
-    "crear": "Add",
-    "creada": "You added “{{nombre}}”.",
-    "subir": "Move “{{nombre}}” up",
-    "bajar": "Move “{{nombre}}” down",
-    "movida": "“{{nombre}}” is now in position {{puesto}}.",
-    "renombrar": "Rename",
-    "renombrarCampo": "New name",
-    "guardar": "Save",
-    "cancelar": "Cancel",
-    "archivar": "Archive",
-    "archivadas": "Archived",
-    "archivadasAyuda": "They keep their habits and votes. Their habits stay out of Today until you bring them back.",
-    "recuperar": "Bring back",
-    "delHabito": "Who are you voting for with this habit?",
-    "filtro": "Show habits for",
-    "todas": "All identities",
-    "filtroVacio": "No habits for this identity today. You can add one if you like."
+    "list": "Your identities",
+    "votes_one": "{{count}} vote",
+    "votes_other": "{{count}} votes",
+    "votesToday_one": "{{count}} today",
+    "votesToday_other": "{{count}} today",
+    "new": "New identity",
+    "example": "I am someone who reads",
+    "help": "Write it as a sentence: “I am someone who…”.",
+    "create": "Add",
+    "created": "You added “{{name}}”.",
+    "moveUp": "Move “{{name}}” up",
+    "moveDown": "Move “{{name}}” down",
+    "moved": "“{{name}}” is now in position {{position}}.",
+    "rename": "Rename",
+    "renameField": "New name",
+    "save": "Save",
+    "cancel": "Cancel",
+    "archive": "Archive",
+    "archived": "Archived",
+    "archivedHelp": "They keep their habits and votes. Their habits stay out of Today until you bring them back.",
+    "restore": "Bring back",
+    "forHabit": "Who are you voting for with this habit?",
+    "filter": "Show habits for",
+    "all": "All identities",
+    "filterEmpty": "No habits for this identity today. You can add one if you like."
   },
-  "frecuencia": {
-    "titulo": "How often?",
-    "veces_por_periodo": "A few times a day, week or month",
-    "veces": "How many times",
-    "periodo": "Period",
-    "por_dia_one": "time a day",
-    "por_dia_other": "times a day",
-    "por_semana_one": "time a week",
-    "por_semana_other": "times a week",
-    "por_mes_one": "time a month",
-    "por_mes_other": "times a month",
-    "dias_semana": "Specific days of the week",
-    "que_dias": "Which days",
-    "lleva_dia": "{{hechos}} of {{pide}} today",
-    "lleva_semana": "{{hechos}} of {{pide}} this week",
-    "lleva_mes": "{{hechos}} of {{pide}} this month",
-    "cada_periodo": "Every day, week or month",
-    "cada_dia": "every day",
-    "cada_semana": "every week",
-    "cada_mes": "every month"
+  "frequency": {
+    "title": "How often?",
+    "times_per_period": "A few times a day, week or month",
+    "times": "How many times",
+    "period": "Period",
+    "per_day_one": "time a day",
+    "per_day_other": "times a day",
+    "per_week_one": "time a week",
+    "per_week_other": "times a week",
+    "per_month_one": "time a month",
+    "per_month_other": "times a month",
+    "weekdays": "Specific days of the week",
+    "whichDays": "Which days",
+    "progress_day": "{{progress}} of {{required}} today",
+    "progress_week": "{{progress}} of {{required}} this week",
+    "progress_month": "{{progress}} of {{required}} this month",
+    "every_period": "Every day, week or month",
+    "every_day": "every day",
+    "every_week": "every week",
+    "every_month": "every month"
   },
-  "ajustes": {
-    "titulo": "Settings",
-    "hora_cierre": "End of the day",
-    "hora_cierre_ayuda": "Anything you do before {{hora}} counts for the day before, so a late night still counts.",
-    "idioma": "Language"
+  "settings": {
+    "title": "Settings",
+    "dayCutoff": "End of the day",
+    "dayCutoffHelp": "Anything you do before {{time}} counts for the day before, so a late night still counts.",
+    "language": "Language"
   },
-  "copias": {
-    "titulo": "Backups of your data",
+  "backups": {
+    "title": "Backups of your data",
     "intro": "Everything lives only on this device. A backup now and then keeps it safe.",
-    "ultima": "Last backup: {{fecha}}.",
-    "ninguna": "You haven't made a backup yet.",
-    "exportarJson": "Save a backup (JSON)",
-    "exportarCsv": "Export check-ins (CSV)",
-    "importar": "Restore a backup",
-    "importarAyuda": "Choose a Pepita JSON file. I'll ask before changing anything.",
-    "exportada": "Backup saved. Your data is safe.",
-    "importada": "Done: your data has been restored.",
-    "confirmarTitulo": "Replace your data with this backup?",
-    "confirmarTexto": "The backup has {{habitos}} and {{registros}}. It will replace everything currently on this device.",
-    "habitos_one": "{{count}} habit",
-    "habitos_other": "{{count}} habits",
-    "registros_one": "{{count}} check-in",
-    "registros_other": "{{count}} check-ins",
-    "confirmar": "Yes, restore the backup",
-    "cancelar": "Cancel",
-    "intactos": "Your data is just as it was.",
+    "last": "Last backup: {{date}}.",
+    "none": "You haven't made a backup yet.",
+    "exportJson": "Save a backup (JSON)",
+    "exportCsv": "Export check-ins (CSV)",
+    "import": "Restore a backup",
+    "importHelp": "Choose a Pepita JSON file. I'll ask before changing anything.",
+    "exported": "Backup saved. Your data is safe.",
+    "imported": "Done: your data has been restored.",
+    "confirmTitle": "Replace your data with this backup?",
+    "confirmText": "The backup has {{habits}} and {{logs}}. It will replace everything currently on this device.",
+    "habits_one": "{{count}} habit",
+    "habits_other": "{{count}} habits",
+    "logs_one": "{{count}} check-in",
+    "logs_other": "{{count}} check-ins",
+    "confirm": "Yes, restore the backup",
+    "cancel": "Cancel",
+    "unchanged": "Your data is just as it was.",
     "error": {
-      "no_es_json": "This file doesn't look like a Pepita backup.",
-      "no_es_pepita": "This file doesn't look like a Pepita backup.",
-      "version_nueva": "This backup comes from a newer version of Pepita. Update the app and try again.",
-      "invalido": "This backup is damaged and can't be used (problem at “{{ruta}}”)."
+      "not_json": "This file doesn't look like a Pepita backup.",
+      "not_pepita": "This file doesn't look like a Pepita backup.",
+      "newer_version": "This backup comes from a newer version of Pepita. Update the app and try again.",
+      "invalid": "This backup is damaged and can't be used (problem at “{{path}}”)."
     },
-    "aviso": "It's been over a week since your last backup. Shall we save one? It only takes a moment.",
-    "avisoAccion": "Save a backup",
-    "almacenamiento": "Storage",
-    "persistenteSi": "Your browser will keep your data even if it runs low on space.",
-    "persistenteNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
-    "persistenteNoDisponible": "This browser can't be asked for persistent storage. Backups keep you covered."
+    "notice": "It's been over a week since your last backup. Shall we save one? It only takes a moment.",
+    "noticeAction": "Save a backup",
+    "storage": "Storage",
+    "persistentYes": "Your browser will keep your data even if it runs low on space.",
+    "persistentNo": "Your browser might delete your data if it runs out of space. Backups keep you covered.",
+    "persistentUnavailable": "This browser can't be asked for persistent storage. Backups keep you covered."
   },
-  "asistente": {
-    "editar": "Edit habit",
-    "paso": "Step {{n}} of {{total}}",
-    "siguiente": "Next",
-    "atras": "Back",
-    "ahoraNo": "Not now",
-    "guardar": "Save changes",
+  "wizard": {
+    "edit": "Edit habit",
+    "step": "Step {{n}} of {{total}}",
+    "next": "Next",
+    "back": "Back",
+    "notNow": "Not now",
+    "save": "Save changes",
     "pepita": "Pepita says:",
-    "nombre": {
-      "titulo": "What do you want to do?",
-      "ayuda": "Something small and easy to start works best. This is the only must; the rest can wait."
+    "name": {
+      "title": "What do you want to do?",
+      "help": "Something small and easy to start works best. This is the only must; the rest can wait."
     },
-    "identidad": {
-      "titulo": "Who are you voting for with this habit?",
-      "ayuda": "Every time you do it, you cast a vote for the person you want to be."
+    "identity": {
+      "title": "Who are you voting for with this habit?",
+      "help": "Every time you do it, you cast a vote for the person you want to be."
     },
-    "tipo": {
-      "titulo": "What kind of habit is it?",
-      "ayuda": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
-      "si_no": "Do something",
-      "si_noAyuda": "You check it off when you do it.",
-      "cuantitativo": "Count an amount",
-      "cuantitativoAyuda": "At least 20 pages, or at most 2 coffees. You add up what you do.",
-      "evitar": "Avoid something",
-      "evitarAyuda": "You only log a slip. Every clean day adds a vote once it closes."
+    "type": {
+      "title": "What kind of habit is it?",
+      "help": "To break a habit, flip the method: make it invisible, unattractive, difficult and unsatisfying.",
+      "yes_no": "Do something",
+      "yes_noHelp": "You check it off when you do it.",
+      "quantitative": "Count an amount",
+      "quantitativeHelp": "At least 20 pages, or at most 2 coffees. You add up what you do.",
+      "avoid": "Avoid something",
+      "avoidHelp": "You only log a slip. Every clean day adds a vote once it closes."
     },
-    "frecuencia": {
-      "titulo": "How often?",
-      "ayuda": "It doesn’t have to be daily. Pick a pace you can keep."
+    "frequency": {
+      "title": "How often?",
+      "help": "It doesn’t have to be daily. Pick a pace you can keep."
     },
-    "versiones": {
-      "titulo": "Your minimum and full versions",
-      "ayuda": "The minimum fits in 2 minutes and counts just like the full one. On hard days, showing up is enough.",
-      "versionMinima": "Minimum version (2 minutes)",
-      "versionMinimaEjemplo": "For example: open the book",
-      "versionCompleta": "Full version",
-      "versionCompletaEjemplo": "For example: read for 30 minutes"
+    "versions": {
+      "title": "Your minimum and full versions",
+      "help": "The minimum fits in 2 minutes and counts just like the full one. On hard days, showing up is enough.",
+      "minimumVersion": "Minimum version (2 minutes)",
+      "minimumVersionExample": "For example: open the book",
+      "fullVersion": "Full version",
+      "fullVersionExample": "For example: read for 30 minutes"
     },
-    "intencion": {
-      "titulo": "When and where?",
-      "ayuda": "Deciding when and where you will do it means starting doesn’t depend on feeling like it.",
-      "cuando": "When",
-      "sinDecidir": "Not decided",
-      "cuandoHora": "At a set time",
-      "cuandoHabito": "After another habit",
-      "cuandoAccion": "After something you already do",
-      "hora": "Time",
-      "habito": "Habit",
-      "elige": "Choose a habit",
-      "accion": "What you do right before",
-      "accionEjemplo": "For example: pouring my coffee",
-      "donde": "Where",
-      "dondeEjemplo": "For example: in the kitchen",
-      "vistaPrevia": "Your intention"
+    "intention": {
+      "title": "When and where?",
+      "help": "Deciding when and where you will do it means starting doesn’t depend on feeling like it.",
+      "when": "When",
+      "undecided": "Not decided",
+      "whenTime": "At a set time",
+      "whenHabit": "After another habit",
+      "whenAction": "After something you already do",
+      "time": "Time",
+      "habit": "Habit",
+      "choose": "Choose a habit",
+      "action": "What you do right before",
+      "actionExample": "For example: pouring my coffee",
+      "where": "Where",
+      "whereExample": "For example: in the kitchen",
+      "preview": "Your intention"
     },
-    "entorno": {
-      "titulo": "Set up your space",
-      "ayuda": "Keep what you need in sight. The easier it is to start, the better.",
-      "lista": "One thing per line",
-      "ejemplo": "For example: leave the book on the pillow"
+    "environment": {
+      "title": "Set up your space",
+      "help": "Keep what you need in sight. The easier it is to start, the better.",
+      "list": "One thing per line",
+      "example": "For example: leave the book on the pillow"
     },
-    "recompensa": {
-      "titulo": "Paired reward",
-      "ayuda": "Pair the habit with something you enjoy and you’ll look forward to it.",
-      "ejemplo": "For example: I only listen to my podcast while walking"
+    "reward": {
+      "title": "Paired reward",
+      "help": "Pair the habit with something you enjoy and you’ll look forward to it.",
+      "example": "For example: I only listen to my podcast while walking"
     },
-    "senal": {
-      "titulo": "Which cue will you remove from sight?",
-      "ayuda": "Make it invisible: what you don’t see barely tempts you.",
-      "ejemplo": "For example: leave the phone outside the bedroom"
+    "cue": {
+      "title": "Which cue will you remove from sight?",
+      "help": "Make it invisible: what you don’t see barely tempts you.",
+      "example": "For example: leave the phone outside the bedroom"
     },
-    "friccion": {
-      "titulo": "What friction will you add?",
-      "ayuda": "Make it difficult: the more steps, the less you’ll want to.",
-      "ejemplo": "For example: log out of the app"
+    "friction": {
+      "title": "What friction will you add?",
+      "help": "Make it difficult: the more steps, the less you’ll want to.",
+      "example": "For example: log out of the app"
     },
-    "sustituto": {
-      "titulo": "What will you do instead?",
-      "ayuda": "A habit doesn’t just vanish: it helps to have something else at hand.",
-      "ejemplo": "For example: read one page"
+    "substitute": {
+      "title": "What will you do instead?",
+      "help": "A habit doesn’t just vanish: it helps to have something else at hand.",
+      "example": "For example: read one page"
     }
   },
-  "habito": {
-    "mas": "More options",
-    "archivar": "Archive habit",
-    "recuperar": "Restore habit",
-    "archivarAyuda": "Archiving takes it off Today and keeps its history and votes. You can bring it back any time.",
-    "borrar": "Delete habit",
-    "borrarTitulo": "Delete “{{nombre}}” forever?",
-    "borrarTexto_one": "Its check-in and its vote will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
-    "borrarTexto_other": "Its {{count}} check-ins and their votes will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
-    "borrarConfirmar": "Yes, delete forever",
-    "cancelar": "Cancel",
-    "noExiste": "I can't find this habit.",
-    "abrir": "Calendar for “{{nombre}}”",
-    "mesAnterior": "Previous month",
-    "mesSiguiente": "Next month",
-    "ayuda": "Tap any day to log it, fix it or undo it. Everything updates on its own.",
-    "leyenda": "Legend",
-    "estado": {
-      "cumplido_completa": "Done (full)",
-      "cumplido_minima": "Done (minimum)",
-      "fallido": "Not logged",
-      "en_curso": "In progress",
-      "no_programado": "Not scheduled",
-      "saltado": "Skipped",
-      "pausado": "Paused"
+  "habit": {
+    "more": "More options",
+    "archive": "Archive habit",
+    "restore": "Restore habit",
+    "archiveHelp": "Archiving takes it off Today and keeps its history and votes. You can bring it back any time.",
+    "delete": "Delete habit",
+    "deleteTitle": "Delete “{{name}}” forever?",
+    "deleteText_one": "Its check-in and its vote will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
+    "deleteText_other": "Its {{count}} check-ins and their votes will be deleted too. This can’t be undone. If you just want to set it aside, archive it.",
+    "deleteConfirm": "Yes, delete forever",
+    "cancel": "Cancel",
+    "notFound": "I can't find this habit.",
+    "open": "Calendar for “{{name}}”",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "help": "Tap any day to log it, fix it or undo it. Everything updates on its own.",
+    "legend": "Legend",
+    "status": {
+      "done_full": "Done (full)",
+      "done_minimum": "Done (minimum)",
+      "failed": "Not logged",
+      "in_progress": "In progress",
+      "not_scheduled": "Not scheduled",
+      "skipped": "Skipped",
+      "paused": "Paused"
     },
-    "registros_one": "{{count}} check-in",
-    "registros_other": "{{count}} check-ins",
-    "sinRegistros": "Nothing logged. If you forgot, you can log it now.",
-    "tipo": {
-      "minima": "Minimum version",
-      "completa": "Full version",
-      "salto": "Skip",
-      "recaida": "Slip"
+    "logs_one": "{{count}} check-in",
+    "logs_other": "{{count}} check-ins",
+    "noLogs": "Nothing logged. If you forgot, you can log it now.",
+    "type": {
+      "minimum": "Minimum version",
+      "full": "Full version",
+      "skip": "Skip",
+      "relapse": "Slip"
     },
-    "pasarA": {
-      "minima": "It was the minimum",
-      "completa": "It was the full one"
+    "switchTo": {
+      "minimum": "It was the minimum",
+      "full": "It was the full one"
     },
-    "deshacer": "Undo",
-    "saltar": "Skip this period",
-    "anadir": {
-      "minima": "Log the minimum",
-      "completa": "Log the full one"
+    "undo": "Undo",
+    "skip": "Skip this period",
+    "add": {
+      "minimum": "Log the minimum",
+      "full": "Log the full one"
     },
-    "frecuencia": "Change how often",
-    "frecuenciaAyuda": "It applies from the current period. Anything already closed still counts with the rule you had then, so your history stays true.",
-    "guardarFrecuencia": "Save frequency",
-    "frecuenciaGuardada": "Done, frequency saved."
+    "frequency": "Change how often",
+    "frequencyHelp": "It applies from the current period. Anything already closed still counts with the rule you had then, so your history stays true.",
+    "saveFrequency": "Save frequency",
+    "frequencySaved": "Done, frequency saved."
   },
-  "detalleHabito": {
-    "fuerza": "Strength",
-    "fuerzaAyuda": "How settled the habit is. It grows every time you do it, and a single miss barely moves it.",
-    "resumenFuerza": "Strength today: {{valor}}%",
-    "columnaDia": "Day",
-    "columnaFuerza": "Strength (%)",
-    "sinEmpezar": "It hasn’t started yet. You’ll see it settle in here.",
-    "mapa": "At a glance",
-    "mapaAyuda": "The last few weeks: each column is a week, Monday to Sunday.",
-    "dias_one": "{{count}} day",
-    "dias_other": "{{count}} days",
-    "proporcion": "Minimum and full",
-    "proporcionTexto": "Minimum version: {{minima}} · full version: {{completa}}",
-    "proporcionAyuda": "The minimum counts too. When the full version comes easily, it may be a good time to raise the bar.",
-    "sinProporcion": "Once you complete it, you’ll see here how often it was each version."
+  "habitDetail": {
+    "strength": "Strength",
+    "strengthHelp": "How settled the habit is. It grows every time you do it, and a single miss barely moves it.",
+    "strengthSummary": "Strength today: {{value}}%",
+    "dayColumn": "Day",
+    "strengthColumn": "Strength (%)",
+    "notStarted": "It hasn’t started yet. You’ll see it settle in here.",
+    "heatmap": "At a glance",
+    "heatmapHelp": "The last few weeks: each column is a week, Monday to Sunday.",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days",
+    "ratio": "Minimum and full",
+    "ratioText": "Minimum version: {{minimum}} · full version: {{full}}",
+    "ratioHelp": "The minimum counts too. When the full version comes easily, it may be a good time to raise the bar.",
+    "noRatio": "Once you complete it, you’ll see here how often it was each version."
   },
-  "archivados": {
-    "titulo": "Archived habits",
+  "archived": {
+    "title": "Archived habits",
     "intro": "They rest here with their history. Their votes still count.",
-    "vacio": "You have no archived habits."
+    "empty": "You have no archived habits."
   },
-  "pausas": {
-    "motivo": "Reason (if you like)",
-    "motivoEjemplo": "For example: I have a fever",
-    "saltarAyuda": "Skipping adds nothing and takes nothing away: it's a rest with permission.",
-    "saltar_dia": "Skip today",
-    "saltar_semana": "Skip this week",
-    "saltar_mes": "Skip this month",
-    "saltado": "Skipped, no problem",
-    "saltadoAviso": "Done, you skipped it. It doesn't count as a miss.",
-    "deshacerSalto": "Undo the skip",
-    "saltoDeshecho": "Skip undone.",
-    "pausar": "Pause for a few days",
-    "desde": "From",
-    "hasta": "Until (included)",
-    "pausarAccion": "Pause",
-    "pausadoAviso": "Paused until {{fecha}}. Those days don't count as a miss.",
-    "enPausa": "Paused until {{fecha}}",
-    "reanudar": "Resume today",
-    "reanudado": "Welcome back! It counts again from today.",
+  "pauses": {
+    "reason": "Reason (if you like)",
+    "reasonExample": "For example: I have a fever",
+    "skipHelp": "Skipping adds nothing and takes nothing away: it's a rest with permission.",
+    "skip_day": "Skip today",
+    "skip_week": "Skip this week",
+    "skip_month": "Skip this month",
+    "skipped": "Skipped, no problem",
+    "skippedNotice": "Done, you skipped it. It doesn't count as a miss.",
+    "undoSkip": "Undo the skip",
+    "skipUndone": "Skip undone.",
+    "pause": "Pause for a few days",
+    "from": "From",
+    "until": "Until (included)",
+    "pauseAction": "Pause",
+    "pausedNotice": "Paused until {{date}}. Those days don't count as a miss.",
+    "pausedUntil": "Paused until {{date}}",
+    "resume": "Resume today",
+    "resumed": "Welcome back! It counts again from today.",
     "global": {
-      "titulo": "Holidays",
+      "title": "Holidays",
       "intro": "Pause all your habits until a date. Those days don't count as a miss, and the pause ends on its own.",
-      "hasta": "Until (included)",
-      "empezar": "Start the holidays",
-      "empezada": "Holidays until {{fecha}}. Time to rest!",
-      "activa": "You're on holiday until {{fecha}}. Your habits will wait, no rush.",
-      "terminar": "Come back early",
-      "terminada": "Hello again! Your habits count again from today.",
-      "aviso": "On holiday until {{fecha}}. None of this counts as a miss."
+      "until": "Until (included)",
+      "start": "Start the holidays",
+      "started": "Holidays until {{date}}. Time to rest!",
+      "active": "You're on holiday until {{date}}. Your habits will wait, no rush.",
+      "end": "Come back early",
+      "ended": "Hello again! Your habits count again from today.",
+      "notice": "On holiday until {{date}}. None of this counts as a miss."
     }
   },
-  "recuperacion": {
-    "sugerencia": "Time to come back. The minimum version is enough.",
-    "racha": "Streak {{actual}} · best {{mejor}}",
-    "rachaAyuda": "Counts the periods you completed. A single miss doesn't break it.",
-    "anotar": "What happened? (if you'd like to say)",
-    "anotarAyuda": "No blame: it just helps to understand what the habit needs.",
-    "ley": "What weighed most",
-    "sinLey": "Not chosen",
-    "leyes": {
+  "recovery": {
+    "suggestion": "Time to come back. The minimum version is enough.",
+    "streak": "Streak {{current}} · best {{best}}",
+    "streakHelp": "Counts the periods you completed. A single miss doesn't break it.",
+    "record": "What happened? (if you'd like to say)",
+    "recordHelp": "No blame: it just helps to understand what the habit needs.",
+    "law": "What weighed most",
+    "noLaw": "Not chosen",
+    "laws": {
       "1": "I didn't notice it (1st law: make it obvious)",
       "2": "I didn't feel like it (2nd law: make it attractive)",
       "3": "It was hard (3rd law: make it easy)",
       "4": "It didn't feel worth it (4th law: make it satisfying)"
     },
-    "nota": "Note",
-    "guardar": "Save",
-    "guardada": "Noted. Thanks for sharing."
+    "note": "Note",
+    "save": "Save",
+    "saved": "Noted. Thanks for sharing."
   },
-  "intencion": {
-    "hora": "at {{hora}}",
-    "despuesDe": "after “{{nombre}}”",
-    "despuesDeAccion": "after {{texto}}",
-    "frase": "{{contexto}}: {{que}}",
-    "entorno": "Set up your space:",
-    "recompensa": "Reward:"
+  "intention": {
+    "time": "at {{time}}",
+    "after": "after “{{name}}”",
+    "afterAction": "after {{text}}",
+    "phrase": "{{context}}: {{what}}",
+    "environment": "Set up your space:",
+    "reward": "Reward:"
   },
-  "grafico": {
-    "datos": "Show the data"
+  "chart": {
+    "data": "Show the data"
   },
-  "detalleIdentidad": {
-    "curva": "Your vote curve",
-    "resumenCurva_one": "{{count}} vote in total since {{desde}}.",
-    "resumenCurva_other": "{{count}} votes in total since {{desde}}.",
-    "columnaDia": "Day",
-    "columnaVotos": "Total votes",
-    "sinVotos": "No votes yet. The first one arrives when you do a habit for this identity.",
-    "habitos": "Its habits",
-    "sinHabitos": "This identity has no habits yet.",
-    "archivado": "(archived)",
-    "calendario": "Calendar",
-    "editar": "Edit",
-    "noExiste": "I can't find this identity. Maybe it came from an older backup."
+  "identityDetail": {
+    "curve": "Your vote curve",
+    "curveSummary_one": "{{count}} vote in total since {{from}}.",
+    "curveSummary_other": "{{count}} votes in total since {{from}}.",
+    "dayColumn": "Day",
+    "votesColumn": "Total votes",
+    "noVotes": "No votes yet. The first one arrives when you do a habit for this identity.",
+    "habits": "Its habits",
+    "noHabits": "This identity has no habits yet.",
+    "archived": "(archived)",
+    "calendar": "Calendar",
+    "edit": "Edit",
+    "notFound": "I can't find this identity. Maybe it came from an older backup."
   },
-  "hitos": {
-    "titulo": "Milestones",
-    "alcanzado_one": "{{count}} vote · {{fecha}}",
-    "alcanzado_other": "{{count}} votes · {{fecha}}",
-    "siguiente_one": "Next milestone: {{count}} vote. {{faltan}} to go.",
-    "siguiente_other": "Next milestone: {{count}} votes. {{faltan}} to go.",
-    "todos": "You've reached every milestone. Every vote still counts.",
-    "celebracion_one": "{{count}} vote!",
-    "celebracion_other": "{{count}} votes!",
-    "celebracionIdentidad": "Look how many times you voted for “{{identidad}}”. That person is already you.",
-    "verCurva": "See your curve",
-    "cerrar": "Close"
+  "milestones": {
+    "title": "Milestones",
+    "reached_one": "{{count}} vote · {{date}}",
+    "reached_other": "{{count}} votes · {{date}}",
+    "next_one": "Next milestone: {{count}} vote. {{remaining}} to go.",
+    "next_other": "Next milestone: {{count}} votes. {{remaining}} to go.",
+    "all": "You've reached every milestone. Every vote still counts.",
+    "celebration_one": "{{count}} vote!",
+    "celebration_other": "{{count}} votes!",
+    "celebrationIdentity": "Look how many times you voted for “{{identity}}”. That person is already you.",
+    "viewCurve": "See your curve",
+    "close": "Close"
   },
-  "cuantitativo": {
-    "modo": "What are you after?",
-    "modos": {
-      "al_menos": "Reaching at least a goal",
-      "como_mucho": "Staying under a limit"
+  "quantitative": {
+    "mode": "What are you after?",
+    "modes": {
+      "at_least": "Reaching at least a goal",
+      "at_most": "Staying under a limit"
     },
-    "objetivo": "Amount",
-    "unidad": "Unit",
-    "unidadEjemplo": "For example: pages",
-    "objetivoMinimo": "Minimum goal (optional)",
-    "objetivoMinimoAyuda": "Your minimum version: a small amount that still earns a vote on hard days.",
-    "periodo": {
-      "dia": "today",
-      "semana": "this week",
-      "mes": "this month"
+    "target": "Amount",
+    "unit": "Unit",
+    "unitExample": "For example: pages",
+    "minTarget": "Minimum goal (optional)",
+    "minTargetHelp": "Your minimum version: a small amount that still earns a vote on hard days.",
+    "period": {
+      "day": "today",
+      "week": "this week",
+      "month": "this month"
     },
-    "lleva": {
-      "al_menos": "{{hechos}} of {{objetivo}} {{unidad}} {{periodo}}",
-      "como_mucho": "{{hechos}} {{unidad}} {{periodo}} (at most {{objetivo}})"
+    "progress": {
+      "at_least": "{{progress}} of {{target}} {{unit}} {{period}}",
+      "at_most": "{{progress}} {{unit}} {{period}} (at most {{target}})"
     },
-    "estado": {
-      "completa": "Goal reached · +1 vote",
-      "minima": "Minimum reached · +1 vote",
-      "pendiente": "Add what you do, even a little",
-      "dentro": "Going well: your vote comes when the period closes",
-      "pasado": "Over the limit this time. The next period starts fresh"
+    "status": {
+      "full": "Goal reached · +1 vote",
+      "minimum": "Minimum reached · +1 vote",
+      "pending": "Add what you do, even a little",
+      "within": "Going well: your vote comes when the period closes",
+      "over": "Over the limit this time. The next period starts fresh"
     },
-    "sumar": "Add {{unidad}}",
-    "sumarCorto": "Add",
-    "sumarBoton": "Add to “{{nombre}}”"
+    "add": "Add {{unit}}",
+    "addShort": "Add",
+    "addButton": "Add to “{{name}}”"
   },
-  "evitar": {
-    "limpio": "Clean day so far",
-    "recaido": "Slip logged. Tomorrow is another day",
-    "heRecaido": "I slipped",
-    "ayuda": "It happens to everyone. Logging it helps you see what sets it off.",
-    "disparador": "What set it off? (optional)",
-    "disparadorEjemplo": "For example: boredom after dinner",
-    "anotar": "Log slip",
-    "anotada": "Logged. One slip doesn’t erase how far you’ve come.",
-    "deshacer": "Undo today’s slip",
-    "deshecha": "Slip undone.",
-    "anadir": "Log a slip",
-    "sustituto": "Instead: {{texto}}",
-    "senal": "Cue removed: {{texto}}",
-    "friccion": "Friction: {{texto}}",
-    "estado": {
-      "cumplido_completa": "Clean day",
-      "cumplido_minima": "Clean day",
-      "fallido": "Slip",
-      "en_curso": "In progress",
-      "no_programado": "Not scheduled",
-      "saltado": "Skipped",
-      "pausado": "Paused"
+  "avoid": {
+    "clean": "Clean day so far",
+    "relapsed": "Slip logged. Tomorrow is another day",
+    "iRelapsed": "I slipped",
+    "help": "It happens to everyone. Logging it helps you see what sets it off.",
+    "trigger": "What set it off? (optional)",
+    "triggerExample": "For example: boredom after dinner",
+    "record": "Log slip",
+    "recorded": "Logged. One slip doesn’t erase how far you’ve come.",
+    "undo": "Undo today’s slip",
+    "undone": "Slip undone.",
+    "add": "Log a slip",
+    "substitute": "Instead: {{text}}",
+    "cue": "Cue removed: {{text}}",
+    "friction": "Friction: {{text}}",
+    "status": {
+      "done_full": "Clean day",
+      "done_minimum": "Clean day",
+      "failed": "Slip",
+      "in_progress": "In progress",
+      "not_scheduled": "Not scheduled",
+      "skipped": "Skipped",
+      "paused": "Paused"
     }
   },
-  "recordatorios": {
-    "titulo": "Reminders",
+  "reminders": {
+    "title": "Reminders",
     "intro": "Bring your timed habits to your phone's calendar: it will remind you even when Pepita is closed.",
-    "exportar": "Export reminders (.ics)",
-    "exportarAyuda": "Habits with a time are included, each with its alarm. Habits that come after another one appear in its description.",
-    "exportados": "Done. Open the file to add it to your calendar.",
-    "ninguno": "You don't have habits with a time yet. Once you give one a time under “When”, it will show up here.",
-    "notificaciones": "Remind me while Pepita is open",
-    "notificacionesAyuda": "I'll nudge you at the time of each habit still left for today. Only works while the app is open.",
-    "bloqueadas": "Your browser doesn't let Pepita notify you. If you like, you can allow it in its settings.",
-    "noDisponibles": "This browser doesn't support notifications. The calendar file (.ics) will still work.",
-    "despues": "And then: {{lista}}"
+    "export": "Export reminders (.ics)",
+    "exportHelp": "Habits with a time are included, each with its alarm. Habits that come after another one appear in its description.",
+    "exported": "Done. Open the file to add it to your calendar.",
+    "none": "You don't have habits with a time yet. Once you give one a time under “When”, it will show up here.",
+    "notifications": "Remind me while Pepita is open",
+    "notificationsHelp": "I'll nudge you at the time of each habit still left for today. Only works while the app is open.",
+    "blocked": "Your browser doesn't let Pepita notify you. If you like, you can allow it in its settings.",
+    "unavailable": "This browser doesn't support notifications. The calendar file (.ics) will still work.",
+    "then": "And then: {{list}}"
   },
-  "diagnostico": {
-    "avisos": "Questions from Pepita",
-    "aviso": "What happened with “{{nombre}}”? Let’s look at it together",
-    "titulo": "What happened with “{{nombre}}”?",
+  "diagnosis": {
+    "notices": "Questions from Pepita",
+    "notice": "What happened with “{{name}}”? Let’s look at it together",
+    "title": "What happened with “{{name}}”?",
     "intro": "Twice in a row without doing it. That’s okay: it’s a clue, not your fault. What weighed most?",
-    "causas": {
-      "titulo": "Causes",
+    "causes": {
       "1": "I didn’t notice",
       "2": "I didn’t feel like it",
       "3": "It was hard",
-      "4": "It didn’t feel worth it"
+      "4": "It didn’t feel worth it",
+      "title": "Causes"
     },
-    "consejos": {
+    "tips": {
       "1": "Make it obvious: tie it to a specific time and place, and you’ll see it coming.",
       "2": "Make it attractive: pair it with something you enjoy, or remember who you want to be.",
       "3": "Make it easy: make it so small you can’t say no, and set things up beforehand.",
       "4": "Make it satisfying: look at how much you’ve added up. And if now isn’t the time, pausing is fine too."
     },
-    "acciones": {
-      "titulo": "What you can change",
-      "editar_intencion": "Choose when and where",
-      "editar_recompensa": "Add a reward",
-      "editar_identidad": "Review my identities",
-      "solo_minima": "Stick to the minimum version",
-      "editar_entorno": "Set up my environment",
-      "ver_votos": "See my votes",
-      "pausar": "Pause it for {{dias}} days",
-      "archivar": "Archive it, guilt-free"
+    "actions": {
+      "title": "What you can change",
+      "edit_intention": "Choose when and where",
+      "edit_reward": "Add a reward",
+      "edit_identity": "Review my identities",
+      "minimum_only": "Stick to the minimum version",
+      "edit_environment": "Set up my environment",
+      "view_votes": "See my votes",
+      "pause": "Pause it for {{days}} days",
+      "archive": "Archive it, guilt-free"
     },
-    "soloApuntar": "Just note it",
-    "listo": "Done",
-    "otraCausa": "Choose another cause",
-    "posponer": "Not now, later",
-    "descartar": "Dismiss",
-    "gracias": "Noted. Thanks for sharing.",
-    "pospuesto": "We’ll leave it for later. It’s waiting in the habit’s details.",
-    "descartado": "Dismissed. Let’s keep going.",
-    "archivado": "Archived. You can bring it back whenever you like."
+    "justNote": "Just note it",
+    "done": "Done",
+    "otherCause": "Choose another cause",
+    "snooze": "Not now, later",
+    "dismiss": "Dismiss",
+    "thanks": "Noted. Thanks for sharing.",
+    "snoozed": "We’ll leave it for later. It’s waiting in the habit’s details.",
+    "dismissed": "Dismissed. Let’s keep going.",
+    "archived": "Archived. You can bring it back whenever you like."
   },
-  "escalado": {
-    "titulo": "An idea from Pepita",
-    "avisos": "Ideas from Pepita",
-    "aviso": "Pepita has an idea for “{{nombre}}”",
-    "subir": {
-      "minima": "“{{nombre}}” has been steady for weeks. Fancy doing the full version more often?",
-      "completa": "“{{nombre}}” is part of you now. It might be a good time to raise the goal or the frequency a little."
+  "progression": {
+    "title": "An idea from Pepita",
+    "notices": "Ideas from Pepita",
+    "notice": "Pepita has an idea for “{{name}}”",
+    "raise": {
+      "minimum": "“{{name}}” has been steady for weeks. Fancy doing the full version more often?",
+      "full": "“{{name}}” is part of you now. It might be a good time to raise the goal or the frequency a little."
     },
-    "bajar": {
-      "otro": "If “{{nombre}}” has felt uphill, stick to the minimum version for a while. What matters is not letting go.",
-      "evitar": "If “{{nombre}}” has felt uphill, let's make temptation harder: add some friction."
+    "lower": {
+      "other": "If “{{name}}” has felt uphill, stick to the minimum version for a while. What matters is not letting go.",
+      "avoid": "If “{{name}}” has felt uphill, let's make temptation harder: add some friction."
     },
-    "propuesta": {
-      "al_menos": "New goal: at least {{despues}} {{unidad}} (now {{antes}})",
-      "como_mucho": "New limit: at most {{despues}} {{unidad}} (now {{antes}})"
+    "proposal": {
+      "at_least": "New goal: at least {{after}} {{unit}} (now {{before}})",
+      "at_most": "New limit: at most {{after}} {{unit}} (now {{before}})"
     },
-    "verCambio": "See the change",
-    "ajustar": "Adjust it",
-    "entendido": "I'll give it a go",
-    "descartar": "Not now",
-    "confirmar": "Shall we change it? It applies from the current period; the past stays as it was.",
-    "cambiar": "Yes, change it",
-    "cancelar": "Cancel",
-    "cambiado": "Done. Your habit has its new bar.",
-    "animo": "Go for it!",
-    "descartado": "OK. I won't suggest it again for a few weeks."
+    "viewChange": "See the change",
+    "adjust": "Adjust it",
+    "gotIt": "I'll give it a go",
+    "dismiss": "Not now",
+    "confirm": "Shall we change it? It applies from the current period; the past stays as it was.",
+    "change": "Yes, change it",
+    "cancel": "Cancel",
+    "changed": "Done. Your habit has its new bar.",
+    "encouragement": "Go for it!",
+    "dismissed": "OK. I won't suggest it again for a few weeks."
   },
-  "revision": {
-    "titulo": "Weekly review",
+  "review": {
+    "title": "Weekly review",
     "intro": "Five minutes to look back on your week, kindly.",
-    "semanas": "Weeks",
-    "semana": "{{desde}} to {{hasta}}",
-    "anterior": "Previous week",
-    "siguiente": "Next week",
-    "votos": {
-      "titulo": "Votes by identity",
+    "weeks": "Weeks",
+    "week": "{{from}} to {{until}}",
+    "previous": "Previous week",
+    "next": "Next week",
+    "votes": {
+      "title": "Votes by identity",
       "n_one": "{{count}} vote",
       "n_other": "{{count}} votes",
-      "vacia": "No votes this time. Any day is a good day to come back."
+      "empty": "No votes this time. Any day is a good day to come back."
     },
-    "recuperacion": {
-      "titulo": "Getting back on track",
-      "vacia": "Nothing to get back on track."
+    "recovery": {
+      "title": "Getting back on track",
+      "empty": "Nothing to get back on track."
     },
-    "diagnosticos": {
-      "titulo": "Open questions",
-      "item": "What happened with “{{nombre}}”?",
-      "vacia": "No open questions."
+    "diagnoses": {
+      "title": "Open questions",
+      "item": "What happened with “{{name}}”?",
+      "empty": "No open questions."
     },
-    "fallos": {
-      "titulo": "Why it slipped",
-      "vacia": "You didn’t note any reasons this time."
+    "failures": {
+      "title": "Why it slipped",
+      "empty": "You didn’t note any reasons this time."
     },
-    "sugerencias": {
-      "titulo": "Ideas from Pepita",
-      "ver": "See the idea for “{{nombre}}”",
-      "verCorto": "See the idea",
-      "vacia": "No new ideas for now."
+    "suggestions": {
+      "title": "Ideas from Pepita",
+      "view": "See the idea for “{{name}}”",
+      "viewShort": "See the idea",
+      "empty": "No new ideas for now."
     },
-    "campos": {
-      "titulo": "Steps left blank",
+    "fields": {
+      "title": "Steps left blank",
       "intro": "No rush: here's what you left for later, whenever you feel like it.",
-      "vacia": "No steps left blank.",
-      "rellenar": "Fill in {{campo}} for “{{nombre}}”",
-      "identidad": "identity",
-      "versionMinima": "minimum version",
-      "intencion": "intention",
-      "entorno": "environment",
-      "recompensa": "reward"
+      "empty": "No steps left blank.",
+      "fillIn": "Fill in {{field}} for “{{name}}”",
+      "identity": "identity",
+      "minimumVersion": "minimum version",
+      "intention": "intention",
+      "environment": "environment",
+      "reward": "reward"
     },
-    "nota": {
-      "titulo": "Free note",
-      "ayuda": "What went well? What would you like to change? Just for you.",
-      "guardar": "Save note",
-      "guardada": "Note saved.",
-      "borrada": "Note deleted.",
-      "semana": "Week of {{fecha}}",
-      "vacia": "No notes in this period."
+    "note": {
+      "title": "Free note",
+      "help": "What went well? What would you like to change? Just for you.",
+      "save": "Save note",
+      "saved": "Note saved.",
+      "deleted": "Note deleted.",
+      "week": "Week of {{date}}",
+      "empty": "No notes in this period."
     },
-    "imprimir": {
-      "titulo": "Print or save as PDF",
-      "ayuda": "Choose the period and what to include. Whole weeks count, Monday to Sunday.",
-      "desde": "From",
-      "hasta": "To",
-      "incluir": "What to include",
-      "boton": "Print",
-      "informe": "Pepita review",
-      "estado": "Votes and notes for the period. Everything else, as it stands on {{fecha}}."
+    "print": {
+      "title": "Print or save as PDF",
+      "help": "Choose the period and what to include. Whole weeks count, Monday to Sunday.",
+      "from": "From",
+      "until": "To",
+      "include": "What to include",
+      "button": "Print",
+      "report": "Pepita review",
+      "status": "Votes and notes for the period. Everything else, as it stands on {{date}}."
     }
   }
 }

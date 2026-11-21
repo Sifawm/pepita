@@ -4,7 +4,11 @@ import { initReactI18next } from 'react-i18next'
 import en from './en.json'
 import es from './es.json'
 
-i18n.on('languageChanged', (lng) => document.documentElement.setAttribute('lang', lng))
+// index.html ships the fallback language's texts (see vite.config.ts); once the language is known, they follow it.
+i18n.on('languageChanged', (lng) => {
+  document.documentElement.setAttribute('lang', lng)
+  document.querySelector('meta[name="description"]')?.setAttribute('content', i18n.t('app.description'))
+})
 
 void i18n
   .use(LanguageDetector)

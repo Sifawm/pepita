@@ -1,4 +1,4 @@
-name: CI y despliegue
+name: CI and deploy
 
 on:
   push:

@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { cn } from '@/lib/utils'
 
-/** `<select>` nativo con el aspecto de `Input`: accesible y cómodo en móvil sin librerías. */
+/** Native `<select>` styled like `Input`: accessible and comfortable on mobile, no libraries. */
 function Select({ className, ...props }: ComponentProps<'select'>) {
   return (
     <select

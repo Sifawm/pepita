@@ -1,133 +1,140 @@
-// Persistencia: tablas Dexie y escrituras. Sin lógica de negocio (vive en @/dominio).
-import Dexie, { type EntityTable } from 'dexie'
+// Persistence: Dexie tables and writes. No business logic (it lives in @/domain).
+import Dexie, { type EntityTable, type Transaction } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { AJUSTES_POR_DEFECTO, notaSemanal, reconciliarDiagnosticos, type Ajustes, type AnotacionDeFallo, type Diagnostico, type Entidad, type Habito, type HitoCelebrado, type Identidad, type Nuevo, type Registro, type RevisionSemanal, type SugerenciaDescartada } from '@/dominio'
-import type { Datos } from '@/dominio'
+import { DEFAULT_SETTINGS, weeklyNote, reconcileDiagnoses, type Settings, type FailureNote, type Diagnosis, type Entity, type Habit, type CelebratedMilestone, type Identity, type New, type Log, type WeeklyReview, type DismissedSuggestion } from '@/domain'
+import type { AppData } from '@/domain'
 
 export const db = new Dexie('pepita') as Dexie & {
-  identidades: EntityTable<Identidad, 'id'>
-  habitos: EntityTable<Habito, 'id'>
-  registros: EntityTable<Registro, 'id'>
-  anotacionesDeFallo: EntityTable<AnotacionDeFallo, 'id'>
-  hitosCelebrados: EntityTable<HitoCelebrado, 'id'>
-  diagnosticos: EntityTable<Diagnostico, 'id'>
-  sugerenciasDescartadas: EntityTable<SugerenciaDescartada, 'id'>
-  revisionesSemanales: EntityTable<RevisionSemanal, 'id'>
-  /** Una sola fila, con `id: 'ajustes'`. */
-  ajustes: EntityTable<Partial<Ajustes> & { id: string }, 'id'>
+  identities: EntityTable<Identity, 'id'>
+  habits: EntityTable<Habit, 'id'>
+  logs: EntityTable<Log, 'id'>
+  failureNotes: EntityTable<FailureNote, 'id'>
+  celebratedMilestones: EntityTable<CelebratedMilestone, 'id'>
+  diagnoses: EntityTable<Diagnosis, 'id'>
+  dismissedSuggestions: EntityTable<DismissedSuggestion, 'id'>
+  weeklyReviews: EntityTable<WeeklyReview, 'id'>
+  /** A single row, with `id: 'settings'`. */
+  settings: EntityTable<Partial<Settings> & { id: string }, 'id'>
 }
 
-// Cambios de esquema: añade un `db.version(n + 1)` nuevo; nunca edites uno existente.
-db.version(1).stores({
-  identidades: 'id, orden',
-  habitos: 'id, identidadId, orden',
-  registros: 'id, habitoId, dia, [habitoId+dia]',
-})
-
-db.version(2).stores({ ajustes: 'id' })
-
-db.version(3).stores({ anotacionesDeFallo: 'id, habitoId, [habitoId+periodo]' })
-
-db.version(4).stores({ hitosCelebrados: 'id, identidadId' })
-
-db.version(5).stores({ diagnosticos: 'id, habitoId' })
-
-db.version(6).stores({ sugerenciasDescartadas: 'id, habitoId' })
-
-db.version(7).stores({ revisionesSemanales: 'id, &semana' })
-
-// `randomUUID` solo existe en contexto seguro (HTTPS/localhost); por http en la red local, `getRandomValues` sí.
-const nuevoId = () =>
+// `randomUUID` only exists in a secure context (HTTPS/localhost); over http on the local network, `getRandomValues` does.
+const newId = () =>
   crypto.randomUUID?.() ?? Array.from(crypto.getRandomValues(new Uint8Array(16)), (b) => b.toString(16).padStart(2, '0')).join('')
 
-/** Añade `id` y `creadoEn` a lo que crea el núcleo. */
-export const conId = <T extends Entidad>(datos: Nuevo<T>): T =>
-  ({ ...datos, id: nuevoId(), creadoEn: new Date().toISOString() }) as T
+/** Adds `id` and `createdAt` to what the core creates. */
+export const withId = <T extends Entity>(data: New<T>): T => ({ ...data, id: newId(), createdAt: new Date().toISOString() }) as T
 
-db.on('populate', (tx) =>
-  tx.table('identidades').add(conId<Identidad>({ nombre: '', esGeneral: true, archivada: false, orden: 0 })),
-)
+const addGeneralIdentity = (tx: Transaction) =>
+  tx.table('identities').add(withId<Identity>({ name: '', isGeneral: true, archived: false, order: 0 }))
 
-/** Los ajustes guardados sobre los de por defecto (sin el `id` de la fila). */
-export async function leerAjustes(): Promise<Ajustes> {
-  const { id, ...guardados } = (await db.ajustes.get('ajustes')) ?? { id: 'ajustes' }
-  void id // la fila lleva `id`; los ajustes, no.
-  return { ...AJUSTES_POR_DEFECTO, ...guardados }
+// Schema changes: add a new `db.version(n + 1)`; never edit an existing one.
+// Versions 1–7 (pre-v1 installs) used Spanish table names: v8 drops them and starts with empty data.
+// ponytail: drop the `null` tables and the upgrade once no pre-v1 install remains.
+db.version(8)
+  .stores({
+    identities: 'id, order',
+    habits: 'id, identityId, order',
+    logs: 'id, habitId, day, [habitId+day]',
+    settings: 'id',
+    failureNotes: 'id, habitId, [habitId+period]',
+    celebratedMilestones: 'id, identityId',
+    diagnoses: 'id, habitId',
+    dismissedSuggestions: 'id, habitId',
+    weeklyReviews: 'id, &week',
+    identidades: null,
+    habitos: null,
+    registros: null,
+    ajustes: null,
+    anotacionesDeFallo: null,
+    hitosCelebrados: null,
+    diagnosticos: null,
+    sugerenciasDescartadas: null,
+    revisionesSemanales: null,
+  })
+  .upgrade(addGeneralIdentity)
+
+db.on('populate', addGeneralIdentity)
+
+/** Saved settings over the defaults (without the row's `id`). */
+export async function readSettings(): Promise<Settings> {
+  const { id, ...saved } = (await db.settings.get('settings')) ?? { id: 'settings' }
+  void id // the row has an `id`; the settings don't.
+  return { ...DEFAULT_SETTINGS, ...saved }
 }
 
-/** Ajustes guardados sobre los de por defecto; `undefined` mientras cargan. */
-export const useAjustes = (): Ajustes | undefined => useLiveQuery(leerAjustes)
+/** Saved settings over the defaults; `undefined` while loading. */
+export const useSettings = (): Settings | undefined => useLiveQuery(readSettings)
 
-export const guardarAjustes = (cambios: Partial<Ajustes>) =>
-  db.transaction('rw', db.ajustes, async () => {
-    await db.ajustes.put({ ...(await db.ajustes.get('ajustes')), ...cambios, id: 'ajustes' })
+export const saveSettings = (changes: Partial<Settings>) =>
+  db.transaction('rw', db.settings, async () => {
+    await db.settings.put({ ...(await db.settings.get('settings')), ...changes, id: 'settings' })
   })
 
-/** Borra un hábito y todo lo que cuelga de él. Si añades una tabla con `habitoId`, bórrala aquí también. */
-export const borrarHabito = (id: string) =>
-  db.transaction('rw', [db.habitos, db.registros, db.anotacionesDeFallo, db.diagnosticos, db.sugerenciasDescartadas], async () => {
-    await db.registros.where('habitoId').equals(id).delete()
-    await db.anotacionesDeFallo.where('habitoId').equals(id).delete()
-    await db.diagnosticos.where('habitoId').equals(id).delete()
-    await db.sugerenciasDescartadas.where('habitoId').equals(id).delete()
-    await db.habitos.delete(id)
+/** Deletes a habit and everything hanging from it. If you add a table with `habitId`, delete from it here too. */
+export const deleteHabit = (id: string) =>
+  db.transaction('rw', [db.habits, db.logs, db.failureNotes, db.diagnoses, db.dismissedSuggestions], async () => {
+    await db.logs.where('habitId').equals(id).delete()
+    await db.failureNotes.where('habitId').equals(id).delete()
+    await db.diagnoses.where('habitId').equals(id).delete()
+    await db.dismissedSuggestions.where('habitId').equals(id).delete()
+    await db.habits.delete(id)
   })
 
-/** Guarda hitos como celebrados. Idempotente: un hito ya guardado no se duplica. */
-export const celebrarHitos = (identidadId: string, umbrales: number[]) =>
-  db.transaction('rw', db.hitosCelebrados, async () => {
-    const ya = new Set((await db.hitosCelebrados.where('identidadId').equals(identidadId).toArray()).map((h) => h.umbral))
-    const nuevos = umbrales.filter((umbral) => !ya.has(umbral))
-    await db.hitosCelebrados.bulkAdd(nuevos.map((umbral) => conId<HitoCelebrado>({ identidadId, umbral })))
+/** Stores milestones as celebrated. Idempotent: an already stored milestone isn't duplicated. */
+export const celebrateMilestones = (identityId: string, thresholds: number[]) =>
+  db.transaction('rw', db.celebratedMilestones, async () => {
+    const already = new Set((await db.celebratedMilestones.where('identityId').equals(identityId).toArray()).map((m) => m.threshold))
+    const fresh = thresholds.filter((threshold) => !already.has(threshold))
+    await db.celebratedMilestones.bulkAdd(fresh.map((threshold) => withId<CelebratedMilestone>({ identityId, threshold })))
   })
 
-/** Guarda la nota de la semana (`notaSemanal` decide; sin texto, se borra). */
-export const guardarNotaSemanal = (semana: string, nota: string) =>
-  db.transaction('rw', db.revisionesSemanales, async () => {
-    const nueva = notaSemanal(semana, nota)
-    const actual = await db.revisionesSemanales.where('semana').equals(nueva?.semana ?? semana).first()
-    if (!nueva) return void (actual && (await db.revisionesSemanales.delete(actual.id)))
-    await db.revisionesSemanales.put(actual ? { ...actual, ...nueva } : conId<RevisionSemanal>(nueva))
+/** Saves the week's note (`weeklyNote` decides; without text, it's deleted). */
+export const saveWeeklyNote = (week: string, note: string) =>
+  db.transaction('rw', db.weeklyReviews, async () => {
+    const next = weeklyNote(week, note)
+    const current = await db.weeklyReviews.where('week').equals(next?.week ?? week).first()
+    if (!next) return void (current && (await db.weeklyReviews.delete(current.id)))
+    await db.weeklyReviews.put(current ? { ...current, ...next } : withId<WeeklyReview>(next))
   })
 
 /**
- * Crea y retira diagnósticos para que cuadren con las rupturas de racha. En una transacción
- * (lee y escribe `diagnosticos` dentro), así dos llamadas a la vez no duplican nada.
+ * Creates and withdraws diagnoses so they match the streak breaks. In one transaction
+ * (it reads and writes `diagnoses` inside), so two concurrent calls don't duplicate anything.
  */
-export const reconciliarDiagnosticosGuardados = (ahora: Date) =>
-  db.transaction('rw', [db.habitos, db.registros, db.diagnosticos, db.ajustes], async () => {
-    const { crear, borrar } = reconciliarDiagnosticos({
-      habitos: await db.habitos.toArray(),
-      registros: await db.registros.toArray(),
-      diagnosticos: await db.diagnosticos.toArray(),
-      ajustes: await leerAjustes(),
-      ahora,
+export const reconcileStoredDiagnoses = (now: Date) =>
+  db.transaction('rw', [db.habits, db.logs, db.diagnoses, db.settings], async () => {
+    const { create, remove } = reconcileDiagnoses({
+      habits: await db.habits.toArray(),
+      logs: await db.logs.toArray(),
+      diagnoses: await db.diagnoses.toArray(),
+      settings: await readSettings(),
+      now,
     })
-    await db.diagnosticos.bulkDelete(borrar)
-    await db.diagnosticos.bulkAdd(crear.map((d) => conId<Diagnostico>(d)))
+    await db.diagnoses.bulkDelete(remove)
+    await db.diagnoses.bulkAdd(create.map((d) => withId<Diagnosis>(d)))
   })
 
-/** Todos los datos, de una vez y coherentes entre sí: lo que va en una copia. */
-export const leerDatos = (): Promise<Datos> =>
+/** All the data, at once and consistent with each other: what goes into a backup. */
+export const readAllData = (): Promise<AppData> =>
   db.transaction('r', db.tables, async () => ({
-    ajustes: await leerAjustes(),
-    identidades: await db.identidades.toArray(),
-    habitos: await db.habitos.toArray(),
-    registros: await db.registros.toArray(),
-    anotacionesDeFallo: await db.anotacionesDeFallo.toArray(),
-    hitosCelebrados: await db.hitosCelebrados.toArray(),
-    diagnosticos: await db.diagnosticos.toArray(),
-    sugerenciasDescartadas: await db.sugerenciasDescartadas.toArray(),
-    revisionesSemanales: await db.revisionesSemanales.toArray(),
+    settings: await readSettings(),
+    identities: await db.identities.toArray(),
+    habits: await db.habits.toArray(),
+    logs: await db.logs.toArray(),
+    failureNotes: await db.failureNotes.toArray(),
+    celebratedMilestones: await db.celebratedMilestones.toArray(),
+    diagnoses: await db.diagnoses.toArray(),
+    dismissedSuggestions: await db.dismissedSuggestions.toArray(),
+    weeklyReviews: await db.weeklyReviews.toArray(),
   }))
 
 /**
- * Sustituye TODO por `datos` (ya validados por `importar`). En una transacción: si algo falla,
- * no cambia nada. Cada clave de `Datos` salvo `ajustes` se escribe en la tabla del mismo nombre.
+ * Replaces EVERYTHING with `data` (already validated by `importBackup`). In one transaction: if anything
+ * fails, nothing changes. Every key of `AppData` except `settings` is written to the table of the same name.
  */
-export const sustituirDatos = ({ ajustes, ...tablas }: Datos) =>
+export const replaceAllData = ({ settings, ...tables }: AppData) =>
   db.transaction('rw', db.tables, async () => {
     await Promise.all(db.tables.map((t) => t.clear()))
-    await db.ajustes.put({ ...ajustes, id: 'ajustes' })
-    for (const [tabla, filas] of Object.entries(tablas)) await db.table(tabla).bulkAdd(filas)
+    await db.settings.put({ ...settings, id: 'settings' })
+    for (const [table, rows] of Object.entries(tables)) await db.table(table).bulkAdd(rows)
   })

@@ -1,70 +1,69 @@
 import { clsx, type ClassValue } from 'clsx'
 import type { TFunction } from 'i18next'
 import { twMerge } from 'tailwind-merge'
-import { unidadDePeriodo, type Dia, type FraseIntencion, type Habito, type Identidad, type Periodo } from '@/dominio'
+import { periodUnit, type Day, type IntentionPhrase, type Habit, type Identity, type Period } from '@/domain'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-/** «General» se muestra traducida mientras nadie le ponga nombre propio. */
-export const nombreIdentidad = (identidad: Identidad, t: TFunction) =>
-  identidad.nombre || t('identidad.general')
+/** "General" is shown translated until someone gives it a name of their own. */
+export const identityName = (identity: Identity, t: TFunction) => identity.name || t('identity.general')
 
-/** Un día lógico (`AAAA-MM-DD`) en texto del idioma: «15 de marzo». */
-export const fechaDia = (dia: Dia, idioma: string, opciones: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' }) => {
-  const [a, m, d] = dia.split('-').map(Number)
-  return new Date(a, m - 1, d).toLocaleDateString(idioma, opciones)
+/** A logical day (`YYYY-MM-DD`) as text in the language: "March 15". */
+export const formatDay = (day: Day, language: string, options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' }) => {
+  const [y, m, d] = day.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString(language, options)
 }
 
-/** «12 de 20 páginas hoy» / «1 café hoy (máximo 2)»: lo que lleva un cuantitativo en su periodo. */
-export const progresoCuantitativo = ({ cuantitativo: c, frecuencia: f }: Habito, periodo: Periodo, t: TFunction, idioma: string) => {
-  if (!c) return ''
-  const n = (x: number) => x.toLocaleString(idioma)
-  return t(`cuantitativo.lleva.${c.modo}`, {
-    hechos: n(periodo.hechos),
-    objetivo: n(c.objetivo),
-    unidad: c.unidad,
-    periodo: t(`cuantitativo.periodo.${unidadDePeriodo(f)}`),
+/** "12 of 20 pages today" / "1 coffee today (at most 2)": a quantitative habit's progress in its period. */
+export const quantitativeProgress = ({ quantitative: q, frequency: f }: Habit, period: Period, t: TFunction, language: string) => {
+  if (!q) return ''
+  const n = (x: number) => x.toLocaleString(language)
+  return t(`quantitative.progress.${q.mode}`, {
+    progress: n(period.progress),
+    target: n(q.target),
+    unit: q.unit,
+    period: t(`quantitative.period.${periodUnit(f)}`),
   })
 }
 
 /**
- * La frase de intención en el idioma: «después de servirme el café, en la cocina: leer 1 página».
- * Empieza en minúscula: muéstrala con `first-letter:uppercase` en un elemento de bloque.
+ * The intention phrase in the language: "after pouring my coffee, in the kitchen: read 1 page".
+ * Starts in lowercase: show it with `first-letter:uppercase` on a block element.
  */
-export function textoFrase({ cuando, donde, que }: FraseIntencion, t: TFunction) {
-  const inicio =
-    cuando &&
-    ('hora' in cuando
-      ? t('intencion.hora', { hora: cuando.hora })
-      : 'despuesDe' in cuando
-        ? t('intencion.despuesDe', { nombre: cuando.despuesDe })
-        : t('intencion.despuesDeAccion', { texto: cuando.despuesDeAccion }))
-  return t('intencion.frase', { contexto: [inicio, donde].filter(Boolean).join(', '), que })
+export function phraseText({ when, where, what }: IntentionPhrase, t: TFunction) {
+  const start =
+    when &&
+    ('time' in when
+      ? t('intention.time', { time: when.time })
+      : 'after' in when
+        ? t('intention.after', { name: when.after })
+        : t('intention.afterAction', { text: when.afterAction }))
+  return t('intention.phrase', { context: [start, where].filter(Boolean).join(', '), what })
 }
 
 /**
- * Lleva el foco a un elemento tras el próximo pintado. Para cuando el botón pulsado desaparece
- * (deshacer, archivar, cerrar un formulario): sin esto el foco cae al principio de la página.
+ * Moves focus to an element after the next paint. For when the pressed button disappears
+ * (undo, archive, closing a form): without this, focus falls to the top of the page.
  */
-export function enfocar(id: string) {
+export function focusById(id: string) {
   requestAnimationFrame(() => document.getElementById(id)?.focus())
 }
 
-/** Descarga un fichero generado en el navegador. */
-export function descargar(nombre: string, partes: BlobPart[], tipo: string) {
-  const url = URL.createObjectURL(new Blob(partes, { type: tipo }))
+/** Downloads a file generated in the browser. */
+export function download(name: string, parts: BlobPart[], type: string) {
+  const url = URL.createObjectURL(new Blob(parts, { type }))
   const a = document.createElement('a')
   a.href = url
-  a.download = nombre
+  a.download = name
   a.click()
-  // Safari necesita la URL viva un rato después del clic.
+  // Safari needs the URL alive for a while after the click.
   setTimeout(() => URL.revokeObjectURL(url), 60_000)
 }
 
-/** La frase como título suelto (notificación, calendario): con mayúscula inicial. */
-export const tituloFrase = (frase: FraseIntencion, t: TFunction) => {
-  const texto = textoFrase(frase, t)
-  return texto.charAt(0).toLocaleUpperCase() + texto.slice(1)
+/** The phrase as a standalone title (notification, calendar): with an initial capital. */
+export const phraseTitle = (phrase: IntentionPhrase, t: TFunction) => {
+  const text = phraseText(phrase, t)
+  return text.charAt(0).toLocaleUpperCase() + text.slice(1)
 }
