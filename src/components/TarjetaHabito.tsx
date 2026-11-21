@@ -111,7 +111,8 @@ function TarjetaSiNo({ tarjeta, registros, ajustes, panel, abrir, celebrar }: Pr
       >
         {hecho ? <Check className="size-6" /> : <Circle className="size-6" />}
       </span>
-      <span className="min-w-0 flex-1">
+      {/* Tachado al hacerlo: sensación de tarea cumplida (el estado ya lo dicen aria-pressed y el texto). */}
+      <span className={cn('min-w-0 flex-1', hecho && 'text-muted-foreground line-through')}>
         <span className="block text-lg font-semibold break-words">{habito.nombre}</span>
         {enRecuperacion && !hecho && <span className="block text-sm font-semibold text-primary">{t('recuperacion.sugerencia')}</span>}
         {!c && habito.versionMinima && !hecho && (
