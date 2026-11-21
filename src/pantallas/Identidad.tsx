@@ -22,18 +22,7 @@ export default function Identidad() {
 
   if (!datos || !ajustes) return null
   const { identidad, habitos } = datos
-  const volver = (
-    <Link to="/identidades" className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>
-      {t('detalleIdentidad.volver')}
-    </Link>
-  )
-  if (!identidad)
-    return (
-      <div className="space-y-6">
-        <p>{t('detalleIdentidad.noExiste')}</p>
-        {volver}
-      </div>
-    )
+  if (!identidad) return <p>{t('detalleIdentidad.noExiste')}</p>
 
   const ahora = new Date()
   const [resumen] = resumirIdentidades({ ...datos, identidades: [identidad], ahora, ajustes })
@@ -127,8 +116,6 @@ export default function Identidad() {
           </Link>
         )}
       </section>
-
-      {volver}
     </div>
   )
 }

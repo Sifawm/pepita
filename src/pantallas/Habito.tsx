@@ -72,13 +72,7 @@ export default function Habito() {
   }), [id])
 
   if (!datos || !ajustes) return null
-  if (!datos.habito)
-    return (
-      <div className="space-y-6">
-        <p>{t('habito.noExiste')}</p>
-        <Volver />
-      </div>
-    )
+  if (!datos.habito) return <p>{t('habito.noExiste')}</p>
 
   const ahora = new Date()
   const evaluacion = evaluarHabito({ ...datos, habito: datos.habito, ahora, ajustes })
@@ -110,17 +104,7 @@ export default function Habito() {
       <Link to={`/habito/${id}/editar`} className={buttonVariants({ variant: 'secondary', className: 'w-full' })}>
         {t('asistente.editar')}
       </Link>
-      <Volver />
     </div>
-  )
-}
-
-function Volver() {
-  const { t } = useTranslation()
-  return (
-    <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
-      {t('habito.volver')}
-    </Link>
   )
 }
 

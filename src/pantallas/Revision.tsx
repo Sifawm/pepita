@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
 import { claveTexto } from '@/components/Escalado'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { db, guardarNotaSemanal, useAjustes } from '@/db'
@@ -120,10 +120,6 @@ export default function Revision() {
             {t('revision.imprimir.boton')}
           </Button>
         </section>
-
-        <Link to="/" className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>
-          {t('revision.volver')}
-        </Link>
       </div>
 
       {/* Solo en papel: siempre claro (ver `@media print` en index.css), sin enlaces ni controles. */}

@@ -1,9 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { ArchiveRestore } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import { BorrarHabito } from '@/components/BorrarHabito'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { db } from '@/db'
 import { enfocar, nombreIdentidad } from '@/lib/utils'
 
@@ -49,10 +48,6 @@ export default function Archivados() {
           })}
         </ul>
       )}
-
-      <Link to="/" className={buttonVariants({ variant: 'ghost', className: 'w-full' })}>
-        {t('ajustes.volver')}
-      </Link>
     </div>
   )
 }

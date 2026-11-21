@@ -1,7 +1,8 @@
 {
   "app": {
     "nombre": "Pepita",
-    "saltar": "Saltar al contenido"
+    "saltar": "Saltar al contenido",
+    "volverA": "Volver a {{destino}}"
   },
   "primerosPasos": {
     "titulo": "Primeros pasos",
@@ -65,8 +66,7 @@
   "nuevo": {
     "titulo": "Nuevo hábito",
     "ejemplo": "Por ejemplo: leer una página",
-    "crear": "Crear hábito",
-    "cancelar": "Cancelar"
+    "crear": "Crear hábito"
   },
   "identidades": {
     "titulo": "Identidades",
@@ -92,7 +92,6 @@
     "archivadas": "Archivadas",
     "archivadasAyuda": "Guardan sus hábitos y sus votos. Sus hábitos no salen en Hoy hasta que las recuperes.",
     "recuperar": "Recuperar",
-    "volver": "Volver a Hoy",
     "delHabito": "¿Por quién votas con este hábito?",
     "filtro": "Ver hábitos de",
     "todas": "Todas las identidades",
@@ -123,8 +122,7 @@
     "titulo": "Ajustes",
     "hora_cierre": "Hora de cierre del día",
     "hora_cierre_ayuda": "Lo que hagas antes de las {{hora}} cuenta para el día anterior. Así, trasnochar no te quita el día.",
-    "idioma": "Idioma",
-    "volver": "Volver a Hoy"
+    "idioma": "Idioma"
   },
   "copias": {
     "titulo": "Copias de tus datos",
@@ -254,7 +252,6 @@
     "cancelar": "Cancelar",
     "noExiste": "No encuentro este hábito.",
     "abrir": "Calendario de «{{nombre}}»",
-    "volver": "Volver a Hoy",
     "mesAnterior": "Mes anterior",
     "mesSiguiente": "Mes siguiente",
     "ayuda": "Toca cualquier día para apuntarlo, corregirlo o deshacerlo. Todo se recalcula solo.",
@@ -385,8 +382,7 @@
     "archivado": "(archivado)",
     "calendario": "Calendario",
     "editar": "Editar",
-    "noExiste": "No encuentro esta identidad. Quizá venía de una copia anterior.",
-    "volver": "Volver a identidades"
+    "noExiste": "No encuentro esta identidad. Quizá venía de una copia anterior."
   },
   "hitos": {
     "titulo": "Hitos",
@@ -543,7 +539,6 @@
     "semana": "Del {{desde}} al {{hasta}}",
     "anterior": "Semana anterior",
     "siguiente": "Semana siguiente",
-    "volver": "Volver a Hoy",
     "votos": {
       "titulo": "Votos por identidad",
       "n_one": "{{count}} voto",

@@ -50,9 +50,6 @@ export default function Ajustes() {
           {t('primerosPasos.repetir')}
         </Link>
       </section>
-      <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
-        {t('ajustes.volver')}
-      </Link>
     </div>
   )
 }

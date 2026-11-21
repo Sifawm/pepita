@@ -1,8 +1,8 @@
 import { liveQuery } from 'dexie'
-import { Settings } from 'lucide-react'
+import { ChevronLeft, Settings } from 'lucide-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { HashRouter, Link, Route, Routes } from 'react-router'
+import { HashRouter, Link, matchPath, Route, Routes, useLocation } from 'react-router'
 import { Avisos } from '@/components/Recordatorios'
 import { buttonVariants } from '@/components/ui/button'
 import { db, leerAjustes, reconciliarDiagnosticosGuardados, useAjustes } from '@/db'
@@ -55,6 +55,43 @@ function useIdiomaGuardado() {
   }, [idioma, i18n])
 }
 
+/** A dónde lleva el «atrás» de la cabecera, como en cualquier app móvil. Sin destino, la pantalla es raíz. */
+function useAtras(): { to: string; etiqueta: string; nombre: string } | undefined {
+  const { t } = useTranslation()
+  const { pathname } = useLocation()
+  if (pathname === '/' || pathname === '/primeros-pasos') return undefined
+  const editar = matchPath('/habito/:id/editar', pathname)
+  if (editar) return { to: `/habito/${editar.params.id}`, etiqueta: t('asistente.atras'), nombre: t('asistente.atras') }
+  const [to, etiqueta] = matchPath('/identidades/:id', pathname) ? ['/identidades', t('identidades.titulo')] : ['/', t('hoy.titulo')]
+  return { to, etiqueta, nombre: t('app.volverA', { destino: etiqueta }) }
+}
+
+function Cabecera() {
+  const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const atras = useAtras()
+  return (
+    <header className="flex items-center justify-between py-2 print:hidden">
+      {atras ? (
+        <Link to={atras.to} aria-label={atras.nombre} className={buttonVariants({ variant: 'ghost', className: '-ml-3 gap-1 px-2 text-primary' })}>
+          <ChevronLeft aria-hidden className="size-6" />
+          {atras.etiqueta}
+        </Link>
+      ) : pathname === '/' ? (
+        // El título de Hoy vive en la cabecera: es el h1 de la pantalla.
+        <h1 className="text-3xl font-bold">{t('hoy.titulo')}</h1>
+      ) : (
+        <p className="text-lg font-bold text-primary">{t('app.nombre')}</p>
+      )}
+      {pathname !== '/ajustes' && (
+        <Link to="/ajustes" aria-label={t('ajustes.titulo')} className={buttonVariants({ variant: 'ghost', className: 'min-w-11 px-0' })}>
+          <Settings aria-hidden />
+        </Link>
+      )}
+    </header>
+  )
+}
+
 export default function App() {
   const { t } = useTranslation()
   useDiagnosticosAlDia()
@@ -74,12 +111,7 @@ export default function App() {
         {t('app.saltar')}
       </a>
       <div className="mx-auto max-w-md px-4 pb-10 print:max-w-none print:p-0">
-        <header className="flex items-center justify-between py-2 print:hidden">
-          <p className="text-lg font-bold text-primary">{t('app.nombre')}</p>
-          <Link to="/ajustes" aria-label={t('ajustes.titulo')} className={buttonVariants({ variant: 'ghost', className: 'min-w-11 px-0' })}>
-            <Settings aria-hidden />
-          </Link>
-        </header>
+        <Cabecera />
         <main id="principal" tabIndex={-1} className="outline-none">
           <Routes>
             <Route path="/" element={<Hoy />} />

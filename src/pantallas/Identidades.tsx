@@ -3,7 +3,7 @@ import { Archive, ArchiveRestore, ArrowDown, ArrowUp, Pencil } from 'lucide-reac
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { conId, db, useAjustes } from '@/db'
@@ -14,7 +14,7 @@ import {
   type Identidad,
   type ResumenIdentidad,
 } from '@/dominio'
-import { cn, enfocar, nombreIdentidad } from '@/lib/utils'
+import { enfocar, nombreIdentidad } from '@/lib/utils'
 
 export default function Identidades() {
   const { t } = useTranslation()
@@ -116,10 +116,6 @@ export default function Identidades() {
           </ul>
         </section>
       )}
-
-      <Link to="/" className={cn(buttonVariants({ variant: 'ghost' }), 'w-full')}>
-        {t('identidades.volver')}
-      </Link>
     </div>
   )
 }

@@ -60,7 +60,6 @@ export default function Hoy() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold">{t('hoy.titulo')}</h1>
         <p className="text-muted-foreground first-letter:uppercase">{fecha}</p>
         <p className="text-lg font-semibold text-primary" aria-live="polite">
           {t('hoy.votos', { count: hoy.votos })}

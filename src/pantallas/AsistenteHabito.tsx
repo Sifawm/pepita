@@ -2,11 +2,11 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Archive, ArchiveRestore, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { BorrarHabito } from '@/components/BorrarHabito'
 import { CamposCuantitativo } from '@/components/Cuantitativo'
 import { SelectorFrecuencia } from '@/components/SelectorFrecuencia'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -245,14 +245,10 @@ export function Asistente({
               {t('asistente.guardar')}
             </Button>
           )}
-          {n > 0 || atras ? (
+          {(n > 0 || atras) && (
             <Button type="button" variant="ghost" onClick={() => (n > 0 ? setN(n - 1) : atras?.())}>
               {t('asistente.atras')}
             </Button>
-          ) : (
-            <Link to="/" className={buttonVariants({ variant: 'ghost' })}>
-              {t('nuevo.cancelar')}
-            </Link>
           )}
         </div>
       </form>
@@ -512,12 +508,5 @@ function PasoRecompensa({ borrador, cambiar, titulo }: PropsPaso) {
 
 function NoExiste() {
   const { t } = useTranslation()
-  return (
-    <div className="space-y-4">
-      <p>{t('habito.noExiste')}</p>
-      <Link to="/" className={buttonVariants()}>
-        {t('ajustes.volver')}
-      </Link>
-    </div>
-  )
+  return <p>{t('habito.noExiste')}</p>
 }
