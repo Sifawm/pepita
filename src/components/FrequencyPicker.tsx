@@ -78,11 +78,12 @@ export function FrequencyPicker({
       {value.type === 'weekdays' && (
         <div role="group" aria-label={t('frequency.whichDays')} className="flex flex-wrap gap-2 pl-8">
           {DAYS.map((d) => (
-            <label key={d} className={cn(option, 'min-w-11 justify-center px-2 capitalize')}>
+            <label key={d} className={cn(option, 'relative min-w-11 justify-center px-2 capitalize has-[:user-invalid]:border-destructive')}>
               <input
                 type="checkbox"
-                className="sr-only"
-                // With no day checked, the browser won't let the habit be created.
+                // Invisible but covering the chip (not sr-only): the "pick a day" message points at the chips, not at a 1px dot.
+                className="absolute inset-0 m-0 cursor-pointer appearance-none rounded-md outline-none"
+                // With no day checked, the form won't submit and says "pick at least one day" (useFormError).
                 required={days.length === 0}
                 checked={days.includes(d)}
                 onChange={(e) =>

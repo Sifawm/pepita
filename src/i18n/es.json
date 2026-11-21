@@ -604,5 +604,14 @@
       "report": "Revisión de Pepita",
       "status": "Votos y notas del periodo. El resto, tal y como está a {{date}}."
     }
+  },
+  "validation": {
+    "required": "Completa esto para seguir.",
+    "pickDay": "Elige al menos un día.",
+    "min": "Usa {{min}} o más.",
+    "minDate": "Elige el {{date}} o una fecha posterior.",
+    "max": "Usa {{max}} o menos.",
+    "whole": "Usa un número entero.",
+    "number": "Escribe un número aquí."
   }
 }

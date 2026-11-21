@@ -74,7 +74,8 @@ export default function TodayScreen() {
       <ScreenHeader title={t('today.title')} />
       <header className="space-y-2">
         <p className="text-muted-foreground first-letter:uppercase">{date}</p>
-        <div aria-live="polite" aria-atomic="true">
+        {/* Not a live region: the "+1 vote" toast already announces each check-in. */}
+        <div>
           <p className="flex flex-wrap items-baseline gap-x-2">
             <span className="text-5xl leading-none font-extrabold tracking-tight text-primary tabular-nums">{n(total)}</span>
             <span className="text-lg font-semibold text-balance">
@@ -191,16 +192,21 @@ export default function TodayScreen() {
         )}
       </div>
 
-      <MilestoneCelebration summaries={summaries} />
-      <Celebration
-        text={celebration?.text}
-        animationKey={celebration?.n ?? 0}
-        onClose={closeCelebration}
-        onAddNote={() => {
-          if (celebration) setOpenPanel({ habitId: celebration.habitId, panel: 'note' })
-          setCelebration(undefined)
-        }}
-      />
+      {/* The floating layers share one stack at the bottom, by the thumb: the milestone above the "+1 vote" toast,
+          and neither over the votes they celebrate. The stack is capped to the screen; with large text the milestone
+          shrinks and scrolls inside, the toast keeps its size. */}
+      <div className="pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 mx-auto flex max-h-[calc(100dvh-2rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-w-md flex-col gap-2">
+        <MilestoneCelebration summaries={summaries} />
+        <Celebration
+          text={celebration?.text}
+          animationKey={celebration?.n ?? 0}
+          onClose={closeCelebration}
+          onAddNote={() => {
+            if (celebration) setOpenPanel({ habitId: celebration.habitId, panel: 'note' })
+            setCelebration(undefined)
+          }}
+        />
+      </div>
     </div>
   )
 }

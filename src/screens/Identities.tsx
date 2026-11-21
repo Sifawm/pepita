@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
+import { useFormError } from '@/components/ui/form-error'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { withId, db, useSettings } from '@/db'
@@ -75,10 +76,12 @@ export default function IdentitiesScreen() {
             onChange={(e) => setName(e.target.value)}
             placeholder={t('identities.example')}
             aria-describedby="new-identity-help"
-            required
             autoComplete="off"
           />
-          <Button type="submit">{t('identities.create')}</Button>
+          {/* Disabled while empty rather than `required`: the field empties after creating, and a required empty field would turn red. */}
+          <Button type="submit" disabled={!name.trim()}>
+            {t('identities.create')}
+          </Button>
         </div>
         <p id="new-identity-help" className="text-sm text-muted-foreground">
           {t('identities.help')}
@@ -144,6 +147,7 @@ function IdentityRow({
   const name = identityName(identity, t)
   const [editing, setEditing] = useState(false)
   const [text, setText] = useState(identity.name)
+  const { form, message } = useFormError()
 
   const rename = async (e: FormEvent) => {
     e.preventDefault()
@@ -158,7 +162,7 @@ function IdentityRow({
   if (editing) {
     const field = `rename-${identity.id}`
     return (
-      <form onSubmit={rename} className="space-y-2 rounded-lg border bg-card p-4">
+      <form onSubmit={rename} {...form} className="space-y-2 rounded-lg border bg-card p-4">
         <Label htmlFor={field}>{t('identities.renameField')}</Label>
         <Input
           id={field}
@@ -169,6 +173,7 @@ function IdentityRow({
           autoFocus
           autoComplete="off"
         />
+        {message}
         <div className="flex gap-2">
           <Button type="submit">{t('identities.save')}</Button>
           <Button type="button" variant="ghost" onClick={() => (setText(identity.name), setEditing(false), focusById(`rename-button-${identity.id}`))}>

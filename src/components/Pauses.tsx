@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { useFormError } from '@/components/ui/form-error'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { withId, db, saveSettings, useSettings } from '@/db'
@@ -20,6 +21,7 @@ export function SkipAndPause({ card, settings, onDone }: { card: TodayCard; sett
   const [start, setStart] = useState(today)
   const [end, setEnd] = useState(today)
   const id = useId()
+  const pauseError = useFormError()
   const unit = periodUnit(habit.frequency)
   const ownPause = pause && habit.pauses?.includes(pause)
 
@@ -83,7 +85,7 @@ export function SkipAndPause({ card, settings, onDone }: { card: TodayCard; sett
         </Button>
       ) : (
         !pause && (
-          <form onSubmit={onPause} className="space-y-2">
+          <form onSubmit={onPause} {...pauseError.form} className="space-y-2">
             <fieldset className="space-y-2">
               <legend className="font-semibold">{t('pauses.pause')}</legend>
               <div className="flex flex-wrap gap-3">
@@ -97,7 +99,9 @@ export function SkipAndPause({ card, settings, onDone }: { card: TodayCard; sett
                 </div>
               </div>
             </fieldset>
-            <Button type="submit" variant="secondary" className="w-full" disabled={!start || !end || end < start}>
+            {pauseError.message}
+            {/* Never disabled: a wrong date gets a sentence (useFormError) instead of a dead button. */}
+            <Button type="submit" variant="secondary" className="w-full">
               {t('pauses.pauseAction')}
             </Button>
           </form>
@@ -114,6 +118,7 @@ export function GlobalPause() {
   const habits = useLiveQuery(() => db.habits.toArray())
   const [end, setEnd] = useState('')
   const [notice, setNotice] = useState('')
+  const { form, message } = useFormError()
   if (!settings || !habits) return null
   const today = logicalDay(new Date(), settings.dayCutoff)
   const active = globalPauseOn(settings, today)
@@ -150,10 +155,11 @@ export function GlobalPause() {
           </Button>
         </>
       ) : (
-        <form onSubmit={start} className="space-y-2">
+        <form onSubmit={start} {...form} className="space-y-2">
           <Label htmlFor="vacation-until">{t('pauses.global.until')}</Label>
           <Input id="vacation-until" type="date" className="w-48" required min={today} value={end} onChange={(e) => setEnd(e.target.value)} />
-          <Button type="submit" variant="secondary" className="w-full" disabled={!end || end < today}>
+          {message}
+          <Button type="submit" variant="secondary" className="w-full">
             {t('pauses.global.start')}
           </Button>
         </form>

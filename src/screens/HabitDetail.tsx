@@ -10,6 +10,7 @@ import { SeriesChart } from '@/components/SeriesChart'
 import { FrequencyPicker } from '@/components/FrequencyPicker'
 import { NoteEditor } from '@/components/HabitCard'
 import { Button, buttonVariants } from '@/components/ui/button'
+import { useFormError } from '@/components/ui/form-error'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -456,6 +457,7 @@ function ChangeFrequency({ habit, settings }: { habit: Habit; settings: Settings
   const { t } = useTranslation()
   const [frequency, setFrequency] = useState<Frequency>(habit.frequency)
   const [saved, setSaved] = useState(false)
+  const { form, message } = useFormError()
   const unchanged = JSON.stringify(frequency) === JSON.stringify(habit.frequency)
 
   const save = async (e: FormEvent) => {
@@ -465,12 +467,13 @@ function ChangeFrequency({ habit, settings }: { habit: Habit; settings: Settings
   }
 
   return (
-    <form onSubmit={save} aria-labelledby="change-frequency" className="space-y-4">
+    <form onSubmit={save} {...form} aria-labelledby="change-frequency" className="space-y-4">
       <h2 id="change-frequency" className="text-xl font-bold">
         {t('habit.frequency')}
       </h2>
       <p className="text-sm text-muted-foreground">{t('habit.frequencyHelp')}</p>
       <FrequencyPicker value={frequency} onChange={(f) => (setFrequency(f), setSaved(false))} periodOnly={habit.type === 'quantitative'} />
+      {message}
       <Button type="submit" disabled={unchanged}>
         {t('habit.saveFrequency')}
       </Button>

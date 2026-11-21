@@ -33,11 +33,11 @@ export function MilestoneCelebration({ summaries }: { summaries: IdentitySummary
   }, [milestone])
 
   return (
-    // Live region always mounted, so the screen reader announces the milestone. Below the header: back and settings stay reachable.
-    // Never taller than the screen: with large text it scrolls inside, so "Close" can always be reached by touch.
-    <div role="status" className="pointer-events-none fixed inset-x-4 top-16 z-20 mx-auto max-w-md">
+    // Live region always mounted, so the screen reader announces the milestone. Positioned by Today's floating stack.
+    // Shrinks to the room the stack leaves beside the toast: with large text it scrolls inside, so "Close" stays reachable.
+    <div role="status" className="flex min-h-0 flex-col">
       {milestone && (
-        <div className="pointer-events-auto max-h-[calc(100dvh-5rem-env(safe-area-inset-bottom))] space-y-3 overflow-y-auto overscroll-contain rounded-xl border-2 border-primary bg-card p-5 text-card-foreground shadow-xl motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-500">
+        <div className="pointer-events-auto min-h-0 space-y-3 overflow-y-auto overscroll-contain rounded-xl border-2 border-primary bg-card p-5 text-card-foreground shadow-xl motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-75 motion-safe:duration-500">
           <div className="flex items-start gap-3">
             <PartyPopper aria-hidden className="size-8 shrink-0 text-primary motion-safe:animate-in motion-safe:spin-in-45 motion-safe:duration-700" />
             <div>

@@ -604,5 +604,14 @@
       "report": "Pepita review",
       "status": "Votes and notes for the period. Everything else, as it stands on {{date}}."
     }
+  },
+  "validation": {
+    "required": "Fill this in to continue.",
+    "pickDay": "Pick at least one day.",
+    "min": "Use {{min}} or more.",
+    "minDate": "Pick {{date}} or later.",
+    "max": "Use {{max}} or less.",
+    "whole": "Use a whole number.",
+    "number": "Write a number here."
   }
 }

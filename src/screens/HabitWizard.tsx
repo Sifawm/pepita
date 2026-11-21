@@ -8,6 +8,7 @@ import { QuantitativeFields } from '@/components/QuantitativeInputs'
 import { FrequencyPicker } from '@/components/FrequencyPicker'
 import { ScreenHeader } from '@/components/ScreenHeader'
 import { Button } from '@/components/ui/button'
+import { useFormError } from '@/components/ui/form-error'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -167,7 +168,10 @@ export function Wizard({
   const anchors = possibleAnchors(habit?.id, habits)
   const props = { draft, update, identities, habits, anchors, editing: !!habit, titleId: 'step-title' }
   const steps = STEPS.filter((s) => (!stepKeys || stepKeys.includes(s.key)) && (!s.visible || s.visible(props)))
-  const [n, setN] = useState(() => Math.max(0, steps.findIndex((s) => s.key === requestedStep)))
+  const [n, setStep] = useState(() => Math.max(0, steps.findIndex((s) => s.key === requestedStep)))
+  const { form: validation, message, clear } = useFormError()
+  // A sentence about the previous step's field never stays on the next one.
+  const setN = (i: number) => (clear(), setStep(i))
   const step = steps[n]
   const isLast = n === steps.length - 1
   const back = n > 0 ? () => setN(n - 1) : onBack
@@ -204,7 +208,7 @@ export function Wizard({
   return (
     <div className="space-y-6">
       <ScreenHeader title={heading} onBack={back} />
-      <form ref={form} onSubmit={next} className="space-y-6">
+      <form ref={form} onSubmit={next} {...validation} className="space-y-6">
         <header className="space-y-1">
           <p className="text-muted-foreground">{t('wizard.step', { n: n + 1, total: steps.length })}</p>
         </header>
@@ -221,6 +225,7 @@ export function Wizard({
             </span>
           </p>
           <step.Field {...props} />
+          {message}
         </section>
 
         <div className="flex flex-col gap-3">

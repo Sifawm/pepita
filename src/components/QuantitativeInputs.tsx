@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react'
 import { useId, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { useFormError } from '@/components/ui/form-error'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { Quantitative } from '@/domain'
@@ -82,6 +83,7 @@ export function AddValueForm({ unit, name, onAdd }: { unit: string; name: string
   const { t } = useTranslation()
   const id = useId()
   const [text, setText] = useState('')
+  const { form, message } = useFormError()
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const value = parseNumber(text)
@@ -90,15 +92,19 @@ export function AddValueForm({ unit, name, onAdd }: { unit: string; name: string
     setText('')
   }
   return (
-    <form onSubmit={submit} className="flex items-end gap-2">
-      <div className="min-w-0 flex-1 space-y-1">
-        <Label htmlFor={id}>{t('quantitative.add', { unit })}</Label>
-        <Input id={id} type="number" inputMode="decimal" min={0.01} step="any" required value={text} onChange={(e) => setText(e.target.value)} />
+    <form onSubmit={submit} {...form} className="space-y-1">
+      <div className="flex items-end gap-2">
+        <div className="min-w-0 flex-1 space-y-1">
+          <Label htmlFor={id}>{t('quantitative.add', { unit })}</Label>
+          {/* Not `required`: the field empties after every add, and a required empty field would turn red right after a vote. */}
+          <Input id={id} type="number" inputMode="decimal" min={0.01} step="any" value={text} onChange={(e) => setText(e.target.value)} />
+        </div>
+        <Button type="submit" disabled={!text} aria-label={t('quantitative.addButton', { name })}>
+          <Plus aria-hidden />
+          {t('quantitative.addShort')}
+        </Button>
       </div>
-      <Button type="submit" aria-label={t('quantitative.addButton', { name })}>
-        <Plus aria-hidden />
-        {t('quantitative.addShort')}
-      </Button>
+      {message}
     </form>
   )
 }

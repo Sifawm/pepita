@@ -134,48 +134,77 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
     // Recovery: thick border on top of the suggestion text (not just color).
     recovering && !done && 'border-2 border-primary',
   )
+  // Quantitative cards aren't tapped: "at least" shows its progress as a ring, "at most" has no indicator (its text carries the state).
+  const fraction = q ? Math.min(period.progress / q.target, 1) : 0
   const content = (
     <>
-      <span
-        aria-hidden
-        className={cn(
-          'relative flex size-10 shrink-0 items-center justify-center rounded-full border-2',
-          done ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
-        )}
-      >
-        {done ? <Check className="size-6" /> : <Circle className="size-6" />}
-        {/* Drawn over the border from 12 o'clock; it closes exactly when the full version is logged.
-            Linear because it is a timer; opacity snaps on after the delay so the first arc is already visible.
-            Reduced motion: the whole ring appears after the delay instead of being drawn. */}
-        {!done && !q && (
-          <svg viewBox="0 0 40 40" className="pointer-events-none absolute -inset-0.5 size-10 -rotate-90 text-primary">
-            <circle
-              cx="20"
-              cy="20"
-              r="19"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              pathLength={1}
-              strokeDasharray={1}
-              className={cn(
-                'transition-[stroke-dashoffset,opacity] motion-reduce:[stroke-dashoffset:0]',
-                // Durations follow transition-property: stroke-dashoffset, then opacity. With motion, the draw is the timer and
-                // opacity snaps on (1ms, not 0, so the delayed switch is a real transition). Reduced: the whole ring fades in over
-                // the same time instead, so it is never complete before the full version is logged.
-                holding
-                  ? 'ease-linear [stroke-dashoffset:0] opacity-100 motion-safe:[transition-duration:var(--ring-ms),1ms] motion-reduce:[transition-duration:1ms,var(--ring-ms)]'
-                  : 'ease-out [stroke-dashoffset:1] opacity-0',
-              )}
-              style={
-                holding
-                  ? ({ '--ring-ms': `${LONG_PRESS_MS - HOLD_RING_DELAY_MS}ms`, transitionDelay: `${HOLD_RING_DELAY_MS}ms` } as CSSProperties)
-                  : { transitionDuration: '150ms' }
-              }
-            />
-          </svg>
-        )}
-      </span>
+      {q?.mode !== 'at_most' && (
+        <span
+          aria-hidden
+          className={cn(
+            'relative flex size-10 shrink-0 items-center justify-center rounded-full border-2',
+            done ? 'border-primary bg-primary text-primary-foreground' : 'border-input text-transparent',
+          )}
+        >
+          {done ? (
+            <Check className="size-6" />
+          ) : q ? (
+            // A number inside the ring reads as a gauge, not as a circle to tap.
+            <span className="text-xs font-bold text-muted-foreground tabular-nums">
+              {(Math.floor(fraction * 100) / 100).toLocaleString(i18n.language, { style: 'percent' })}
+            </span>
+          ) : (
+            <Circle className="size-6" />
+          )}
+          {q && !done && (
+            <svg viewBox="0 0 40 40" className="pointer-events-none absolute -inset-0.5 size-10 -rotate-90 text-primary">
+              <circle
+                cx="20"
+                cy="20"
+                r="19"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                pathLength={1}
+                strokeDasharray={1}
+                strokeDashoffset={1 - fraction}
+                className="transition-[stroke-dashoffset] duration-500 ease-out motion-reduce:transition-none"
+              />
+            </svg>
+          )}
+          {/* Drawn over the border from 12 o'clock; it closes exactly when the full version is logged.
+              Linear because it is a timer; opacity snaps on after the delay so the first arc is already visible.
+              Reduced motion: the whole ring appears after the delay instead of being drawn. */}
+          {!done && !q && (
+            <svg viewBox="0 0 40 40" className="pointer-events-none absolute -inset-0.5 size-10 -rotate-90 text-primary">
+              <circle
+                cx="20"
+                cy="20"
+                r="19"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                pathLength={1}
+                strokeDasharray={1}
+                className={cn(
+                  'transition-[stroke-dashoffset,opacity] motion-reduce:[stroke-dashoffset:0]',
+                  // Durations follow transition-property: stroke-dashoffset, then opacity. With motion, the draw is the timer and
+                  // opacity snaps on (1ms, not 0, so the delayed switch is a real transition). Reduced: the whole ring fades in over
+                  // the same time instead, so it is never complete before the full version is logged.
+                  holding
+                    ? 'ease-linear [stroke-dashoffset:0] opacity-100 motion-safe:[transition-duration:var(--ring-ms),1ms] motion-reduce:[transition-duration:1ms,var(--ring-ms)]'
+                    : 'ease-out [stroke-dashoffset:1] opacity-0',
+                )}
+                style={
+                  holding
+                    ? ({ '--ring-ms': `${LONG_PRESS_MS - HOLD_RING_DELAY_MS}ms`, transitionDelay: `${HOLD_RING_DELAY_MS}ms` } as CSSProperties)
+                    : { transitionDuration: '150ms' }
+                }
+              />
+            </svg>
+          )}
+        </span>
+      )}
       {/* Struck through once done: a sense of task completed (aria-pressed and the text already state it).
           text-decoration can't animate, so the title's stroke is a background line whose width grows; clone repeats it on every wrapped line. */}
       <span className={cn('min-w-0 flex-1 transition-colors duration-300', done && 'text-muted-foreground')}>
@@ -219,7 +248,11 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       <div className="flex gap-2">
         {/* A quantitative habit isn't checked with a tap: values are added in the field below. */}
         {q ? (
-          <div className={box}>{content}</div>
+          // The field lives inside the card: it reads as this habit's, not the next one's.
+          <div className={cn(box, 'flex-col items-stretch')}>
+            <div className="flex items-center gap-4">{content}</div>
+            <AddValueForm unit={q.unit} name={habit.name} onAdd={onAdd} />
+          </div>
         ) : (
           <button
             ref={cardButton}
@@ -283,8 +316,6 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
           </button>
         </div>
       </div>
-
-      {q && <AddValueForm unit={q.unit} name={habit.name} onAdd={onAdd} />}
 
       {panel === 'menu' && (
         // Accessible alternative to the long press: every action as a button.
@@ -558,16 +589,18 @@ export function Celebration({
   }, [text, onClose])
 
   return (
-    // The live region always exists so the screen reader announces every celebration.
-    <div role="status" className="pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-10 mx-auto max-w-md">
+    // The live region always exists so the screen reader announces every celebration. Positioned by Today's floating stack.
+    <div role="status">
       {text && (
         <div
           key={animationKey}
           onFocus={() => setPinned(true)}
           onBlur={() => setPinned(false)}
-          className="pointer-events-auto flex items-center justify-between gap-3 rounded-lg bg-primary p-3 pl-4 text-primary-foreground shadow-lg motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-90 motion-safe:slide-in-from-bottom-4"
+          // Wraps: with large text the button drops below the sentence instead of leaving the screen.
+          className="pointer-events-auto flex flex-wrap items-center justify-between gap-3 rounded-lg bg-primary p-3 pl-4 text-primary-foreground shadow-lg motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-90 motion-safe:slide-in-from-bottom-4"
         >
-          <span className="text-lg font-bold">{text}</span>
+          {/* 10rem basis: beside the button at normal sizes, on its own line once the text is large. */}
+          <span className="min-w-0 flex-[1_1_10rem] text-lg font-bold">{text}</span>
           <Button variant="secondary" onClick={onAddNote}>
             {t('today.addNote')}
           </Button>
