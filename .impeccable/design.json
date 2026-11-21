@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-21T18:55:26.332Z",
+  "generatedAt": "2026-11-21T20:59:44.445Z",
   "title": "Design System: Pepita",
   "extensions": {
     "colorMeta": {
@@ -214,7 +214,7 @@
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Screen title, habit names, votes of the day, celebration toast."
+        "purpose": "Screen title, habit names, the vote sentence, celebration toast."
       },
       "body": {
         "displayName": "Body",
@@ -227,6 +227,10 @@
       "caption": {
         "displayName": "Caption",
         "purpose": "Streak line, chart axes."
+      },
+      "vote-numeral": {
+        "displayName": "Vote numeral",
+        "purpose": "Today's accumulated vote count in Cricket Green; the only oversized type in the app."
       }
     },
     "shadows": [
@@ -256,6 +260,16 @@
         "name": "milestone-in",
         "value": "fade-in + zoom-in-75, 500ms; icon spin-in-45, 700ms",
         "purpose": "Milestone celebration entrance, motion-safe only."
+      },
+      {
+        "name": "hold-ring-draw",
+        "value": "stroke-dashoffset 380ms linear, 120ms delay (opacity snaps on in 1ms)",
+        "purpose": "Ring drawn over the habit circle while holding for the full version; it closes as the check-in is logged. Reduced motion: the whole ring fades in over 380ms instead."
+      },
+      {
+        "name": "hold-ring-retract",
+        "value": "stroke-dashoffset + opacity 150ms ease-out",
+        "purpose": "Ring retracts when the hold is released early."
       }
     ],
     "breakpoints": [
@@ -268,6 +282,13 @@
   },
   "components": [
     {
+      "name": "Vote Hero",
+      "kind": "custom",
+      "description": "Today's lead: the accumulated vote count (never decreases) with its sentence; today's count is a caption.",
+      "html": "<div class=\"ds-votes\"><p class=\"ds-votes-line\"><span class=\"ds-votes-n\">312</span><span class=\"ds-votes-s\">votes for the person you want to be</span></p><p class=\"ds-votes-today\">2 votes today</p></div>",
+      "css": ".ds-votes { font-family: \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; } .ds-votes-line { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; margin: 0; } .ds-votes-n { font-size: 3rem; line-height: 1; font-weight: 800; letter-spacing: -0.025em; font-variant-numeric: tabular-nums; color: var(--primary); } .ds-votes-s { font-size: 1.125rem; line-height: 1.75rem; font-weight: 600; color: var(--foreground); text-wrap: balance; } .ds-votes-today { margin: 4px 0 0; font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }"
+    },
+    {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
@@ -279,15 +300,15 @@
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Alternatives and secondary navigation.",
-      "html": "<button class=\"ds-btn-secondary\">Weekly review</button>",
+      "description": "Alternatives, and \"New habit\" on Today (Today has no filled primary).",
+      "html": "<button class=\"ds-btn-secondary\">New habit</button>",
       "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: var(--secondary); color: var(--secondary-foreground); } .ds-btn-secondary:hover { background: color-mix(in srgb, var(--secondary) 80%, transparent); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
     },
     {
       "name": "Ghost Button",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Menu items, icon buttons, cancel.",
+      "description": "Menu items, icon buttons, cancel, and Today's bottom navigation.",
       "html": "<button class=\"ds-btn-ghost\">Not now</button>",
       "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 16px; border: none; border-radius: 10px; font: 600 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; background: transparent; color: var(--foreground); } .ds-btn-ghost:hover { background: var(--accent); color: var(--accent-foreground); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); }"
     },
@@ -310,15 +331,15 @@
       "name": "Habit Card",
       "kind": "card",
       "refersTo": "habit-card",
-      "description": "Tap = minimum version, long press = full. Signature component.",
-      "html": "<button class=\"ds-habit\" aria-pressed=\"false\"><span class=\"ds-habit-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></span><span class=\"ds-habit-body\"><span class=\"ds-habit-name\">Read</span><span>Minimum: read 1 page</span><span>After pouring my coffee, in the kitchen</span><span class=\"ds-habit-meta\">I'm a reader · Pending</span></span></button>",
-      "css": ".ds-habit { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; } .ds-habit:hover { background: var(--muted); } .ds-habit:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-habit-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--input); border-radius: 9999px; color: transparent; } .ds-habit-body { display: grid; min-width: 0; color: var(--foreground); } .ds-habit-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-habit-meta { font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }"
+      "description": "Tap = minimum version, long press = full (a ring draws while holding). Intention phrase or minimum version, never both; named by the habit alone. Signature component.",
+      "html": "<button class=\"ds-habit\" aria-pressed=\"false\"><span class=\"ds-habit-check\"><svg class=\"ds-habit-ring\" viewBox=\"0 0 40 40\" aria-hidden=\"true\"><circle cx=\"20\" cy=\"20\" r=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" pathLength=\"1\" stroke-dasharray=\"1\"/></svg></span><span class=\"ds-habit-body\"><span class=\"ds-habit-name\">Read</span><span>After pouring my coffee, in the kitchen: read 1 page</span><span class=\"ds-habit-meta\">I'm a reader · Tap: minimum · Hold: full</span><span class=\"ds-habit-streak\">Streak 6 · best 22</span></span></button>",
+      "css": ".ds-habit { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; touch-action: manipulation; user-select: none; } .ds-habit:hover { background: var(--muted); } .ds-habit:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-habit-check { position: relative; flex-shrink: 0; width: 40px; height: 40px; border: 2px solid var(--input); border-radius: 9999px; } .ds-habit-ring { position: absolute; inset: -2px; width: 40px; height: 40px; rotate: -90deg; color: var(--primary); pointer-events: none; } .ds-habit-ring circle { stroke-dashoffset: 1; opacity: 0; transition: stroke-dashoffset 150ms ease-out, opacity 150ms ease-out; } .ds-habit:active .ds-habit-ring circle { stroke-dashoffset: 0; opacity: 1; transition: stroke-dashoffset 380ms linear 120ms, opacity 1ms linear 120ms; } @media (prefers-reduced-motion: reduce) { .ds-habit-ring circle { stroke-dashoffset: 0; } .ds-habit:active .ds-habit-ring circle { transition: opacity 380ms linear 120ms; } } .ds-habit-body { display: grid; min-width: 0; color: var(--foreground); } .ds-habit-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-habit-meta { font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); } .ds-habit-streak { font-size: 0.75rem; line-height: 1rem; color: var(--muted-foreground); }"
     },
     {
       "name": "Habit Card (done)",
       "kind": "card",
       "refersTo": "habit-card-done",
-      "description": "Done state: moss fill, green border, check, struck-through name.",
+      "description": "Done state: moss fill, green border, check, struck-through name. Lines dim instead of disappearing, so the height never changes.",
       "html": "<button class=\"ds-habit-done\" aria-pressed=\"true\"><span class=\"ds-done-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></span><span class=\"ds-done-body\"><span class=\"ds-done-name\"><span>Read</span></span><span>After pouring my coffee, in the kitchen</span><span class=\"ds-done-meta\">I'm a reader · Done (minimum)</span></span></button>",
       "css": ".ds-habit-done { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; border-color: var(--primary); background: var(--accent); } .ds-habit-done:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-done-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--primary); border-radius: 9999px; background: var(--primary); color: var(--primary-foreground); } .ds-done-body { display: grid; min-width: 0; color: var(--muted-foreground); } .ds-done-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-done-name span { background: linear-gradient(currentColor, currentColor) 0 55% / 100% 2px no-repeat; } .ds-done-meta { font-size: 0.875rem; line-height: 1.25rem; }"
     },
@@ -328,6 +349,20 @@
       "description": "After a failure: thick green border and a minimum-version suggestion.",
       "html": "<button class=\"ds-habit-rec\" aria-pressed=\"false\"><span class=\"ds-rec-check\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg></span><span class=\"ds-rec-body\"><span class=\"ds-rec-name\">Walk</span><span class=\"ds-rec-hint\">Never miss twice: the minimum version is enough today</span><span class=\"ds-rec-meta\">I'm active · Pending</span></span></button>",
       "css": ".ds-habit-rec { display: flex; align-items: center; gap: 16px; min-height: 64px; width: 100%; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); color: var(--card-foreground); text-align: left; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms; border: 2px solid var(--primary); } .ds-habit-rec:hover { background: var(--muted); } .ds-habit-rec:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-rec-check { display: flex; flex-shrink: 0; align-items: center; justify-content: center; width: 40px; height: 40px; border: 2px solid var(--input); border-radius: 9999px; color: transparent; } .ds-rec-body { display: grid; min-width: 0; color: var(--foreground); } .ds-rec-name { font-size: 1.125rem; font-weight: 600; line-height: 1.75rem; } .ds-rec-hint { font-size: 0.875rem; font-weight: 600; line-height: 1.25rem; color: var(--primary); } .ds-rec-meta { font-size: 0.875rem; line-height: 1.25rem; color: var(--muted-foreground); }"
+    },
+    {
+      "name": "Identity Chip",
+      "kind": "chip",
+      "description": "Today's identity filter. Each chip carries that identity's vote total; selected = foreground border, wash fill and a check (not green).",
+      "html": "<div class=\"ds-chips\" role=\"group\" aria-label=\"Show habits for\"><button class=\"ds-chip\" aria-pressed=\"true\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg>All</button><button class=\"ds-chip\" aria-pressed=\"false\">General <span class=\"ds-chip-n\">240</span></button><button class=\"ds-chip\" aria-pressed=\"false\">A reader <span class=\"ds-chip-n\">72</span></button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 9999px; background: transparent; color: var(--muted-foreground); text-align: left; font: 600 0.875rem/1.25rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-chip:hover { background: color-mix(in srgb, var(--secondary) 60%, transparent); color: var(--foreground); } .ds-chip[aria-pressed=\"true\"] { border-color: var(--foreground); background: var(--secondary); color: var(--foreground); } .ds-chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-chip-n { font-weight: 400; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Pepita Notes",
+      "kind": "custom",
+      "description": "Pepita's notices (pause, diagnoses, ideas, backup) collapsed into one quiet row below the habits. Native details/summary.",
+      "html": "<details class=\"ds-notes\"><summary><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-notes-icon\"><path d=\"M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z\"/></svg><span>Pepita has 2 notes for you</span><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" class=\"ds-notes-chevron\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><div class=\"ds-notes-body\"><p>It has been over a week since your last backup. Save one? It only takes a moment.</p></div></details>",
+      "css": ".ds-notes { border: 1px solid var(--border); border-radius: 12px; font: 400 1rem/1.5rem \"Nunito Variable\", ui-sans-serif, system-ui, sans-serif; color: var(--foreground); } .ds-notes summary { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 16px; font-weight: 600; cursor: pointer; list-style: none; border-radius: 12px; } .ds-notes summary::-webkit-details-marker { display: none; } .ds-notes summary span { flex: 1; } .ds-notes summary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--background), 0 0 0 5px var(--ring); } .ds-notes-icon { color: var(--primary); flex-shrink: 0; } .ds-notes-chevron { color: var(--muted-foreground); flex-shrink: 0; } @media (prefers-reduced-motion: no-preference) { .ds-notes-chevron { transition: rotate 150ms; } } .ds-notes[open] .ds-notes-chevron { rotate: 180deg; } .ds-notes-body { border-top: 1px solid var(--border); padding: 16px; } .ds-notes-body p { margin: 0; }"
     },
     {
       "name": "Celebration Toast",
