@@ -78,7 +78,13 @@ export default function HabitDetailScreen() {
   )
 
   if (!data || !settings) return null
-  if (!data.habit) return <ScreenHeader title={t('habit.notFound')} />
+  if (!data.habit)
+    return (
+      <>
+        <ScreenHeader title={t('habit.notFound')} />
+        <p className="text-muted-foreground">{t('habit.notFoundHelp')}</p>
+      </>
+    )
 
   const now = new Date()
   const evaluation = evaluateHabit({ ...data, habit: data.habit, now, settings })

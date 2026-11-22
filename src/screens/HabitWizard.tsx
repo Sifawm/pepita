@@ -471,5 +471,10 @@ function RewardStep({ draft, update, titleId }: StepProps) {
 
 function NotFound() {
   const { t } = useTranslation()
-  return <ScreenHeader title={t('habit.notFound')} />
+  return (
+    <>
+      <ScreenHeader title={t('habit.notFound')} />
+      <p className="text-muted-foreground">{t('habit.notFoundHelp')}</p>
+    </>
+  )
 }

@@ -260,6 +260,7 @@
     "deleteConfirm": "Sí, borrar para siempre",
     "cancel": "Cancelar",
     "notFound": "No encuentro este hábito.",
+    "notFoundHelp": "Quizá se borró o venía de una copia anterior.",
     "open": "Calendario de «{{name}}»",
     "previousMonth": "Mes anterior",
     "nextMonth": "Mes siguiente",

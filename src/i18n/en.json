@@ -260,6 +260,7 @@
     "deleteConfirm": "Yes, delete forever",
     "cancel": "Cancel",
     "notFound": "I can't find this habit.",
+    "notFoundHelp": "Maybe it was deleted, or it came from an older backup.",
     "open": "Calendar for “{{name}}”",
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
