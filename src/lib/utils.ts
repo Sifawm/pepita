@@ -44,11 +44,17 @@ export function phraseText({ when, where, what }: IntentionPhrase, t: TFunction)
 }
 
 /**
- * Moves focus to an element after the next paint. For when the pressed button disappears
+ * Moves focus to an element once it's on screen. For when the pressed button disappears
  * (undo, archive, closing a form): without this, focus falls to the top of the page.
+ * The target may only appear when a database query renders again, which can take several frames
+ * on a slow phone: it keeps looking for about half a second.
  */
-export function focusById(id: string) {
-  requestAnimationFrame(() => document.getElementById(id)?.focus())
+export function focusById(id: string, frames = 30) {
+  requestAnimationFrame(() => {
+    const target = document.getElementById(id)
+    if (target) target.focus()
+    else if (frames > 1) focusById(id, frames - 1)
+  })
 }
 
 /** Downloads a file generated in the browser. */

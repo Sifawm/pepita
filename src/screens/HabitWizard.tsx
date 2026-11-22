@@ -426,7 +426,8 @@ function IntentionStep({ draft, update, habits, anchors }: StepProps) {
         <Label htmlFor="where">{t('wizard.intention.where')}</Label>
         <Input id="where" value={where ?? ''} onChange={(e) => setIntention({ where: e.target.value })} placeholder={t('wizard.intention.whereExample')} autoComplete="off" />
       </div>
-      <div aria-live="polite" className="space-y-1">
+      {/* Not a live region: it changes with every keystroke. It sits right after the fields, where reading on finds it. */}
+      <div className="space-y-1">
         {phrase && (
           <>
             <p className="text-sm text-muted-foreground">{t('wizard.intention.preview')}</p>
@@ -470,5 +471,5 @@ function RewardStep({ draft, update, titleId }: StepProps) {
 
 function NotFound() {
   const { t } = useTranslation()
-  return <p>{t('habit.notFound')}</p>
+  return <ScreenHeader title={t('habit.notFound')} />
 }

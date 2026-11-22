@@ -227,7 +227,8 @@ function InstallGuide() {
         <p>{t('onboarding.install.alreadyInstalled')}</p>
       ) : isIos() ? (
         <div className="space-y-3">
-          <h2 className="text-xl font-bold">{t('onboarding.install.ios.title')}</h2>
+          {/* Under the step's own h2. */}
+          <h3 className="text-xl font-bold">{t('onboarding.install.ios.title')}</h3>
           <ol className="space-y-3">
             <li className={iosStep}>
               <Share aria-hidden className="size-6 shrink-0 text-primary" />

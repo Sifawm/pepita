@@ -392,7 +392,8 @@
     "archived": "(archivado)",
     "calendar": "Calendario",
     "edit": "Editar",
-    "notFound": "No encuentro esta identidad. Quizá venía de una copia anterior."
+    "notFound": "No encuentro esta identidad.",
+    "notFoundHelp": "Quizá venía de una copia anterior."
   },
   "milestones": {
     "title": "Hitos",

@@ -23,7 +23,13 @@ export default function IdentityDetailScreen() {
 
   if (!data || !settings) return null
   const { identity, habits } = data
-  if (!identity) return <p>{t('identityDetail.notFound')}</p>
+  if (!identity)
+    return (
+      <>
+        <ScreenHeader title={t('identityDetail.notFound')} />
+        <p className="text-muted-foreground">{t('identityDetail.notFoundHelp')}</p>
+      </>
+    )
 
   const now = new Date()
   const [summary] = summarizeIdentities({ ...data, identities: [identity], now, settings })

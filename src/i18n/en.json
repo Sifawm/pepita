@@ -392,7 +392,8 @@
     "archived": "(archived)",
     "calendar": "Calendar",
     "edit": "Edit",
-    "notFound": "I can't find this identity. Maybe it came from an older backup."
+    "notFound": "I can't find this identity.",
+    "notFoundHelp": "Maybe it came from an older backup."
   },
   "milestones": {
     "title": "Milestones",
