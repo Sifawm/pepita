@@ -10,6 +10,8 @@ export interface StrengthPoint {
 }
 
 const PERIOD_DAYS = { day: 1, week: 7, month: 30 }
+/** The widest window any rule can ask for. */
+const MAX_WINDOW = Math.max(...Object.values(PERIOD_DAYS))
 
 /** Calibration (Loop Habit Tracker's): the higher it is, the slower strength rises and falls. */
 const STRENGTH_SMOOTHING = 13
@@ -39,10 +41,14 @@ function completion(habit: Habit, { quantitative: q }: Rule, times: number, logs
  */
 export function strengthSeries(habit: Habit, logs: Log[], periods: Period[], today: Day): StrengthPoint[] {
   const byDay = Map.groupBy(logs, (l) => l.day)
+  // The last MAX_WINDOW days' logs, newest first: it slides one day per step instead of rebuilding every window from dates.
+  const recent = Array.from({ length: MAX_WINDOW - 1 }, (_, d) => byDay.get(addDays(habit.startDate, d - MAX_WINDOW + 1)) ?? []).reverse()
   const series: StrengthPoint[] = []
   let value = 0
   let i = 0
   for (let day = habit.startDate; day <= today; day = addDays(day, 1)) {
+    recent.unshift(byDay.get(day) ?? [])
+    recent.length = MAX_WINDOW
     while (periods[i].end < day) i++
     const { status } = periods[i]
     const rule = ruleOn(habit, day)
@@ -51,7 +57,7 @@ export function strengthSeries(habit: Habit, logs: Log[], periods: Period[], tod
     // Skipping or pausing is neutral: strength doesn't change.
     if (status !== 'skipped' && status !== 'paused' && !(atClose && status === 'in_progress')) {
       const { days, times } = window(habit, rule)
-      const inside = Array.from({ length: days }, (_, d) => byDay.get(addDays(day, -d)) ?? []).flat()
+      const inside = recent.slice(0, days).flat()
       const m = 0.5 ** (Math.sqrt(times / days) / STRENGTH_SMOOTHING)
       const next = value * m + completion(habit, rule, times, inside) * (1 - m)
       // A still-open period can raise it, but not lower it: there's still time to meet it.

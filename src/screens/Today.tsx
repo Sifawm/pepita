@@ -9,24 +9,29 @@ import { ProgressionNotices } from '@/components/ProgressionSuggestion'
 import { Celebration, HabitCard, type Panel } from '@/components/HabitCard'
 import { buttonVariants } from '@/components/ui/button'
 import { db, useSettings } from '@/db'
-import { buildToday, pendingDiagnoses, needsBackup, needsOnboarding, summarizeIdentities, progressionSuggestions } from '@/domain'
+import { buildToday, pendingDiagnoses, needsBackup, needsOnboarding, nextCutoff, summarizeIdentities, progressionSuggestions, type Time } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
 import { ScreenHeader } from '@/components/ScreenHeader'
 
-/** The screen's clock: ticks every minute so Today rolls over to the next day on its own. */
-function useNow() {
-  const [now, setNow] = useState(() => new Date())
+/**
+ * Renders Today again at the next logical-day cutoff, so it rolls over to the next day on its own.
+ * Nothing else on the screen changes with the minute: a clock ticking every minute re-evaluated every habit for nothing.
+ */
+function useDayRollover(dayCutoff?: Time) {
+  const [rollovers, setRollovers] = useState(0)
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000)
-    return () => clearInterval(id)
-  }, [])
-  return now
+    if (!dayCutoff) return
+    const now = new Date()
+    // One second of margin: right at the cutoff it's already the new day.
+    const id = setTimeout(() => setRollovers((n) => n + 1), nextCutoff(now, dayCutoff).getTime() - now.getTime() + 1000)
+    return () => clearTimeout(id)
+  }, [rollovers, dayCutoff])
 }
 
 export default function TodayScreen() {
   const { t, i18n } = useTranslation()
-  const now = useNow()
   const settings = useSettings()
+  useDayRollover(settings?.dayCutoff)
   // The filter lives in the URL: it survives going to create a habit and coming back.
   const [params, setParams] = useSearchParams()
   // ponytail: loads every log (the current period can be a month); narrow by date if it gets heavy.
@@ -52,6 +57,8 @@ export default function TodayScreen() {
   if (!data || !settings) return null
   // Nothing of their own yet: start with onboarding.
   if (needsOnboarding(data)) return <Navigate to="/onboarding" replace />
+  // The instant of this render: data changes and the rollover both render again.
+  const now = new Date()
   const active = data.identities.filter((i) => !i.archived).sort((a, b) => a.order - b.order)
   const filter = active.find((i) => i.id === params.get('identity'))
   const today = buildToday({ ...data, now, settings, identityId: filter?.id })

@@ -37,7 +37,9 @@ function useLiveDiagnoses() {
       // One second of margin: right at the cutoff it's already the new day.
       if (alive) cutoff = setTimeout(check, nextCutoff(now, dayCutoff).getTime() - now.getTime() + 1000)
     }
-    const changes = liveQuery(() => Promise.all([db.habits.toArray(), db.logs.toArray(), db.settings.toArray()])).subscribe(() => void check())
+    // Only there to hear about changes, and `check` reads the values itself: a count watches every write to the logs
+    // (add, update, delete) without reading thousands of them. Not `primaryKeys()`: Dexie skips updates for that one.
+    const changes = liveQuery(() => Promise.all([db.habits.toArray(), db.logs.count(), db.settings.toArray()])).subscribe(() => void check())
     const onReturn = () => document.visibilityState === 'visible' && void check()
     document.addEventListener('visibilitychange', onReturn)
     return () => {

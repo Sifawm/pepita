@@ -66,6 +66,8 @@ export function buildToday({
   identityId?: string
 }): Today {
   const day = logicalDay(now, settings.dayCutoff)
+  // Every habit's logs, split once: not a pass over every log per habit.
+  const byHabit = Map.groupBy(logs, (l) => l.habitId)
   const all = habits
     .filter((h) => !h.archived && (!identityId || h.identityId === identityId))
     .flatMap((habit) => {
@@ -75,11 +77,9 @@ export function buildToday({
       const { current: period, recovering, streak, voteDays } = evaluateHabit({ habit, logs, now, settings })
       // No period: it hasn't started yet; not scheduled: not due today.
       if (!period || period.status === 'not_scheduled') return []
-      const own = logsOfDay(logs, habit.id, day)
-      const skip =
-        period.status === 'skipped'
-          ? logs.findLast((l) => l.habitId === habit.id && l.type === 'skip' && l.day >= period.start && l.day <= period.end)
-          : undefined
+      const mine = byHabit.get(habit.id) ?? []
+      const own = logsOfDay(mine, habit.id, day)
+      const skip = period.status === 'skipped' ? mine.findLast((l) => l.type === 'skip' && l.day >= period.start && l.day <= period.end) : undefined
       return [
         {
           habit,
@@ -90,7 +90,7 @@ export function buildToday({
           period,
           skip,
           pause: pauseOn(habit, settings, day),
-          relapses: logs.filter((l) => l.habitId === habit.id && l.day === day && l.type === 'relapse'),
+          relapses: mine.filter((l) => l.day === day && l.type === 'relapse'),
           recovering,
           streak,
           phrase: intentionPhrase(habit, habits),

@@ -114,6 +114,26 @@ function status(habit: Habit, required: number, logs: Log[], rule: Rule, { start
   return end < today ? 'failed' : 'in_progress'
 }
 
+/**
+ * Today, the identity summary, the suggestions and the diagnoses each evaluate every habit, on every render and data change.
+ * Each habit's last evaluation is reused while everything it reads stays the same, so a tap recomputes only the habit tapped.
+ */
+const lastEvaluation = new Map<string, { key: string; evaluation: HabitEvaluation }>()
+
+/**
+ * Each logs array (one per query result, never changed in place) split by habit once, with what the evaluation
+ * reads of each habit's logs: the callers sharing a render don't filter every log again per habit.
+ */
+const splitLogs = new WeakMap<Log[], Map<string, { own: Log[]; read: string }>>()
+function ownLogs(logs: Log[], habitId: string) {
+  let split = splitLogs.get(logs)
+  if (!split) {
+    split = new Map([...Map.groupBy(logs, (l) => l.habitId)].map(([id, own]) => [id, { own, read: JSON.stringify(own.map((l) => [l.day, l.type, l.value])) }]))
+    splitLogs.set(logs, split)
+  }
+  return split.get(habitId) ?? { own: [], read: '[]' }
+}
+
 export function evaluateHabit({
   habit,
   logs,
@@ -126,7 +146,15 @@ export function evaluateHabit({
   settings: Settings
 }): HabitEvaluation {
   const today = logicalDay(now, settings.dayCutoff)
-  const own = logs.filter((l) => l.habitId === habit.id)
+  const { own, read } = ownLogs(logs, habit.id)
+  // What the evaluation reads: the logical day, the global pause, the habit (rules, pauses) and the fields of its own logs.
+  const key = JSON.stringify([today, settings.globalPause, habit]) + read
+  const last = lastEvaluation.get(habit.id)
+  if (last?.key === key) return last.evaluation
+  // Periods come in day order and never overlap: one cursor over the logs sorted once fills them all
+  // (a filter per period would cost days × logs: seconds per tap after a few years).
+  const byDay = own.toSorted((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : 0))
+  let cursor = 0
   const pauses = pausesOf(habit, settings)
   const periods: Period[] = []
   for (let day = habit.startDate; day <= today; ) {
@@ -138,7 +166,10 @@ export function evaluateHabit({
     const q = rule.quantitative
     // A quantitative habit requires its target (`times` don't count: the frequency only sets the period).
     const required = q && period.required > 0 ? q.target : period.required
-    const inside = own.filter((l) => l.day >= start && l.day <= end)
+    while (cursor < byDay.length && byDay[cursor].day < start) cursor++
+    const first = cursor
+    while (cursor < byDay.length && byDay[cursor].day <= end) cursor++
+    const inside = byDay.slice(first, cursor)
     const progress = q ? sum(inside) : inside.filter(isVote).length
     periods.push({ start, end, required, progress, status: status(habit, required, inside, rule, { start, end }, pauses, today) })
     day = addDays(end, 1)
@@ -152,7 +183,7 @@ export function evaluateHabit({
         ? periods.filter(isMet).map((p) => p.start)
         : own.filter(isVote).map((l) => l.day)
   ).sort()
-  return {
+  const evaluation: HabitEvaluation = {
     periods,
     current: periods.at(-1),
     votes: voteDays.length,
@@ -164,6 +195,8 @@ export function evaluateHabit({
       full: periods.filter((p) => p.status === 'done_full').length,
     },
   }
+  lastEvaluation.set(habit.id, { key, evaluation })
+  return evaluation
 }
 
 /**

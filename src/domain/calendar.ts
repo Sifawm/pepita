@@ -34,18 +34,13 @@ export function nextCutoff(now: Date, dayCutoff: Time): Date {
   return today > now ? today : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, h, min)
 }
 
-// Day arithmetic on `YYYY-MM-DD` in UTC: no time zones or DST changes.
-const toDate = (day: Day) => {
-  const [y, m, d] = day.split('-').map(Number)
-  return new Date(Date.UTC(y, m - 1, d))
-}
-const fromDate = (date: Date): Day => date.toISOString().slice(0, 10)
+// Day arithmetic on `YYYY-MM-DD` in UTC: no time zones or DST changes. Hot path (every evaluation walks
+// each day of a habit's life), so no split or toISOString: Date.UTC rolls `plus` over months and years.
+const toDate = (day: Day, plus = 0) => new Date(Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10) + plus))
+const pad = (n: number) => String(n).padStart(2, '0')
+const fromDate = (date: Date): Day => `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`
 
-export function addDays(day: Day, days: number): Day {
-  const date = toDate(day)
-  date.setUTCDate(date.getUTCDate() + days)
-  return fromDate(date)
-}
+export const addDays = (day: Day, days: number): Day => fromDate(toDate(day, days))
 
 /** 1 = Monday … 7 = Sunday. */
 export const weekday = (day: Day) => (((toDate(day).getUTCDay() + 6) % 7) + 1) as Weekday

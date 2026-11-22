@@ -26,6 +26,12 @@ const row = 'flex gap-2 @max-3xs:flex-col'
 const side = 'flex flex-col gap-2 @max-3xs:flex-row @max-3xs:justify-end'
 const stack = '@max-3xs:flex-col @max-3xs:items-start'
 
+/** Whether there are logs on at least `n` different days: stops counting as soon as there are (every card asks, over every log). */
+const checkedInOn = (logs: Log[], n: number) => {
+  const days = new Set<string>()
+  return logs.some((l) => days.add(l.day).size >= n)
+}
+
 /** The streak as a quiet caption: nothing at 0, no "best" while it is the best. */
 const streakText = ({ current, best }: TodayCard['streak'], t: TFunction) =>
   current === 0 ? null : current === best ? t('recovery.streakOnly', { current }) : t('recovery.streak', { current, best })
@@ -70,8 +76,7 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
       : period.status === 'skipped'
         ? t('pauses.skipped')
         : !q
-          ? // ponytail: a Set over every log on each render; memoize in Today if lists get long.
-            new Set(logs.map((l) => l.day)).size >= HINT_DAYS
+          ? checkedInOn(logs, HINT_DAYS)
             ? null
             : t('today.pending')
           : q.mode === 'at_least'

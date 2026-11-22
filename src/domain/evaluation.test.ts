@@ -300,3 +300,21 @@ describe("evaluation: a habit's pause", () => {
     ])
   })
 })
+
+describe('evaluation: reuse', () => {
+  it('the same inputs give back the same evaluation; any change in what it reads recomputes it', () => {
+    const now = local(2026, 3, 5, 12)
+    const logs = [log('2026-03-02')]
+    const first = evaluateHabit({ habit: daily, logs, now, settings })
+    // Another query's copy of the same data (another array, other objects) reuses it too.
+    expect(evaluateHabit({ habit: { ...daily }, logs: logs.map((l) => ({ ...l })), now: local(2026, 3, 5, 20), settings })).toBe(first)
+    expect(evaluateHabit({ habit: daily, logs: [...logs, log('2026-03-03')], now, settings }).votes).toBe(2)
+    expect(evaluateHabit({ habit: daily, logs: [{ ...logs[0], type: 'skip' }], now, settings }).votes).toBe(0)
+    const vacation = { ...settings, globalPause: { start: '2026-03-03', end: '2026-03-04' } }
+    expect(statuses(evaluateHabit({ habit: daily, logs, now, settings: vacation })).slice(1, 3)).toEqual([
+      ['2026-03-03', 'paused'],
+      ['2026-03-04', 'paused'],
+    ])
+    expect(evaluateHabit({ habit: daily, logs, now: local(2026, 3, 6, 12), settings }).periods).toHaveLength(5)
+  })
+})
