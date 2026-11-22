@@ -38,14 +38,22 @@ function useLiveDiagnoses() {
       // One second of margin: right at the cutoff it's already the new day.
       if (alive) cutoff = setTimeout(check, nextCutoff(now, dayCutoff).getTime() - now.getTime() + 1000)
     }
+    // A second after the last change, not with it: reconciling reads every log in a write transaction, and a tap's
+    // repaint would wait behind it. A burst of taps reconciles once. Diagnoses come from closed periods, so the delay never shows.
+    let later: ReturnType<typeof setTimeout> | undefined
+    const soon = () => {
+      clearTimeout(later)
+      later = setTimeout(() => void check(), 1000)
+    }
     // Only there to hear about changes, and `check` reads the values itself: a count watches every write to the logs
     // (add, update, delete) without reading thousands of them. Not `primaryKeys()`: Dexie skips updates for that one.
-    const changes = liveQuery(() => Promise.all([db.habits.toArray(), db.logs.count(), db.settings.toArray()])).subscribe(() => void check())
+    const changes = liveQuery(() => Promise.all([db.habits.toArray(), db.logs.count(), db.settings.toArray()])).subscribe(soon)
     const onReturn = () => document.visibilityState === 'visible' && void check()
     document.addEventListener('visibilitychange', onReturn)
     return () => {
       alive = false
       clearTimeout(cutoff)
+      clearTimeout(later)
       changes.unsubscribe()
       document.removeEventListener('visibilitychange', onReturn)
     }
