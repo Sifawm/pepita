@@ -1,5 +1,5 @@
 import { ChevronLeft } from 'lucide-react'
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Link, matchPath, useLocation } from 'react-router'
@@ -22,11 +22,26 @@ function useRouteBack(): { to: string; label: string } | undefined {
 
 const backClass = '-ml-3 min-w-11 px-0 text-primary'
 
-/** Puts the screen's title and its "back" in the header. `onBack` (a screen's own steps) wins over the route's. Without a slot, renders nothing. */
+/**
+ * Puts the screen's title and its "back" in the header. `onBack` (a screen's own steps) wins over the route's. Without a slot, renders nothing.
+ * It's also where a screen arrives: it names the page and, after navigating inside the app, takes the focus the pressed link
+ * dropped with it, so a screen reader announces the new screen.
+ */
 export function ScreenHeader({ title, id, onBack }: { title: string; id?: string; onBack?: () => void }) {
   const { t } = useTranslation()
   const slot = useContext(HeaderSlot)
   const routeBack = useRouteBack()
+  const heading = useRef<HTMLHeadingElement>(null)
+  const { key } = useLocation()
+  useEffect(() => {
+    document.title = `${title} · Pepita`
+  }, [title])
+  useEffect(() => {
+    // Not on the first load ("default"): focus starts at the top, where the skip link is. Only focus that fell to the page
+    // moves: a screen that places it itself (the wizard's first field, a step's title) or a control still on screen
+    // (a filter chip that changed the URL) keeps it.
+    if (key !== 'default' && (!document.activeElement || document.activeElement === document.body)) heading.current?.focus()
+  }, [key])
   if (!slot) return null
   return createPortal(
     <>
@@ -41,7 +56,7 @@ export function ScreenHeader({ title, id, onBack }: { title: string; id?: string
           </Link>
         )
       )}
-      <h1 id={id} tabIndex={id ? -1 : undefined} className="min-w-0 text-2xl font-bold break-words hyphens-auto outline-none">
+      <h1 id={id} ref={heading} tabIndex={-1} className="min-w-0 text-2xl font-bold break-words hyphens-auto outline-none">
         {title}
       </h1>
     </>,
