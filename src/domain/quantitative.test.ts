@@ -125,6 +125,13 @@ describe("each vote's day (the identity's curve and milestones)", () => {
     expect(evaluateHabit({ habit: weekly, logs, now: local(2026, 3, 10, 12), settings }).voteDays).toEqual(['2026-03-05'])
     expect(evaluateHabit({ habit: coffees, logs: [value('2026-03-03', 9)], now: local(2026, 3, 4, 12), settings }).voteDays).toEqual(['2026-03-02'])
   })
+
+  it('each period counts only its own values, in day order, whatever order they were logged in', () => {
+    const weekly = habit({ unit: 'km', target: 10, minTarget: 4, mode: 'at_least' }, { type: 'times_per_period', times: 1, period: 'week' })
+    // Week 1 reaches 4 on Wednesday (Friday's leftovers don't carry over); week 2 only on Saturday.
+    const logs = [value('2026-03-14', 3), value('2026-03-06', 9), value('2026-03-04', 2), value('2026-03-09', 1), value('2026-03-03', 2)]
+    expect(evaluateHabit({ habit: weekly, logs, now: local(2026, 3, 16, 12), settings }).voteDays).toEqual(['2026-03-04', '2026-03-14'])
+  })
 })
 
 describe('change the target', () => {

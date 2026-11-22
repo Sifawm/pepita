@@ -178,7 +178,7 @@ export function evaluateHabit({
   // `avoid`: the clean (already closed) day, not a log.
   const voteDays = (
     habit.type === 'quantitative'
-      ? quantitativeVoteDays(periods, own, habit)
+      ? quantitativeVoteDays(periods, byDay, habit)
       : habit.type === 'avoid'
         ? periods.filter(isMet).map((p) => p.start)
         : own.filter(isVote).map((l) => l.day)
@@ -203,14 +203,20 @@ export function evaluateHabit({
  * The day each met quantitative period earned its vote: with "at least", the day of the log with
  * which the sum reached the first threshold (minimum or target); with "at most", its last day (earned at close).
  */
-function quantitativeVoteDays(periods: Period[], logs: Log[], habit: Habit): Day[] {
+function quantitativeVoteDays(periods: Period[], byDay: Log[], habit: Habit): Day[] {
+  // Met periods come in day order: one cursor over the logs sorted by day, like the periods themselves.
+  let cursor = 0
   return periods.filter(isMet).map(({ start, end }) => {
     const q = ruleOn(habit, start).quantitative
     if (!q || q.mode === 'at_most') return end
     const threshold = q.minTarget ?? q.target
     let total = 0
-    const values = logs.filter((l) => l.type === 'value' && l.day >= start && l.day <= end).sort((a, b) => a.day.localeCompare(b.day))
-    return values.find((l) => (total += l.value ?? 0) >= threshold)?.day ?? end
+    while (cursor < byDay.length && byDay[cursor].day < start) cursor++
+    for (; cursor < byDay.length && byDay[cursor].day <= end; cursor++) {
+      const l = byDay[cursor]
+      if (l.type === 'value' && (total += l.value ?? 0) >= threshold) return l.day
+    }
+    return end
   })
 }
 
