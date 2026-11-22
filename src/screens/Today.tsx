@@ -1,6 +1,7 @@
+import { liveQuery } from 'dexie'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Archive, Check, ChevronDown, NotebookPen, Palmtree, Plus, Sparkles, Users } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useSearchParams } from 'react-router'
 import { MilestoneCelebration } from '@/components/MilestoneCelebration'
@@ -9,7 +10,7 @@ import { ProgressionNotices } from '@/components/ProgressionSuggestion'
 import { Celebration, HabitCard, type Panel } from '@/components/HabitCard'
 import { buttonVariants } from '@/components/ui/button'
 import { db, useSettings } from '@/db'
-import { buildToday, pendingDiagnoses, needsBackup, needsOnboarding, nextCutoff, summarizeIdentities, progressionSuggestions, type Time } from '@/domain'
+import { buildToday, pendingDiagnoses, needsBackup, needsOnboarding, nextCutoff, summarizeIdentities, progressionSuggestions, type Log, type Time } from '@/domain'
 import { cn, formatDay, identityName } from '@/lib/utils'
 import { ScreenHeader } from '@/components/ScreenHeader'
 
@@ -18,7 +19,7 @@ import { ScreenHeader } from '@/components/ScreenHeader'
  * Nothing else on the screen changes with the minute: a clock ticking every minute re-evaluated every habit for nothing.
  * Also on coming back to the app: a sleeping phone pauses timers, so the cutoff's can fire hours late.
  */
-function useDayRollover(dayCutoff?: Time) {
+function useDayRollover(dayCutoff?: Time): number {
   const [rollovers, setRollovers] = useState(0)
   useEffect(() => {
     if (!dayCutoff) return
@@ -33,26 +34,57 @@ function useDayRollover(dayCutoff?: Time) {
       document.removeEventListener('visibilitychange', onReturn)
     }
   }, [rollovers, dayCutoff])
+  return rollovers
+}
+
+/**
+ * Every log (votes count the whole history), with one live query per habit: a tap re-reads and re-watches only the tapped
+ * habit's logs. A single query re-read years of logs on every tap, and Dexie re-watches each key a query returns.
+ * `undefined` until every habit's logs have arrived; while the habits change, the previous logs stay.
+ */
+function useLogs(habitIds: string[] | undefined): Log[] | undefined {
+  const key = habitIds?.join(',')
+  const [logs, setLogs] = useState<Log[]>()
+  const [error, setError] = useState<unknown>()
+  // Layout, not passive: the logs wait for the habits, and a passive effect added a paint before they started loading.
+  useLayoutEffect(() => {
+    if (key === undefined) return
+    const ids = key ? key.split(',') : []
+    const byHabit = new Map<string, Log[]>()
+    const publish = () => byHabit.size === ids.length && setLogs(ids.flatMap((id) => byHabit.get(id)!))
+    const subscriptions = ids.map((id) =>
+      liveQuery(() => db.logs.where('habitId').equals(id).toArray()).subscribe({
+        next: (own) => (byHabit.set(id, own), publish()),
+        error: (e: unknown) => setError(() => e),
+      }),
+    )
+    publish()
+    return () => subscriptions.forEach((s) => s.unsubscribe())
+  }, [key])
+  // Like `useLiveQuery`: a failed query throws while rendering, for the error boundary.
+  if (error) throw error
+  return logs
 }
 
 export default function TodayScreen() {
   const { t, i18n } = useTranslation()
   const settings = useSettings()
-  useDayRollover(settings?.dayCutoff)
+  const rollovers = useDayRollover(settings?.dayCutoff)
   // The filter lives in the URL: it survives going to create a habit and coming back.
   const [params, setParams] = useSearchParams()
-  // ponytail: loads every log (the current period can be a month); narrow by date if it gets heavy.
-  const data = useLiveQuery(async () => {
-    const [habits, identities, logs, celebratedMilestones, diagnoses, dismissedSuggestions] = await Promise.all([
+  const filterId = params.get('identity')
+  const tables = useLiveQuery(async () => {
+    const [habits, identities, celebratedMilestones, diagnoses, dismissedSuggestions] = await Promise.all([
       db.habits.toArray(),
       db.identities.toArray(),
-      db.logs.toArray(),
       db.celebratedMilestones.toArray(),
       db.diagnoses.toArray(),
       db.dismissedSuggestions.toArray(),
     ])
-    return { habits, identities, logs, celebratedMilestones, diagnoses, dismissedSuggestions }
+    return { habits, identities, celebratedMilestones, diagnoses, dismissedSuggestions }
   })
+  const logs = useLogs(tables?.habits.map((h) => h.id))
+  const data = useMemo(() => tables && logs && { ...tables, logs }, [tables, logs])
 
   // A single open panel (menu or note) in the whole list.
   const [openPanel, setOpenPanel] = useState<{ habitId: string; panel: Panel }>()
@@ -61,25 +93,38 @@ export default function TodayScreen() {
   // Pepita's notes stay on screen while open, even after the last one is answered: its confirmation lives inside.
   const [notesOpen, setNotesOpen] = useState(false)
 
+  // Worked out once per data change, rollover or filter: opening a menu or the "+1 vote" toast also renders Today,
+  // and summing years of votes again on each of those made every tap wait.
+  const derived = useMemo(() => {
+    if (!data || !settings || needsOnboarding(data)) return undefined
+    // The instant of the data change or of the rollover.
+    const now = new Date()
+    const active = data.identities.filter((i) => !i.archived).sort((a, b) => a.order - b.order)
+    const filter = active.find((i) => i.id === filterId)
+    const today = buildToday({ ...data, now, settings, identityId: filter?.id })
+    return {
+      active,
+      filter,
+      today,
+      // Votes never go down: the total counts archived habits and identities too.
+      summaries: summarizeIdentities({ ...data, now, settings }),
+      // Pepita's notes wait below the habits. A habit done today isn't asked "what happened?" yet.
+      diagnoses: pendingDiagnoses(data).filter(({ habit }) => !today.habits.some((c) => c.done && c.habit.id === habit.id)),
+      suggestions: progressionSuggestions({ ...data, now, settings }),
+      backup: needsBackup({ settings, logs: data.logs, now }),
+    }
+    // `rollovers` isn't read: it's there so the cutoff recomputes with the new day's `now`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, settings, filterId, rollovers])
+
   if (!data || !settings) return null
   // Nothing of their own yet: start with onboarding.
-  if (needsOnboarding(data)) return <Navigate to="/onboarding" replace />
-  // The instant of this render: data changes and the rollover both render again.
-  const now = new Date()
-  const active = data.identities.filter((i) => !i.archived).sort((a, b) => a.order - b.order)
-  const filter = active.find((i) => i.id === params.get('identity'))
-  const today = buildToday({ ...data, now, settings, identityId: filter?.id })
+  if (!derived) return <Navigate to="/onboarding" replace />
+  const { active, filter, today, summaries, diagnoses, suggestions, backup } = derived
   const date = formatDay(today.day, i18n.language, { weekday: 'long', day: 'numeric', month: 'long' })
-  // Votes never go down: the total counts archived habits and identities too.
-  const summaries = summarizeIdentities({ ...data, now, settings })
   const votesOf = (id: string) => summaries.find((s) => s.identity.id === id)?.votes ?? 0
   const total = filter ? votesOf(filter.id) : summaries.reduce((n, s) => n + s.votes, 0)
   const n = (x: number) => x.toLocaleString(i18n.language)
-
-  // Pepita's notes wait below the habits. A habit done today isn't asked "what happened?" yet.
-  const diagnoses = pendingDiagnoses(data).filter(({ habit }) => !today.habits.some((c) => c.done && c.habit.id === habit.id))
-  const suggestions = progressionSuggestions({ ...data, now, settings })
-  const backup = needsBackup({ settings, logs: data.logs, now })
   const notes = diagnoses.length + suggestions.length + (backup ? 1 : 0) + (today.globalPause ? 1 : 0)
 
   return (
@@ -142,7 +187,10 @@ export default function TodayScreen() {
                   logs={data.logs}
                   settings={settings}
                   panel={openPanel?.habitId === card.habit.id ? openPanel.panel : undefined}
-                  open={(panel) => setOpenPanel(panel && { habitId: card.habit.id, panel })}
+                  open={(panel) => {
+                    // Every tap closes panels: with none open, setting state anyway rendered Today again mid-tap.
+                    if (panel || openPanel) setOpenPanel(panel && { habitId: card.habit.id, panel })
+                  }}
                   celebrate={() =>
                     setCelebration((c) => ({
                       habitId: card.habit.id,
