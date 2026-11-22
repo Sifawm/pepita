@@ -187,11 +187,20 @@ export function Wizard({
   }, [n])
 
   const form = useRef<HTMLFormElement>(null)
+  // Saved once: a double tap or a held Enter would create the habit twice. Only a failed save lets it try again.
+  const saved = useRef(false)
   const finish = async () => {
+    if (saved.current) return
     if (!draft.name.trim()) return setN(0)
     // "Save" from a half-done step: let the browser flag the missing field.
     if (!form.current?.reportValidity()) return
-    await onSave(draft)
+    saved.current = true
+    try {
+      await onSave(draft)
+    } catch (e) {
+      saved.current = false
+      throw e
+    }
     if (onFinish) onFinish()
     else navigate('/')
   }
