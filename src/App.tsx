@@ -3,6 +3,7 @@ import { Settings } from 'lucide-react'
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router'
+import { SaveFailure } from '@/components/Failures'
 import { Notifications } from '@/components/Reminders'
 import { HeaderSlot } from '@/components/ScreenHeader'
 import { buttonVariants } from '@/components/ui/button'
@@ -84,6 +85,7 @@ export default function App() {
   return (
     <HashRouter>
       <Notifications />
+      <SaveFailure />
       <a
         href="#main"
         onClick={(e) => {

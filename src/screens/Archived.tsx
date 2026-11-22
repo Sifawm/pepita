@@ -35,7 +35,7 @@ export default function ArchivedScreen() {
                   {identity && <p className="text-sm text-muted-foreground">{identityName(identity, t)}</p>}
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Button variant="secondary" onClick={() => db.habits.update(habit.id, { archived: false }).then(() => focusById('archived-title'))}>
+                  <Button variant="secondary" onClick={async () => (await db.habits.update(habit.id, { archived: false }), focusById('archived-title'))}>
                     <ArchiveRestore aria-hidden />
                     {t('habit.restore')}
                     <span className="sr-only">{habit.name}</span>

@@ -4,6 +4,20 @@
     "skip": "Skip to content",
     "backTo": "Back to {{destination}}"
   },
+  "failure": {
+    "save": "That didn't save. Try again in a moment.",
+    "storageFull": "Your device is out of space, so that didn't save. Free up some room and try again.",
+    "close": "Close",
+    "crash": {
+      "title": "Something went wrong",
+      "body": "Your habits are still saved on this device. Reload to go back to Today."
+    },
+    "storage": {
+      "title": "Pepita can't save here",
+      "body": "This browser isn't letting Pepita use its storage. Private browsing or turned-off site data usually cause this: allow it for this site, then reload."
+    },
+    "reload": "Reload"
+  },
   "onboarding": {
     "title": "First steps",
     "habit": "Your first habit",

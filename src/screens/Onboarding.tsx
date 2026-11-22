@@ -205,7 +205,7 @@ export function LanguagePicker({ legend }: { legend?: string }) {
             name="language"
             value={code}
             checked={i18n.resolvedLanguage === code}
-            onChange={() => (void i18n.changeLanguage(code), void saveSettings({ language: code as LanguageCode }))}
+            onChange={async () => (void i18n.changeLanguage(code), await saveSettings({ language: code as LanguageCode }))}
             className="size-5 accent-primary outline-none"
           />
           {name}

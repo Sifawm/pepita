@@ -27,7 +27,9 @@ export default function SettingsScreen() {
           value={settings.dayCutoff}
           aria-describedby="day-cutoff-help"
           // Empty while half-typed: only a complete time is saved.
-          onChange={(e) => e.target.value && saveSettings({ dayCutoff: e.target.value })}
+          onChange={async (e) => {
+            if (e.target.value) await saveSettings({ dayCutoff: e.target.value })
+          }}
         />
         <p id="day-cutoff-help" className="text-sm text-muted-foreground">
           {t('settings.dayCutoffHelp', { time: settings.dayCutoff })}

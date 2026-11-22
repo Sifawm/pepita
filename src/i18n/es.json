@@ -4,6 +4,20 @@
     "skip": "Saltar al contenido",
     "backTo": "Volver a {{destination}}"
   },
+  "failure": {
+    "save": "Eso no se ha guardado. Prueba otra vez en un momento.",
+    "storageFull": "Tu dispositivo se ha quedado sin espacio y eso no se ha guardado. Libera un poco y prueba otra vez.",
+    "close": "Cerrar",
+    "crash": {
+      "title": "Algo ha fallado",
+      "body": "Tus hábitos siguen guardados en este dispositivo. Recarga para volver a Hoy."
+    },
+    "storage": {
+      "title": "Pepita no puede guardar aquí",
+      "body": "Este navegador no deja que Pepita use su almacenamiento. Suele pasar en navegación privada o con los datos de sitios desactivados: permítelo para este sitio y recarga."
+    },
+    "reload": "Recargar"
+  },
   "onboarding": {
     "title": "Primeros pasos",
     "habit": "Tu primer hábito",

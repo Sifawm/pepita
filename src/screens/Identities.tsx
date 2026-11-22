@@ -98,7 +98,7 @@ export default function IdentitiesScreen() {
             {archived.map((s) => (
               <li key={s.identity.id} className="flex items-center gap-3 rounded-lg border bg-card p-4">
                 <IdentityName summary={s} />
-                <Button variant="ghost" onClick={() => db.identities.update(s.identity.id, { archived: false }).then(() => focusById('identities-title'))}>
+                <Button variant="ghost" onClick={async () => (await db.identities.update(s.identity.id, { archived: false }), focusById('identities-title'))}>
                   <ArchiveRestore aria-hidden />
                   {t('identities.restore')}
                   <span className="sr-only">{identityName(s.identity, t)}</span>
@@ -202,7 +202,7 @@ function IdentityRow({
         </Button>
         {/* "General" can't be archived: it's where habits without an identity go. */}
         {!identity.isGeneral && (
-          <Button variant="ghost" onClick={() => db.identities.update(identity.id, { archived: true }).then(() => focusById('archived'))}>
+          <Button variant="ghost" onClick={async () => (await db.identities.update(identity.id, { archived: true }), focusById('archived'))}>
             <Archive aria-hidden />
             {t('identities.archive')}
             <span className="sr-only">{name}</span>

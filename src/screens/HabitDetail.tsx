@@ -321,7 +321,8 @@ function EditDay({
 }) {
   const { t, i18n } = useTranslation()
   const [noteFor, setNoteFor] = useState<string>()
-  const save = (log: New<Log>) => db.logs.add(withId<Log>(log))
+  // Async, not the bare Dexie promise: a failed write reaches `SaveFailure` instead of vanishing.
+  const save = async (log: New<Log>) => void (await db.logs.add(withId<Log>(log)))
   // Minimum, full and value have no rule to apply: they're written as is.
   const add = (type: Log['type'], value?: number) => save({ habitId: habit.id, day: day.day, type, ...(value !== undefined && { value }) })
   const context = { habit, day: day.day, now: new Date(), settings }
@@ -351,7 +352,10 @@ function EditDay({
                     {l.note && <span className="block font-normal break-words text-muted-foreground">{l.note}</span>}
                   </span>
                   {isVote(l) && (
-                    <Button variant="secondary" onClick={() => db.logs.update(l.id, { type: other })}>
+                    <Button variant="secondary" onClick={async () => {
+                        await db.logs.update(l.id, { type: other })
+                      }}
+                    >
                       {t(`habit.switchTo.${other}`)}
                     </Button>
                   )}
@@ -364,7 +368,7 @@ function EditDay({
                   >
                     {t(l.note ? 'today.editNote' : 'today.addNote')}
                   </Button>
-                  <Button variant="ghost" aria-describedby={`log-${l.id}`} onClick={() => db.logs.delete(l.id).then(() => focusById('day-title'))}>
+                  <Button variant="ghost" aria-describedby={`log-${l.id}`} onClick={async () => (await db.logs.delete(l.id), focusById('day-title'))}>
                     {t('habit.undo')}
                   </Button>
                 </div>
