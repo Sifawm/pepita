@@ -16,15 +16,22 @@ import { ScreenHeader } from '@/components/ScreenHeader'
 /**
  * Renders Today again at the next logical-day cutoff, so it rolls over to the next day on its own.
  * Nothing else on the screen changes with the minute: a clock ticking every minute re-evaluated every habit for nothing.
+ * Also on coming back to the app: a sleeping phone pauses timers, so the cutoff's can fire hours late.
  */
 function useDayRollover(dayCutoff?: Time) {
   const [rollovers, setRollovers] = useState(0)
   useEffect(() => {
     if (!dayCutoff) return
+    const rollOver = () => setRollovers((n) => n + 1)
+    const onReturn = () => document.visibilityState === 'visible' && rollOver()
     const now = new Date()
     // One second of margin: right at the cutoff it's already the new day.
-    const id = setTimeout(() => setRollovers((n) => n + 1), nextCutoff(now, dayCutoff).getTime() - now.getTime() + 1000)
-    return () => clearTimeout(id)
+    const id = setTimeout(rollOver, nextCutoff(now, dayCutoff).getTime() - now.getTime() + 1000)
+    document.addEventListener('visibilitychange', onReturn)
+    return () => {
+      clearTimeout(id)
+      document.removeEventListener('visibilitychange', onReturn)
+    }
   }, [rollovers, dayCutoff])
 }
 
