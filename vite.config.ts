@@ -16,6 +16,9 @@ export default defineConfig({
   // Relative paths: works the same on GitHub Pages (/pepita/) as at the root of any server.
   base: './',
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  // Dependencies in a chunk of their own: a deploy that only changes the app keeps them cached (the service worker
+  // re-downloads changed files only). Lucide stays out: each icon travels with the screen that draws it.
+  build: { rolldownOptions: { output: { codeSplitting: { groups: [{ name: 'vendor', test: /node_modules[\\/](?!lucide-react)/ }] } } } },
   plugins: [
     react(),
     tailwindcss(),
