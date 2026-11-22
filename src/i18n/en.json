@@ -23,7 +23,7 @@
     "habit": "Your first habit",
     "start": "Go to Today",
     "repeat": "Repeat the first steps",
-    "repeatHelp": "Choose your language again, create an identity and a habit, and see how to install Pepita. Nothing gets deleted.",
+    "repeatHelp": "Choose your language again and create an identity and a habit. Nothing gets deleted.",
     "language": {
       "title": "Hi! I'm Pepita. Which language shall we use?",
       "help": "I'm suggesting your browser's language; you can change it any time. No accounts: everything stays on this device.",
@@ -42,14 +42,19 @@
       "help": "Installed on your home screen, it opens instantly and takes better care of your data.",
       "button": "Install Pepita",
       "menu": "If your browser allows it, add it to your home screen from its menu.",
-      "alreadyInstalled": "You already have Pepita installed. Great!",
       "ios": {
         "title": "How to install it on your iPhone or iPad",
-        "share": "In Safari, tap the Share button (the square with an arrow pointing up).",
-        "add": "Choose “Add to Home Screen” and tap “Add”.",
-        "open": "From now on, open Pepita from its icon.",
-        "why": "Safari may delete data from websites you haven't opened in a few weeks. Once installed, Pepita keeps it."
+        "help": "Install it before you start: on iPhone and iPad, what you do in the browser doesn't carry over to the installed app.",
+        "share": "Tap the Share button (the square with an arrow pointing up). If you don't see it, tap ⋯ and then Share.",
+        "add": "Choose “Add to Home Screen”. If “Open as Web App” shows up, leave it on. Tap “Add”.",
+        "open": "Open Pepita from its icon and start there.",
+        "why": "In the browser, iOS may delete data from websites you haven't opened in a few weeks. Once installed, Pepita keeps it.",
+        "browser": "Continue in the browser"
       }
+    },
+    "done": {
+      "title": "All set!",
+      "help": "Your habit is waiting for you in Today. The minimum version is enough to add a vote."
     }
   },
   "identity": {

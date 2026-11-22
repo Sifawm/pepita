@@ -15,10 +15,12 @@ import { Wizard } from '@/screens/HabitWizard'
 /** Languages are named in their own language. */
 const LANGUAGE_NAMES: Record<LanguageCode, string> = { es: 'Español', en: 'English' }
 
-type Stage = 'language' | 'identity' | 'habit' | 'log' | 'install'
+type Stage = 'install' | 'language' | 'identity' | 'habit' | 'log' | 'done'
 
 /**
- * Onboarding: language → identity → a habit → log it today → install and protect the data.
+ * Onboarding: language → identity → a habit → log it today → install (where the browser can) and protect the data.
+ * On iPhone/iPad installing comes first: the installed app doesn't see the browser's data, so anything created
+ * before installing would have to be created again.
  * Today brings people here when there's no data (`needsOnboarding`); Settings lets them repeat it.
  * Nothing is saved until the habit is created (except the chosen language): if abandoned earlier, it shows up again.
  */
@@ -30,7 +32,8 @@ export default function OnboardingScreen() {
     const [identities, habits] = await Promise.all([db.identities.orderBy('order').toArray(), db.habits.orderBy('order').toArray()])
     return { identities, habits }
   })
-  const [stage, setStage] = useState<Stage>('language')
+  const installFirst = isIos() && !isInstalled()
+  const [stage, setStage] = useState<Stage>(installFirst ? 'install' : 'language')
   const [identity, setIdentity] = useState('')
   const [habit, setHabit] = useState<Habit>()
   const [voted, setVoted] = useState(false)
@@ -69,10 +72,25 @@ export default function OnboardingScreen() {
     const action = tap({ habit, logs: [], now: new Date(), settings })
     if (action.type === 'log') await db.logs.add(withId<Log>(action.log))
     setVoted(true)
-    setStage('install')
+    setStage('done')
   }
 
   switch (stage) {
+    case 'install':
+      return (
+        <OnboardingStep
+          key="install"
+          title={t('onboarding.install.title')}
+          help={t('onboarding.install.ios.help')}
+          extra={
+            <Button type="button" variant="secondary" onClick={() => setStage('language')}>
+              {t('onboarding.install.ios.browser')}
+            </Button>
+          }
+        >
+          <IosInstallSteps />
+        </OnboardingStep>
+      )
     case 'language':
       return (
         <OnboardingStep
@@ -80,6 +98,7 @@ export default function OnboardingScreen() {
           title={t('onboarding.language.title')}
           help={t('onboarding.language.help')}
           onNext={() => setStage('identity')}
+          onBack={installFirst ? () => setStage('install') : undefined}
           extra={
             <Link to="/settings" className={buttonVariants({ variant: 'ghost' })}>
               {t('onboarding.language.backup')}
@@ -107,24 +126,34 @@ export default function OnboardingScreen() {
       )
     case 'log':
       return (
-        <OnboardingStep key="log" title={t('onboarding.log.title')} help={t('onboarding.log.help')} onNotNow={() => setStage('install')}>
+        <OnboardingStep key="log" title={t('onboarding.log.title')} help={t('onboarding.log.help')} onNotNow={() => setStage('done')}>
           {/* The same gesture as on Today: tapping logs the minimum version. */}
           <Button type="button" className="min-h-16 w-full text-lg" onClick={logFirst}>
             {t('today.minimum', { text: habit?.minimumVersion || habit?.name })}
           </Button>
         </OnboardingStep>
       )
-    case 'install':
+    case 'done': {
+      // On iPhone/iPad it was offered first (installing now would lose what was just created); installed, no need.
+      const offerInstall = !isIos() && !isInstalled()
       return (
-        <OnboardingStep key="install" title={t('onboarding.install.title')} help={t('onboarding.install.help')} onNext={() => navigate('/')} nextLabel={t('onboarding.start')}>
+        <OnboardingStep
+          key="done"
+          title={t(offerInstall ? 'onboarding.install.title' : 'onboarding.done.title')}
+          help={t(offerInstall ? 'onboarding.install.help' : 'onboarding.done.help')}
+          onNext={() => navigate('/')}
+          nextLabel={t('onboarding.start')}
+        >
           {voted && (
             <p className="rounded-lg bg-primary p-3 text-lg font-bold text-primary-foreground">
               {t('today.celebration', { identity: identity.trim() || t('identity.general') })}
             </p>
           )}
-          <InstallGuide />
+          {offerInstall && <InstallOffer />}
+          <StorageStatus />
         </OnboardingStep>
       )
+    }
   }
 }
 
@@ -215,49 +244,55 @@ export function LanguagePicker({ legend }: { legend?: string }) {
   )
 }
 
-/** Install: a manual guide on iPhone/iPad, the native prompt where it exists; and the storage status. */
-function InstallGuide() {
+/** Where the browser offers it, its native prompt; elsewhere, a pointer to its menu. */
+function InstallOffer() {
   const { t } = useTranslation()
   const prompt = useInstallPrompt()
+  return prompt ? (
+    <Button type="button" variant="secondary" className="w-full" onClick={install}>
+      <Download aria-hidden />
+      {t('onboarding.install.button')}
+    </Button>
+  ) : (
+    <p>{t('onboarding.install.menu')}</p>
+  )
+}
+
+/** Whether the browser promised to keep the data even when it runs low on space. */
+function StorageStatus() {
+  const { t } = useTranslation()
   const persistent = usePersistentStorage()
-  const iosStep = 'flex items-start gap-3'
+  if (persistent === undefined) return null
   return (
-    <>
-      {isInstalled() ? (
-        <p>{t('onboarding.install.alreadyInstalled')}</p>
-      ) : isIos() ? (
-        <div className="space-y-3">
-          {/* Under the step's own h2. */}
-          <h3 className="text-xl font-bold">{t('onboarding.install.ios.title')}</h3>
-          <ol className="space-y-3">
-            <li className={iosStep}>
-              <Share aria-hidden className="size-6 shrink-0 text-primary" />
-              <span>{t('onboarding.install.ios.share')}</span>
-            </li>
-            <li className={iosStep}>
-              <SquarePlus aria-hidden className="size-6 shrink-0 text-primary" />
-              <span>{t('onboarding.install.ios.add')}</span>
-            </li>
-            <li className={iosStep}>
-              <Sparkles aria-hidden className="size-6 shrink-0 text-primary" />
-              <span>{t('onboarding.install.ios.open')}</span>
-            </li>
-          </ol>
-          <p className="text-sm text-muted-foreground">{t('onboarding.install.ios.why')}</p>
-        </div>
-      ) : prompt ? (
-        <Button type="button" variant="secondary" className="w-full" onClick={install}>
-          <Download aria-hidden />
-          {t('onboarding.install.button')}
-        </Button>
-      ) : (
-        <p>{t('onboarding.install.menu')}</p>
-      )}
-      {persistent !== undefined && (
-        <p className={cn(!persistent && 'text-muted-foreground')}>
-          {t(persistent === null ? 'backups.persistentUnavailable' : persistent ? 'backups.persistentYes' : 'backups.persistentNo')}
-        </p>
-      )}
-    </>
+    <p className={cn(!persistent && 'text-muted-foreground')}>
+      {t(persistent === null ? 'backups.persistentUnavailable' : persistent ? 'backups.persistentYes' : 'backups.persistentNo')}
+    </p>
+  )
+}
+
+/** iPhone/iPad: no install prompt, it's installed by hand from Share (in any browser, all of them are WebKit). */
+function IosInstallSteps() {
+  const { t } = useTranslation()
+  const step = 'flex items-start gap-3'
+  return (
+    <div className="space-y-3">
+      {/* Under the step's own h2. */}
+      <h3 className="text-xl font-bold">{t('onboarding.install.ios.title')}</h3>
+      <ol className="space-y-3">
+        <li className={step}>
+          <Share aria-hidden className="size-6 shrink-0 text-primary" />
+          <span>{t('onboarding.install.ios.share')}</span>
+        </li>
+        <li className={step}>
+          <SquarePlus aria-hidden className="size-6 shrink-0 text-primary" />
+          <span>{t('onboarding.install.ios.add')}</span>
+        </li>
+        <li className={step}>
+          <Sparkles aria-hidden className="size-6 shrink-0 text-primary" />
+          <span>{t('onboarding.install.ios.open')}</span>
+        </li>
+      </ol>
+      <p className="text-sm text-muted-foreground">{t('onboarding.install.ios.why')}</p>
+    </div>
   )
 }

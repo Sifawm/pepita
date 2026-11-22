@@ -23,7 +23,7 @@
     "habit": "Tu primer hábito",
     "start": "Ir a Hoy",
     "repeat": "Repetir los primeros pasos",
-    "repeatHelp": "Vuelve a elegir idioma, crea una identidad y un hábito, y repasa cómo instalar Pepita. No borra nada.",
+    "repeatHelp": "Vuelve a elegir idioma y crea una identidad y un hábito. No borra nada.",
     "language": {
       "title": "¡Hola! Soy Pepita. ¿En qué idioma hablamos?",
       "help": "Te propongo el de tu navegador; puedes cambiarlo cuando quieras. Sin cuentas: todo se queda en este dispositivo.",
@@ -42,14 +42,19 @@
       "help": "Instalada en tu pantalla de inicio, se abre al momento y cuida mejor tus datos.",
       "button": "Instalar Pepita",
       "menu": "Si tu navegador lo permite, añádela a la pantalla de inicio desde su menú.",
-      "alreadyInstalled": "Ya tienes Pepita instalada. ¡Genial!",
       "ios": {
         "title": "Cómo instalarla en tu iPhone o iPad",
-        "share": "En Safari, toca el botón Compartir (el cuadrado con una flecha hacia arriba).",
-        "add": "Elige «Añadir a pantalla de inicio» y toca «Añadir».",
-        "open": "A partir de ahora, abre Pepita desde su icono.",
-        "why": "Safari puede borrar los datos de las webs que no abres en unas semanas. Instalada, Pepita los conserva."
+        "help": "Instálala antes de empezar: en iPhone y iPad, lo que hagas en el navegador no pasa a la app instalada.",
+        "share": "Toca el botón Compartir (el cuadrado con una flecha hacia arriba). Si no lo ves, toca ⋯ y luego Compartir.",
+        "add": "Elige «Añadir a pantalla de inicio». Si aparece «Abrir como app web», déjalo activado. Toca «Añadir».",
+        "open": "Abre Pepita desde su icono y empieza allí.",
+        "why": "En el navegador, iOS puede borrar los datos de las webs que no abres en unas semanas. Instalada, Pepita los conserva.",
+        "browser": "Seguir en el navegador"
       }
+    },
+    "done": {
+      "title": "¡Todo listo!",
+      "help": "Tu hábito ya te espera en Hoy. Con la versión mínima basta para sumar un voto."
     }
   },
   "identity": {
