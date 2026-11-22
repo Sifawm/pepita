@@ -28,7 +28,7 @@ export function QuantitativeFields({ value, onChange }: { value: Quantitative; o
           </label>
         ))}
       </fieldset>
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <div className="w-28 space-y-2">
           <Label htmlFor={`${id}-target`}>{t('quantitative.target')}</Label>
           <Input
@@ -93,8 +93,9 @@ export function AddValueForm({ unit, name, onAdd }: { unit: string; name: string
   }
   return (
     <form onSubmit={submit} {...form} className="space-y-1">
-      <div className="flex items-end gap-2">
-        <div className="min-w-0 flex-1 space-y-1">
+      {/* 5rem basis: beside the button at normal sizes, the button drops below once the text is large. */}
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="min-w-0 flex-[1_1_5rem] space-y-1">
           <Label htmlFor={id}>{t('quantitative.add', { unit })}</Label>
           {/* Not `required`: the field empties after every add, and a required empty field would turn red right after a vote. */}
           <Input id={id} type="number" inputMode="decimal" min={0.01} step="any" value={text} onChange={(e) => setText(e.target.value)} />

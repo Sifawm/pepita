@@ -94,6 +94,10 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }
+  /* A fieldset is min-content wide by default: with large text it pushes its row past the screen instead of wrapping. */
+  fieldset {
+    min-width: 0;
+  }
   /* No lone word on a paragraph's last line; headings break into even lines. */
   p {
     text-wrap: pretty;

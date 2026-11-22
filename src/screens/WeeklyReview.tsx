@@ -71,7 +71,7 @@ export default function WeeklyReviewScreen() {
           <Button variant="ghost" className="min-w-11 px-0" aria-label={t('review.previous')} onClick={() => goTo(addDays(week.start, -7))}>
             <ChevronLeft aria-hidden />
           </Button>
-          <p className="text-center font-semibold" aria-live="polite">
+          <p className="min-w-0 text-center font-semibold break-words" aria-live="polite">
             {t('review.week', { from: formatDay(week.start, i18n.language), until: formatDay(week.end, i18n.language, long) })}
           </p>
           <Button variant="ghost" className="min-w-11 px-0" aria-label={t('review.next')} disabled={isCurrent} onClick={() => goTo(addDays(week.start, 7))}>

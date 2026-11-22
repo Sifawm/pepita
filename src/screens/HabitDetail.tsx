@@ -232,7 +232,7 @@ function Calendar({ habit, logs, settings }: { habit: Habit; logs: Log[]; settin
         >
           <ChevronLeft aria-hidden />
         </Button>
-        <h2 id="calendar" className="text-xl font-bold first-letter:uppercase" aria-live="polite">
+        <h2 id="calendar" className="min-w-0 text-center text-xl font-bold break-words first-letter:uppercase" aria-live="polite">
           {toDate(calendar.start).toLocaleDateString(i18n.language, { month: 'long', year: 'numeric' })}
         </h2>
         <Button variant="ghost" className="min-w-11 px-0" aria-label={t('habit.nextMonth')} disabled={calendar.end >= today} onClick={() => setMonth(addDays(calendar.end, 1))}>

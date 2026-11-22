@@ -89,11 +89,11 @@ export function SkipAndPause({ card, settings, onDone }: { card: TodayCard; sett
             <fieldset className="space-y-2">
               <legend className="font-semibold">{t('pauses.pause')}</legend>
               <div className="flex flex-wrap gap-3">
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <Label htmlFor={`${id}-start`}>{t('pauses.from')}</Label>
                   <Input id={`${id}-start`} type="date" required min={today} value={start} onChange={(e) => setStart(e.target.value)} />
                 </div>
-                <div className="space-y-1">
+                <div className="min-w-0 space-y-1">
                   <Label htmlFor={`${id}-end`}>{t('pauses.until')}</Label>
                   <Input id={`${id}-end`} type="date" required min={start} value={end} onChange={(e) => setEnd(e.target.value)} />
                 </div>

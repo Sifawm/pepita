@@ -41,7 +41,7 @@ export function FrequencyPicker({
         {t(periodOnly ? 'frequency.every_period' : 'frequency.times_per_period')}
       </label>
       {value.type === 'times_per_period' && (
-        <div className="flex items-center gap-2 pl-8">
+        <div className="flex flex-wrap items-center gap-2 pl-8">
           {!periodOnly && (
             <Input
               type="number"

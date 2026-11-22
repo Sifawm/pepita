@@ -9,7 +9,7 @@ import { DIAGNOSIS_ACTIONS, DIAGNOSIS_PAUSE_DAYS, diagnosisPause, answerDiagnosi
 import { formatDay } from '@/lib/utils'
 
 const LAWS: Law[] = [1, 2, 3, 4]
-const LONG = 'h-auto w-full whitespace-normal py-2 text-left'
+const LONG = 'w-full text-left'
 
 /**
  * The diagnoses waiting for an answer, as notices that open the dialog. Lives on Today (the

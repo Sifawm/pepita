@@ -41,7 +41,7 @@ export function ScreenHeader({ title, id, onBack }: { title: string; id?: string
           </Link>
         )
       )}
-      <h1 id={id} tabIndex={id ? -1 : undefined} className="min-w-0 text-2xl font-bold break-words outline-none">
+      <h1 id={id} tabIndex={id ? -1 : undefined} className="min-w-0 text-2xl font-bold break-words hyphens-auto outline-none">
         {title}
       </h1>
     </>,

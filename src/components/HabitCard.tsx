@@ -20,6 +20,12 @@ const HOLD_RING_DELAY_MS = 120
 /** The gesture hint shows until the person has checked in on this many different days. */
 const HINT_DAYS = 7
 
+// Container queries in rem follow the text size (the card wrapper is the container): from about 150% text (under 16rem) the side buttons drop
+// below the card and the circle sits above the title, so the text keeps the card's width instead of a sliver of it.
+const row = 'flex gap-2 @max-3xs:flex-col'
+const side = 'flex flex-col gap-2 @max-3xs:flex-row @max-3xs:justify-end'
+const stack = '@max-3xs:flex-col @max-3xs:items-start'
+
 /** The streak as a quiet caption: nothing at 0, no "best" while it is the best. */
 const streakText = ({ current, best }: TodayCard['streak'], t: TFunction) =>
   current === 0 ? null : current === best ? t('recovery.streakOnly', { current }) : t('recovery.streak', { current, best })
@@ -244,13 +250,13 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
   )
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+    <div className="@container space-y-2">
+      <div className={row}>
         {/* A quantitative habit isn't checked with a tap: values are added in the field below. */}
         {q ? (
           // The field lives inside the card: it reads as this habit's, not the next one's.
           <div className={cn(box, 'flex-col items-stretch')}>
-            <div className="flex items-center gap-4">{content}</div>
+            <div className={cn('flex items-center gap-4', stack)}>{content}</div>
             <AddValueForm unit={q.unit} name={habit.name} onAdd={onAdd} />
           </div>
         ) : (
@@ -283,6 +289,7 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
             }}
             className={cn(
               box,
+              stack,
               'touch-manipulation select-none transition-colors outline-none [-webkit-touch-callout:none]',
               'focus-visible:ring-[3px] focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               !done && 'hover:bg-muted',
@@ -292,7 +299,7 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
           </button>
         )}
         {/* Stacked: at 375px the card keeps its width for the text. */}
-        <div className="flex flex-col gap-2">
+        <div className={side}>
           <Link
             to={`/habit/${habit.id}`}
             aria-label={t('habit.open', { name: habit.name })}
@@ -403,8 +410,8 @@ function AvoidCard({ card, settings, panel, open }: CardProps) {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+    <div className="@container space-y-2">
+      <div className={row}>
         <div className={cn('min-w-0 flex-1 space-y-3 rounded-lg border bg-card p-4', relapsed && 'border-dashed')}>
           <div>
             <span id={`name-${habit.id}`} className="block text-lg font-semibold break-words">
@@ -437,7 +444,7 @@ function AvoidCard({ card, settings, panel, open }: CardProps) {
             {t('avoid.iRelapsed')}
           </Button>
         </div>
-        <div className="flex flex-col gap-2">
+        <div className={side}>
           <Link
             to={`/habit/${habit.id}`}
             aria-label={t('habit.open', { name: habit.name })}

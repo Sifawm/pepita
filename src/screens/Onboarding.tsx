@@ -109,7 +109,7 @@ export default function OnboardingScreen() {
       return (
         <OnboardingStep key="log" title={t('onboarding.log.title')} help={t('onboarding.log.help')} onNotNow={() => setStage('install')}>
           {/* The same gesture as on Today: tapping logs the minimum version. */}
-          <Button type="button" className="h-auto min-h-16 w-full text-lg whitespace-normal" onClick={logFirst}>
+          <Button type="button" className="min-h-16 w-full text-lg" onClick={logFirst}>
             {t('today.minimum', { text: habit?.minimumVersion || habit?.name })}
           </Button>
         </OnboardingStep>
