@@ -98,6 +98,11 @@
   fieldset {
     min-width: 0;
   }
+  /* Beside a long label, flex would squeeze the control to a sliver at large text. */
+  input[type='radio'],
+  input[type='checkbox'] {
+    flex-shrink: 0;
+  }
   /* No lone word on a paragraph's last line; headings break into even lines. */
   p {
     text-wrap: pretty;
