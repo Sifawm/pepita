@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { withId, db } from '@/db'
-import { annotate, relapse, addValue, tap, type Settings, type Log, type TodayCard } from '@/domain'
+import { annotate, relapse, addValue, logicalDay, tap, type Settings, type Log, type TodayCard } from '@/domain'
 import { cn, formatDay, identityName, quantitativeProgress, phraseText } from '@/lib/utils'
 
 /** Calibration: how long to hold for the full version. Tune it with real use. */
@@ -109,10 +109,18 @@ function YesNoCard({ card, logs, settings, panel, open, celebrate }: CardProps) 
     open()
     setRemoved(undefined)
     // The instant of the tap, not the last time the screen was painted.
-    const action = tap({ habit, logs, now: new Date(), settings, version })
-    if (action.type === 'undo') return remove(logs.find((l) => l.id === action.logId))
-    await db.logs.add(withId<Log>(action.log))
-    celebrate()
+    const now = new Date()
+    // Decided on the stored logs, in the transaction that writes: a quick second tap sees the first one's log
+    // before the screen repaints, instead of logging the day twice.
+    const removedLog = await db.transaction('rw', db.logs, async () => {
+      const own = await db.logs.where('[habitId+day]').equals([habit.id, logicalDay(now, settings.dayCutoff)]).toArray()
+      const action = tap({ habit, logs: own, now, settings, version })
+      if (action.type === 'log') return void (await db.logs.add(withId<Log>(action.log)))
+      await db.logs.delete(action.logId)
+      return own.find((l) => l.id === action.logId)
+    })
+    if (removedLog) setRemoved(removedLog)
+    else celebrate()
   }
   const undo = async () => {
     open()
